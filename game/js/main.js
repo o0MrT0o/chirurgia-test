@@ -12,6 +12,9 @@ function tick() {
   const dt = (now() - lastTick) / 1000;
   lastTick = now();
   earn(totalCps() * dt);
+  S.playSeconds = (S.playSeconds || 0) + dt;
+  const cps = totalCps();
+  if (cps > (S.bestCps || 0)) S.bestCps = cps;
   renderHeader();
   for (const a of checkAchievements()) {
     toast(`🏆 Osiągnięcie: ${a.name}! (+${BALANCE.achievementBonus * 100}% produkcji)`);

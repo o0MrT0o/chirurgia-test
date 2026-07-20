@@ -126,6 +126,22 @@ nav button .ico { display: block; font-size: 18px; margin-bottom: 2px; }
 .bigBtn.gold { background: linear-gradient(135deg, #ffd76e, #ff9f43); box-shadow: 0 4px 18px #ff9f4344; }
 .note { font-size: 12px; color: #9aa7d9; text-align: center; line-height: 1.5; padding: 4px 8px; }
 
+/* ===== Przełącznik ilości kupna (×1/×10/MAX) ===== */
+.buyToggle { display: flex; gap: 6px; margin-bottom: 8px; justify-content: center; }
+.buyToggle button {
+  flex: 1; max-width: 90px; padding: 7px 0; border-radius: 10px;
+  border: 1px solid #2a3468; background: #161c44; color: #8a95c8;
+  font-weight: 700; font-size: 13px; cursor: pointer;
+}
+.buyToggle button.active { background: #1f2757; color: #fff; border-color: #6ee7ff; }
+.item .qty { font-size: 11px; font-weight: 800; color: #3ddc84; }
+
+/* ===== Statystyki ===== */
+.statGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0; }
+.stat { background: #161c44; border: 1px solid #2a3468; border-radius: 12px; padding: 8px 10px; }
+.stat .v { font-size: 15px; font-weight: 800; color: #8ff5ff; }
+.stat .k { font-size: 10px; color: #9aa7d9; margin-top: 1px; }
+
 /* ===== Osiągnięcia ===== */
 .achv { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; margin-bottom: 6px; background: #161c44; border: 1px solid #2a3468; }
 .achv.done { border-color: #ffd76e; }

@@ -21,6 +21,9 @@ const BALANCE = {
   cometMaxDelay: 180,      // kometa: max odstęp (sekundy)
   cometLifetime: 12,       // ile sekund kometa jest widoczna
   dailyStreakCap: 7,       // bonus dzienny rośnie do 7 dni serii
+  tierThresholds: [10, 25, 50, 100, 200], // progi posiadania budynku odblokowujące ulepszenia
+  tierMult: 2,             // każde ulepszenie progowe: produkcja budynku ×2
+  tierCostFactor: 8,       // koszt ulepszenia progowego = baseCost × próg × ta_liczba
 };
 
 // ---------- Budynki (produkcja pasywna) ----------
@@ -59,6 +62,29 @@ const UPGRADES = [
   { id: 'g4', name: 'Przychylność kosmitów',    icon: '👽', cost: 5e10,  type: 'global', mult: 1.25, desc: 'Cała produkcja +25%' },
 ];
 
+// ---------- Ulepszenia progowe (generowane automatycznie) ----------
+// Każdy budynek dostaje ulepszenie ×2 za osiągnięcie progu posiadania
+// (10, 25, 50, 100, 200 sztuk) — łącznie 50 dodatkowych ulepszeń.
+// Ulepszenie pojawia się w sklepie dopiero po osiągnięciu progu (pole req).
+(function generateTierUpgrades() {
+  const roman = ['II', 'III', 'IV', 'V', 'VI'];
+  for (const b of BUILDINGS) {
+    BALANCE.tierThresholds.forEach((th, i) => {
+      UPGRADES.push({
+        id: `t_${b.id}_${th}`,
+        name: `${b.name} ${roman[i]}`,
+        icon: b.icon,
+        cost: Math.round(b.baseCost * th * BALANCE.tierCostFactor),
+        type: 'building',
+        target: b.id,
+        mult: BALANCE.tierMult,
+        req: { building: b.id, count: th },
+        desc: `${b.name}: produkcja ×${BALANCE.tierMult} (nagroda za ${th} szt.)`,
+      });
+    });
+  }
+})();
+
 // ---------- Osiągnięcia (każde daje +1% do produkcji) ----------
 const ACHIEVEMENTS = [
   { id: 'a_click1', name: 'Pierwsze uderzenie',  icon: '👆', desc: 'Kliknij 100 razy',    check: s => s.totalClicks >= 100 },
@@ -74,4 +100,8 @@ const ACHIEVEMENTS = [
   { id: 'a_p2',     name: 'Wieczny powrót',      icon: '🔄', desc: 'Wykonaj 5 prestiżów',   check: s => s.prestigeCount >= 5 },
   { id: 'a_comet',  name: 'Łowca komet',         icon: '☄️', desc: 'Złap 10 złotych komet', check: s => s.cometsCaught >= 10 },
   { id: 'a_streak', name: 'Wierny górnik',       icon: '📅', desc: 'Seria logowań: 7 dni',  check: s => s.loginStreak >= 7 },
+  { id: 'a_b4',     name: 'Galaktyczny potentat',icon: '🪐', desc: 'Posiadaj 500 budynków', check: s => totalBuildings(s) >= 500 },
+  { id: 'a_upg1',   name: 'Modernizator',        icon: '🔧', desc: 'Kup łącznie 15 ulepszeń',  check: s => (s.totalUpgradesBought || 0) >= 15 },
+  { id: 'a_upg2',   name: 'Inżynier doskonały',  icon: '⚙️', desc: 'Kup łącznie 40 ulepszeń',  check: s => (s.totalUpgradesBought || 0) >= 40 },
+  { id: 'a_time',   name: 'Weteran kosmosu',     icon: '⏳', desc: 'Graj łącznie 24 godziny',  check: s => (s.playSeconds || 0) >= 86400 },
 ];

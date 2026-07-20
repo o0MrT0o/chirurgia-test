@@ -39,17 +39,28 @@ function renderPanel() {
 }
 
 // ---------- Zakładka: Kopalnia ----------
+let buyMode = 1; // 1 | 10 | 'max'
+
 function renderMine(p) {
-  p.innerHTML = BUILDINGS.map(b => {
+  const toggle = `<div class="buyToggle">
+    ${[1, 10, 'max'].map(m =>
+      `<button data-mode="${m}" class="${buyMode === m ? 'active' : ''}">${m === 'max' ? 'MAX' : '×' + m}</button>`
+    ).join('')}
+  </div>`;
+
+  const rows = BUILDINGS.map(b => {
     const count = S.buildings[b.id] || 0;
-    const cost = buildingCost(b);
     const visible = count > 0 || S.totalEarned >= b.baseCost * 0.5;
     if (!visible) return '';
-    const can = S.crystals >= cost;
-    return `<div class="item ${can ? '' : 'locked'}" data-buy="${b.id}">
+    // ile sztuk kupimy przy obecnym trybie
+    let qty = buyMode === 'max' ? maxAffordable(b) : buyMode;
+    const shownQty = Math.max(qty, 1);          // przy MAX=0 pokazujemy koszt 1 szt.
+    const cost = bulkCost(b, shownQty);
+    const can = qty >= 1 && S.crystals >= cost;
+    return `<div class="item ${can ? '' : 'locked'}" data-buy="${b.id}" data-qty="${shownQty}">
       <div class="icon">${b.icon}</div>
       <div class="info">
-        <div class="name">${b.name}</div>
+        <div class="name">${b.name}${shownQty > 1 ? ` <span class="qty">+${shownQty}</span>` : ''}</div>
         <div class="desc">${fmt(buildingCps(b) * globalMult())} 💎/sek. ${count ? '(razem)' : `• daje ${fmt(b.cps)}/sek.`}</div>
       </div>
       <div class="right">
@@ -57,9 +68,16 @@ function renderMine(p) {
         <div class="owned">${count || ''}</div>
       </div>
     </div>`;
-  }).join('') || '<div class="note">Klikaj w asteroidę, aby odblokować pierwsze maszyny! ⛏️</div>';
+  }).join('');
+
+  p.innerHTML = toggle + (rows || '<div class="note">Klikaj w asteroidę, aby odblokować pierwsze maszyny! ⛏️</div>');
+
+  p.querySelectorAll('.buyToggle button').forEach(el => el.onclick = () => {
+    buyMode = el.dataset.mode === 'max' ? 'max' : Number(el.dataset.mode);
+    renderPanel();
+  });
   p.querySelectorAll('[data-buy]').forEach(el => el.onclick = () => {
-    if (buyBuilding(el.dataset.buy)) {
+    if (buyBuilding(el.dataset.buy, Number(el.dataset.qty))) {
       if (navigator.vibrate) navigator.vibrate(20);
       renderPanel();
     }
@@ -68,7 +86,8 @@ function renderMine(p) {
 
 // ---------- Zakładka: Ulepszenia ----------
 function renderUpgrades(p) {
-  const list = UPGRADES.filter(u => !S.upgrades[u.id] && S.totalEarned >= u.cost * 0.3);
+  const list = UPGRADES.filter(u => !S.upgrades[u.id] && upgradeVisible(u))
+    .sort((a, b) => a.cost - b.cost);
   const bought = UPGRADES.filter(u => S.upgrades[u.id]);
   p.innerHTML = (list.map(u => {
     const can = S.crystals >= u.cost;
@@ -77,8 +96,8 @@ function renderUpgrades(p) {
       <div class="info"><div class="name">${u.name}</div><div class="desc">${u.desc}</div></div>
       <div class="right"><div class="cost ${can ? '' : 'cant'}">${fmt(u.cost)} 💎</div></div>
     </div>`;
-  }).join('') || '<div class="note">Zdobywaj kryształy, aby odkryć nowe ulepszenia! 🚀</div>')
-  + (bought.length ? '<div class="note">— Kupione —</div>' + bought.map(u =>
+  }).join('') || '<div class="note">Zdobywaj kryształy i rozbudowuj kopalnię, aby odkryć nowe ulepszenia! 🚀</div>')
+  + (bought.length ? `<div class="note">— Kupione (${bought.length}) —</div>` + bought.map(u =>
       `<div class="item bought"><div class="icon">${u.icon}</div>
        <div class="info"><div class="name">${u.name}</div><div class="desc">${u.desc}</div></div>
        <div class="right">✅</div></div>`).join('') : '');
@@ -142,8 +161,19 @@ function renderBonus(p) {
     <button class="bigBtn gold" id="adBoostBtn" ${now() < S.boostUntil ? 'disabled' : ''}>
       ${now() < S.boostUntil ? `⚡ Boost aktywny (${Math.ceil((S.boostUntil - now()) / 1000)}s)` : `🎬 Obejrzyj reklamę → Boost ×${BALANCE.adBoostMult}`}
     </button>
-    <div class="note">Łącznie wydobyto (od początku): <b>${fmt(S.allTimeEarned)} 💎</b><br>
-    Kliknięcia: <b>${fmt(S.totalClicks)}</b> • Komety: <b>${S.cometsCaught}</b></div>`;
+    <div class="note">📊 <b>Statystyki</b></div>
+    <div class="statGrid">
+      <div class="stat"><div class="v">${fmt(S.allTimeEarned)} 💎</div><div class="k">wydobyto od początku</div></div>
+      <div class="stat"><div class="v">${fmt(S.totalEarned)} 💎</div><div class="k">w tej rundzie</div></div>
+      <div class="stat"><div class="v">${fmt(S.bestCps || 0)}/s</div><div class="k">rekord produkcji</div></div>
+      <div class="stat"><div class="v">${fmtTime(S.playSeconds || 0)}</div><div class="k">czas gry</div></div>
+      <div class="stat"><div class="v">${fmt(S.totalClicks)}</div><div class="k">kliknięcia</div></div>
+      <div class="stat"><div class="v">${totalBuildings(S)}</div><div class="k">budynki</div></div>
+      <div class="stat"><div class="v">${S.totalUpgradesBought || 0}</div><div class="k">kupione ulepszenia</div></div>
+      <div class="stat"><div class="v">${S.cometsCaught}</div><div class="k">złapane komety</div></div>
+      <div class="stat"><div class="v">✨ ${fmt(S.stardust)}</div><div class="k">gwiezdny pył</div></div>
+      <div class="stat"><div class="v">${S.prestigeCount}</div><div class="k">prestiże</div></div>
+    </div>`;
   const d = $('#dailyBtn');
   if (d && !S.dailyClaimed) d.onclick = () => {
     const r = claimDaily();

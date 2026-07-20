@@ -42,14 +42,37 @@ function earn(amount) {
 }
 
 // ---------- Zakupy ----------
-function buyBuilding(id) {
+// Koszt kupna n sztuk naraz (suma ciągu geometrycznego).
+function bulkCost(b, n) {
+  const g = BALANCE.costGrowth;
+  const owned = S.buildings[b.id] || 0;
+  return Math.ceil(b.baseCost * Math.pow(g, owned) * (Math.pow(g, n) - 1) / (g - 1));
+}
+
+// Ile sztuk maksymalnie stać gracza.
+function maxAffordable(b) {
+  const g = BALANCE.costGrowth;
+  const owned = S.buildings[b.id] || 0;
+  const base = b.baseCost * Math.pow(g, owned);
+  let n = Math.floor(Math.log(S.crystals * (g - 1) / base + 1) / Math.log(g));
+  while (n > 0 && bulkCost(b, n) > S.crystals) n--; // korekta zaokrągleń
+  return Math.max(n, 0);
+}
+
+function buyBuilding(id, n = 1) {
   const b = BUILDINGS.find(x => x.id === id);
-  const cost = buildingCost(b);
-  if (S.crystals < cost) return false;
+  const cost = bulkCost(b, n);
+  if (n < 1 || S.crystals < cost) return false;
   S.crystals -= cost;
-  S.buildings[id] = (S.buildings[id] || 0) + 1;
+  S.buildings[id] = (S.buildings[id] || 0) + n;
   save();
   return true;
+}
+
+// Czy ulepszenie ma się już pokazać w sklepie?
+function upgradeVisible(u) {
+  if (u.req) return (S.buildings[u.req.building] || 0) >= u.req.count;
+  return S.totalEarned >= u.cost * 0.3;
 }
 
 function buyUpgrade(id) {
@@ -57,6 +80,7 @@ function buyUpgrade(id) {
   if (S.upgrades[id] || S.crystals < u.cost) return false;
   S.crystals -= u.cost;
   S.upgrades[id] = true;
+  S.totalUpgradesBought = (S.totalUpgradesBought || 0) + 1;
   save();
   return true;
 }
@@ -79,6 +103,9 @@ function doPrestige() {
     loginStreak: S.loginStreak,
     lastLoginDay: S.lastLoginDay,
     dailyClaimed: S.dailyClaimed,
+    totalUpgradesBought: S.totalUpgradesBought,
+    playSeconds: S.playSeconds,
+    bestCps: S.bestCps,
   };
   S = Object.assign(DEFAULT_STATE(), keep);
   save();

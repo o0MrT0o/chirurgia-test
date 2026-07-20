@@ -24,7 +24,7 @@ ekran do `ui.js`.
 ## 🗺️ Plan rozbudowy (etapy)
 
 - [x] **Etap 1** — fundament: architektura modułowa + rdzeń gry (klikanie, budynki, ulepszenia, prestiż, osiągnięcia, bonusy, offline, komety)
-- [ ] **Etap 2** — rozbudowa sklepu: kupowanie ×1/×10/Max, więcej ulepszeń (progi posiadania), ekran statystyk
+- [x] **Etap 2** — rozbudowa sklepu: kupowanie ×1/×10/Max, 50 ulepszeń progowych, ekran statystyk, 4 nowe osiągnięcia
 - [ ] **Etap 3** — duży prestiż: drzewko talentów za gwiezdny pył
 - [ ] **Etap 4** — misje dzienne + eventy losowe (deszcz meteorytów, gorączka kryształowa)
 - [ ] **Etap 5** — ekspedycje na planety (wyprawy czasowe) + artefakty/kolekcje

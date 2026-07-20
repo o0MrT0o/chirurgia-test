@@ -21,6 +21,9 @@ const DEFAULT_STATE = () => ({
   dailyClaimed: false,
   boostUntil: 0,        // timestamp końca boostu z reklamy
   frenzyUntil: 0,       // timestamp końca szału komety
+  totalUpgradesBought: 0, // ulepszenia kupione łącznie (od początku gry)
+  playSeconds: 0,       // łączny czas gry (sekundy)
+  bestCps: 0,           // rekordowa produkcja na sekundę
   lastSeen: Date.now(),
 });
 
@@ -33,6 +36,14 @@ const todayStr = () => new Date().toISOString().slice(0, 10);
 
 function totalBuildings(s) {
   return Object.values(s.buildings).reduce((a, b) => a + b, 0);
+}
+
+function fmtTime(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h >= 24) return `${Math.floor(h / 24)} d ${h % 24} h`;
+  if (h > 0) return `${h} h ${m} min`;
+  return `${m} min`;
 }
 
 const SUFFIXES = ['', ' tys.', ' mln', ' mld', ' bln', ' bld', ' tryl.'];
