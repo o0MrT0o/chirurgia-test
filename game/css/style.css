@@ -1,0 +1,157 @@
+/* =====================================================================
+   STYLE.CSS — cały wygląd gry Kosmiczny Górnik.
+   ===================================================================== */
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: radial-gradient(ellipse at 50% 30%, #1a2151 0%, #0b1026 60%, #060814 100%);
+  color: #e8ecff;
+  display: flex; flex-direction: column;
+  touch-action: manipulation;
+}
+
+/* ===== Gwiazdy w tle ===== */
+.stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 3s infinite; }
+@keyframes twinkle { 0%,100% { opacity: .2; } 50% { opacity: 1; } }
+
+/* ===== Nagłówek ===== */
+header {
+  position: relative; z-index: 2;
+  padding: 10px 14px 6px;
+  text-align: center;
+}
+#crystalCount { font-size: 30px; font-weight: 800; letter-spacing: .5px; text-shadow: 0 0 18px #6ee7ff88; }
+#crystalCount .unit { font-size: 18px; color: #8fd6ff; }
+#cpsLabel { font-size: 13px; color: #9aa7d9; margin-top: 2px; }
+#stardustLabel { font-size: 12px; color: #ffd76e; margin-top: 2px; min-height: 15px; }
+
+/* ===== Boosty / pasek statusu ===== */
+#boostBar { display: flex; justify-content: center; gap: 8px; min-height: 24px; margin-top: 4px; flex-wrap: wrap; }
+.boostChip {
+  font-size: 11px; padding: 3px 10px; border-radius: 12px;
+  background: #2a2f6088; border: 1px solid #4a5aa8;
+}
+.boostChip.gold { background: #6b5a1888; border-color: #ffd76e; color: #ffe9a8; }
+
+/* ===== Asteroida (przycisk klikania) ===== */
+#tapArea {
+  position: relative; z-index: 1;
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  min-height: 180px;
+}
+#asteroid {
+  width: min(52vw, 240px); height: min(52vw, 240px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, #a8b4d8 0%, #6b7699 35%, #3d4568 70%, #262c4a 100%);
+  box-shadow: 0 0 60px #6ee7ff33, inset -18px -20px 46px #0008, inset 12px 12px 30px #fff2;
+  position: relative;
+  cursor: pointer;
+  transition: transform .08s;
+  animation: float 5s ease-in-out infinite;
+}
+#asteroid:active { transform: scale(.93); }
+#asteroid.pulse { animation: float 5s ease-in-out infinite, hitPulse .15s; }
+@keyframes float { 0%,100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+@keyframes hitPulse { 0% { box-shadow: 0 0 90px #6ee7ffaa; } }
+.crater { position: absolute; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #2a3050, #171b33); box-shadow: inset 2px 3px 6px #0009; }
+.crystalDeco { position: absolute; font-size: 22px; filter: drop-shadow(0 0 6px #6ee7ff); }
+
+/* ===== Latające liczby ===== */
+.floatNum {
+  position: fixed; z-index: 50; pointer-events: none;
+  font-weight: 800; font-size: 20px; color: #8ff5ff;
+  text-shadow: 0 0 8px #0af, 0 1px 2px #000;
+  animation: floatUp 1s ease-out forwards;
+}
+@keyframes floatUp { to { transform: translateY(-90px); opacity: 0; } }
+
+/* ===== Złota kometa ===== */
+#comet {
+  position: fixed; z-index: 60; font-size: 44px; cursor: pointer;
+  filter: drop-shadow(0 0 14px #ffd76e);
+  animation: cometFly 12s linear forwards, spin 2s linear infinite;
+  display: none;
+}
+@keyframes cometFly { from { top: 8%; } to { top: 70%; } }
+@keyframes spin { to { rotate: 360deg; } }
+
+/* ===== Zakładki ===== */
+nav {
+  position: relative; z-index: 2;
+  display: flex; background: #10153588; border-top: 1px solid #2a3468;
+}
+nav button {
+  flex: 1; padding: 10px 2px; background: none; border: none;
+  color: #8a95c8; font-size: 12px; font-weight: 600; cursor: pointer;
+  border-top: 2px solid transparent;
+}
+nav button.active { color: #fff; border-top-color: #6ee7ff; background: #1a2151aa; }
+nav button .ico { display: block; font-size: 18px; margin-bottom: 2px; }
+
+/* ===== Panel dolny ===== */
+#panel {
+  position: relative; z-index: 2;
+  height: 42vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: #0d1230ee; border-top: 1px solid #2a3468;
+  padding: 10px 10px calc(12px + env(safe-area-inset-bottom));
+}
+.item {
+  display: flex; align-items: center; gap: 10px;
+  background: #161c44; border: 1px solid #2a3468; border-radius: 14px;
+  padding: 10px 12px; margin-bottom: 8px; cursor: pointer;
+  transition: background .15s;
+}
+.item:active { background: #1f2757; }
+.item.locked { opacity: .45; }
+.item.bought { border-color: #3ddc84; opacity: .8; cursor: default; }
+.item .icon { font-size: 28px; width: 38px; text-align: center; }
+.item .info { flex: 1; min-width: 0; }
+.item .name { font-weight: 700; font-size: 14px; }
+.item .desc { font-size: 11px; color: #9aa7d9; margin-top: 1px; }
+.item .right { text-align: right; white-space: nowrap; }
+.item .cost { font-size: 13px; font-weight: 700; color: #8ff5ff; }
+.item .cost.cant { color: #ff8f8f; }
+.item .owned { font-size: 18px; font-weight: 800; color: #ffd76e; }
+
+.bigBtn {
+  display: block; width: 100%; padding: 14px; margin: 10px 0;
+  border: none; border-radius: 14px; font-size: 15px; font-weight: 800;
+  color: #081020; background: linear-gradient(135deg, #6ee7ff, #3d9bff);
+  cursor: pointer; box-shadow: 0 4px 18px #3d9bff44;
+}
+.bigBtn:disabled { filter: grayscale(1); opacity: .5; }
+.bigBtn.gold { background: linear-gradient(135deg, #ffd76e, #ff9f43); box-shadow: 0 4px 18px #ff9f4344; }
+.note { font-size: 12px; color: #9aa7d9; text-align: center; line-height: 1.5; padding: 4px 8px; }
+
+/* ===== Osiągnięcia ===== */
+.achv { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; margin-bottom: 6px; background: #161c44; border: 1px solid #2a3468; }
+.achv.done { border-color: #ffd76e; }
+.achv .icon { font-size: 22px; filter: grayscale(1); opacity: .4; }
+.achv.done .icon { filter: none; opacity: 1; }
+.achv .t { font-size: 13px; font-weight: 700; }
+.achv .d { font-size: 11px; color: #9aa7d9; }
+
+/* ===== Modal / overlay ===== */
+#overlay {
+  position: fixed; inset: 0; z-index: 100; display: none;
+  background: #060814ee; align-items: center; justify-content: center; padding: 24px;
+}
+#overlay .box {
+  background: #161c44; border: 1px solid #4a5aa8; border-radius: 18px;
+  padding: 22px; max-width: 340px; width: 100%; text-align: center;
+}
+#overlay h2 { font-size: 20px; margin-bottom: 10px; }
+#overlay p { font-size: 14px; color: #b8c2ee; line-height: 1.5; margin-bottom: 14px; }
+
+/* ===== Toast ===== */
+#toast {
+  position: fixed; left: 50%; top: 12%; translate: -50% 0; z-index: 90;
+  background: #161c44ee; border: 1px solid #ffd76e; color: #ffe9a8;
+  padding: 10px 18px; border-radius: 14px; font-size: 13px; font-weight: 700;
+  opacity: 0; transition: opacity .3s; pointer-events: none; text-align: center;
+  max-width: 86vw;
+}
+#toast.show { opacity: 1; }

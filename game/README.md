@@ -1,9 +1,35 @@
 # 💎 Kosmiczny Górnik — gra idle/clicker na Androida
 
-Gra typu clicker/idle w klimacie kosmicznym, napisana w **jednym pliku HTML**
-(`index.html`) — bez żadnych bibliotek i bez build stepu. Dzięki temu możesz ją
-**tworzyć i testować w całości na telefonie**, a APK na Google Play zbuduje za
-Ciebie automatycznie GitHub Actions.
+Gra typu clicker/idle w klimacie kosmicznym — czysty HTML/CSS/JS, **bez
+bibliotek i bez build stepu**. Dzięki temu możesz ją **tworzyć i testować
+w całości na telefonie**, a APK zbuduje za Ciebie automatycznie GitHub Actions.
+
+## 📁 Struktura kodu (co gdzie edytować)
+
+| Plik | Co zawiera |
+|---|---|
+| `js/config.js` | **cały balans**: budynki, ulepszenia, osiągnięcia, stałe (koszty, mnożniki) |
+| `js/state.js` | stan gry, zapis/odczyt (localStorage), formatowanie liczb |
+| `js/logic.js` | silnik: produkcja, zakupy, prestiż, bonus dzienny, offline |
+| `js/ads.js` | warstwa reklam (`=== ADMOB ===`) — tu podepniesz prawdziwy AdMob |
+| `js/ui.js` | rysowanie: zakładki, panele, efekty, kometa |
+| `js/main.js` | start gry i pętla główna |
+| `css/style.css` | cały wygląd |
+| `index.html` | szkielet strony (rzadko dotykany) |
+
+Kolejność ładowania skryptów: `config → state → logic → ads → ui → main`.
+Nowe mechaniki dodawaj tak: dane do `config.js`, obliczenia do `logic.js`,
+ekran do `ui.js`.
+
+## 🗺️ Plan rozbudowy (etapy)
+
+- [x] **Etap 1** — fundament: architektura modułowa + rdzeń gry (klikanie, budynki, ulepszenia, prestiż, osiągnięcia, bonusy, offline, komety)
+- [ ] **Etap 2** — rozbudowa sklepu: kupowanie ×1/×10/Max, więcej ulepszeń (progi posiadania), ekran statystyk
+- [ ] **Etap 3** — duży prestiż: drzewko talentów za gwiezdny pył
+- [ ] **Etap 4** — misje dzienne + eventy losowe (deszcz meteorytów, gorączka kryształowa)
+- [ ] **Etap 5** — ekspedycje na planety (wyprawy czasowe) + artefakty/kolekcje
+- [ ] **Etap 6** — oprawa: dźwięki, animacje, ikona aplikacji, ekran startowy
+- [ ] **Etap 7** — prawdziwy AdMob + podpisany AAB do publikacji
 
 ## 🎮 Mechaniki (zaprojektowane pod długą retencję graczy)
 
@@ -21,9 +47,9 @@ Ciebie automatycznie GitHub Actions.
 
 ## 📱 Jak pracować nad grą z telefonu
 
-1. **Edycja kodu**: aplikacja GitHub / github.com w przeglądarce → plik
-   `game/index.html` → ✏️ edytuj → commit. Cała gra (wygląd, balans, teksty)
-   jest w tym jednym pliku, sekcje są opisane komentarzami.
+1. **Edycja kodu**: aplikacja GitHub / github.com w przeglądarce → wybierz
+   plik z tabeli powyżej → ✏️ edytuj → commit. Do zmiany balansu wystarczy
+   `js/config.js`.
 2. **Testowanie**: otwórz `index.html` w przeglądarce telefonu. Najprościej:
    włącz GitHub Pages (Settings → Pages → branch `main`), a gra będzie pod
    adresem `https://<twoja-nazwa>.github.io/<repo>/game/`.
@@ -65,6 +91,5 @@ W przeglądarce reklamy są symulowane. Aby zarabiać naprawdę:
 
 ## ⚖️ Balans gry
 
-Cały balans jest w tablicach na górze skryptu w `index.html`:
-`BUILDINGS` (koszty i produkcja), `UPGRADES`, `ACHIEVEMENTS`, wzór prestiżu
-w `stardustGain()`. Zmieniasz liczby → commit → gotowe.
+Cały balans jest w `js/config.js`: `BALANCE` (stałe), `BUILDINGS` (koszty
+i produkcja), `UPGRADES`, `ACHIEVEMENTS`. Zmieniasz liczby → commit → gotowe.
