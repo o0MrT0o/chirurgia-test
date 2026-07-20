@@ -37,13 +37,7 @@
 <div id="tapArea">
   <div id="astGlow"></div>
   <div id="orbitRing"><span>💎</span><span>✦</span><span>💎</span></div>
-  <div id="asteroid">
-    <div class="crater" style="width:22%;height:22%;top:18%;left:24%"></div>
-    <div class="crater" style="width:14%;height:14%;top:55%;left:60%"></div>
-    <div class="crater" style="width:10%;height:10%;top:64%;left:22%"></div>
-    <div class="crystalDeco" style="top:34%;left:58%">💎</div>
-    <div class="crystalDeco" style="top:62%;left:40%;font-size:15px">💎</div>
-  </div>
+  <div id="asteroid"><!-- kształt SVG generuje asteroid.js (per skórka) --></div>
 </div>
 
 <div id="comet">☄️</div>
@@ -66,11 +60,12 @@
 <div id="overlay"><div class="box" id="overlayBox"></div></div>
 <div id="toast"></div>
 
-<!-- Kolejność ma znaczenie: config -> state -> logic -> sound -> ads -> ui -> main -->
+<!-- Kolejność ma znaczenie: config -> state -> logic -> sound -> asteroid -> ads -> ui -> main -->
 <script src="js/config.js"></script>
 <script src="js/state.js"></script>
 <script src="js/logic.js"></script>
 <script src="js/sound.js"></script>
+<script src="js/asteroid.js"></script>
 <script src="js/ads.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>

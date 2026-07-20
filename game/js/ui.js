@@ -360,7 +360,8 @@ function applySkin() {
   const ast = $('#asteroid');
   const sk = SKINS.find(x => x.id === S.skin) || SKINS[0];
   SKINS.forEach(s => ast.classList.remove(s.css));
-  if (sk.id !== 'classic') ast.classList.add(sk.css);
+  if (sk.id !== 'classic') ast.classList.add(sk.css); // klasa daje kolor poświaty (--glow)
+  ast.innerHTML = generateAsteroidSVG(sk.id);          // proceduralny kształt SVG
   document.body.dataset.skin = sk.id; // tło (poświata) dopasowuje się do skórki
 }
 
@@ -375,7 +376,7 @@ function renderSkins() {
         : sk.cost ? `kup: ✨ ${sk.cost}`
         : `🔒 ${sk.condDesc}`;
       return `<div class="skinTile ${sel ? 'sel' : ''} ${owned || sk.cost ? '' : 'lockedSkin'}" data-skin="${sk.id}">
-        <div class="skinPrev ${sk.css !== 'skin-classic' ? sk.css : ''}"></div>
+        <div class="skinPrev">${generateAsteroidSVG(sk.id)}</div>
         <div class="sn">${sk.name}</div>
         <div class="ss">${status}</div>
       </div>`;
