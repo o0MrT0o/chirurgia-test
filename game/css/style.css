@@ -607,3 +607,94 @@ nav button.active .ico { transform: translateY(-1px) scale(1.18); }
   8% { opacity: 1; }
   to { translate: -55vw 37vh; opacity: 0; }
 }
+
+/* =====================================================================
+   SZLIF v4 — orbita, piedestał, konfetti, promienie, żywy licznik,
+   kaskadowe wjazdy kart, kropka aktywnej zakładki, motywy skórek.
+   ===================================================================== */
+
+/* ===== Orbitujące kryształki wokół asteroidy ===== */
+#orbitRing {
+  position: absolute; pointer-events: none;
+  width: min(68vw, 310px); height: min(68vw, 310px);
+  animation: orbitSpin 16s linear infinite;
+}
+#orbitRing span {
+  position: absolute; font-size: 13px;
+  filter: drop-shadow(0 0 6px #6ee7ff);
+  animation: orbitSpinRev 16s linear infinite; /* kontr-obrót: kryształki stoją prosto */
+}
+#orbitRing span:nth-child(1) { top: -4px; left: 50%; }
+#orbitRing span:nth-child(2) { bottom: 12%; right: 2%; font-size: 10px; }
+#orbitRing span:nth-child(3) { bottom: 20%; left: 0; font-size: 11px; }
+@keyframes orbitSpin { to { rotate: 360deg; } }
+@keyframes orbitSpinRev { from { rotate: 360deg; } to { rotate: 0deg; } }
+
+/* ===== Świetlisty piedestał pod asteroidą ===== */
+#astGlow {
+  position: absolute; pointer-events: none;
+  width: min(58vw, 265px); height: 30px;
+  top: calc(50% + min(28vw, 128px));
+  background: radial-gradient(ellipse, var(--pedestal, #6ee7ff30), transparent 70%);
+  filter: blur(8px);
+  animation: pedestalPulse 3.5s ease-in-out infinite alternate;
+}
+@keyframes pedestalPulse { to { opacity: .45; scale: .88 1; } }
+
+/* poświata piedestału w kolorze skórki */
+body[data-skin="gold"]    #astGlow, body[data-skin="cheese"] #astGlow { --pedestal: #ffd76e33; }
+body[data-skin="ice"]     #astGlow { --pedestal: #a8e6f036; }
+body[data-skin="lava"]    #astGlow { --pedestal: #ff5f3c33; }
+body[data-skin="emerald"] #astGlow { --pedestal: #3ddc8433; }
+body[data-skin="heart"]   #astGlow { --pedestal: #ff8fc836; }
+body[data-skin="void"]    #astGlow { --pedestal: #8a5fff38; }
+body[data-skin="star"]    #astGlow { --pedestal: #6b8fff3a; }
+body[data-skin="rainbow"] #astGlow { --pedestal: #ffffff2e; }
+
+/* orbitujące kryształki też łapią kolor skórki */
+body[data-skin="gold"] #orbitRing span, body[data-skin="cheese"] #orbitRing span { filter: drop-shadow(0 0 6px #ffd76e); }
+body[data-skin="lava"] #orbitRing span { filter: drop-shadow(0 0 6px #ff5f3c); }
+body[data-skin="emerald"] #orbitRing span { filter: drop-shadow(0 0 6px #3ddc84); }
+body[data-skin="heart"] #orbitRing span { filter: drop-shadow(0 0 6px #ff8fc8); }
+body[data-skin="void"] #orbitRing span { filter: drop-shadow(0 0 6px #8a5fff); }
+
+/* ===== Konfetti ===== */
+.confetti {
+  position: fixed; top: -24px; z-index: 130; pointer-events: none;
+  border-radius: 2px; opacity: .95;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  to { translate: var(--dx, 0) 112vh; rotate: var(--rx, 360deg); opacity: .8; }
+}
+
+/* ===== Promienie za treścią modali ===== */
+#overlay .box { position: relative; overflow: hidden; }
+#overlay .box::before {
+  content: ''; position: absolute; inset: -70%;
+  background: repeating-conic-gradient(#9adcff0a 0deg 12deg, transparent 12deg 24deg);
+  animation: raysSpin 18s linear infinite;
+  pointer-events: none;
+}
+@keyframes raysSpin { to { rotate: 360deg; } }
+
+/* ===== Żywy licznik kryształów ===== */
+#crystalCount {
+  background: linear-gradient(100deg, #ffffff 15%, #9adcff 35%, #ffffff 55%, #6ee7ff 75%, #ffffff 95%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  animation: textShine 7s linear infinite;
+}
+@keyframes textShine { to { background-position: 220% 0; } }
+
+/* ===== Kaskadowy wjazd kart ===== */
+#panel > .enter { animation: itemIn .35s cubic-bezier(.2, .9, .3, 1) both; }
+@keyframes itemIn { from { opacity: 0; translate: 0 16px; } }
+
+/* ===== Kropka pod aktywną zakładką ===== */
+nav button { position: relative; }
+nav button.active::after {
+  content: ''; position: absolute; left: 50%; bottom: 5px;
+  width: 4px; height: 4px; border-radius: 50%; translate: -50% 0;
+  background: #6ee7ff; box-shadow: 0 0 8px #6ee7ff;
+}

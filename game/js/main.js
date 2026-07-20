@@ -21,6 +21,7 @@ function tick() {
     toast(`🏆 Osiągnięcie: ${a.name}! (+${BALANCE.achievementBonus * 100}% produkcji)`);
     if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
     Sound.fanfare();
+    spawnConfetti(18);
   }
 }
 

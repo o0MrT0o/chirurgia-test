@@ -30,6 +30,8 @@ function initTabs() {
   });
 }
 
+let lastPanelTab = null;
+
 function renderPanel() {
   const p = $('#panel');
   if (activeTab === 'mine') renderMine(p);
@@ -38,6 +40,30 @@ function renderPanel() {
   else if (activeTab === 'prestige') renderPrestige(p);
   else if (activeTab === 'achv') renderAchievements(p);
   else if (activeTab === 'bonus') renderBonus(p);
+  // kaskadowy wjazd kart tylko przy zmianie zakładki (nie przy odświeżaniu)
+  if (lastPanelTab !== activeTab) {
+    [...p.children].forEach((el, i) => {
+      el.style.animationDelay = Math.min(i * 25, 250) + 'ms';
+      el.classList.add('enter');
+    });
+    p.scrollTop = 0;
+  }
+  lastPanelTab = activeTab;
+}
+
+// ---------- Konfetti (wielkie momenty) ----------
+function spawnConfetti(n = 24) {
+  const colors = ['#6ee7ff', '#ffd76e', '#3ddc84', '#ff8fc8', '#8a5fff', '#ffffff'];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.cssText = `left:${Math.random() * 100}vw;background:${colors[i % colors.length]};`
+      + `width:${5 + Math.random() * 5}px;height:${8 + Math.random() * 6}px;`
+      + `animation-duration:${1.6 + Math.random() * 1.4}s;animation-delay:${Math.random() * 0.4}s;`
+      + `--rx:${Math.round(Math.random() * 720 - 360)}deg;--dx:${Math.round(Math.random() * 16 - 8)}vw;`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3600);
+  }
 }
 
 // ---------- Zakładka: Wyprawy ----------
@@ -177,6 +203,7 @@ function renderExpeditions(p) {
     else if (res.artifact) html += `<br><br>Znaleziono artefakt:<br><span style="font-size:34px">${res.artifact.icon}</span><br><b>${res.artifact.name}</b> (+${BALANCE.artifactBonus * 100}% produkcji na zawsze!)`;
     html += `</p><button class="bigBtn" onclick="hideOverlay(); renderPanel()">Super!</button>`;
     showOverlay(html);
+    if (res.artifact && !res.duplicate) spawnConfetti(22);
     if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
     Sound.fanfare();
   };
@@ -324,7 +351,7 @@ function renderPrestige(p) {
 
 function uiDoPrestige() {
   const gain = doPrestige();
-  if (gain > 0) toast(`✨ Prestiż! Zdobyto ${fmt(gain)} gwiezdnego pyłu!`);
+  if (gain > 0) { toast(`✨ Prestiż! Zdobyto ${fmt(gain)} gwiezdnego pyłu!`); spawnConfetti(32); }
   renderPanel();
 }
 
@@ -334,6 +361,7 @@ function applySkin() {
   const sk = SKINS.find(x => x.id === S.skin) || SKINS[0];
   SKINS.forEach(s => ast.classList.remove(s.css));
   if (sk.id !== 'classic') ast.classList.add(sk.css);
+  document.body.dataset.skin = sk.id; // tło (poświata) dopasowuje się do skórki
 }
 
 function renderSkins() {
@@ -463,6 +491,7 @@ function renderBonus(p) {
       toast(res.setDone
         ? `🎯 Komplet misji dnia! +${fmt(res.reward)} 💎 i +${BALANCE.missionSetBonus} ✨ pyłu!`
         : `🎯 Misja wykonana! +${fmt(res.reward)} 💎`);
+      if (res.setDone) spawnConfetti(24);
       if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
       Sound.claim();
       renderPanel();
@@ -684,6 +713,7 @@ function endBoss(won) {
     html += `</p><button class="bigBtn gold" onclick="hideOverlay()">Zwycięstwo! 🎉</button>`;
     showOverlay(html);
     Sound.fanfare();
+    spawnConfetti(26);
     if (navigator.vibrate) navigator.vibrate([60, 40, 60, 40, 120]);
   } else {
     const loot = grantBossFail();
