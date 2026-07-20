@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#0b1026" />
+<title>Kosmiczny Górnik</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: radial-gradient(ellipse at 50% 30%, #1a2151 0%, #0b1026 60%, #060814 100%);
+    color: #e8ecff;
+    display: flex; flex-direction: column;
+    touch-action: manipulation;
+  }
+  /* ===== Gwiazdy w tle ===== */
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 3s infinite; }
+  @keyframes twinkle { 0%,100% { opacity: .2; } 50% { opacity: 1; } }
+
+  /* ===== Nagłówek ===== */
+  header {
+    position: relative; z-index: 2;
+    padding: 10px 14px 6px;
+    text-align: center;
+  }
+  #crystalCount { font-size: 30px; font-weight: 800; letter-spacing: .5px; text-shadow: 0 0 18px #6ee7ff88; }
+  #crystalCount .unit { font-size: 18px; color: #8fd6ff; }
+  #cpsLabel { font-size: 13px; color: #9aa7d9; margin-top: 2px; }
+  #stardustLabel { font-size: 12px; color: #ffd76e; margin-top: 2px; min-height: 15px; }
+
+  /* ===== Boosty / pasek statusu ===== */
+  #boostBar { display: flex; justify-content: center; gap: 8px; min-height: 24px; margin-top: 4px; flex-wrap: wrap; }
+  .boostChip {
+    font-size: 11px; padding: 3px 10px; border-radius: 12px;
+    background: #2a2f6088; border: 1px solid #4a5aa8;
+  }
+  .boostChip.gold { background: #6b5a1888; border-color: #ffd76e; color: #ffe9a8; }
+
+  /* ===== Asteroida (przycisk klikania) ===== */
+  #tapArea {
+    position: relative; z-index: 1;
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    min-height: 180px;
+  }
+  #asteroid {
+    width: min(52vw, 240px); height: min(52vw, 240px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 30%, #a8b4d8 0%, #6b7699 35%, #3d4568 70%, #262c4a 100%);
+    box-shadow: 0 0 60px #6ee7ff33, inset -18px -20px 46px #0008, inset 12px 12px 30px #fff2;
+    position: relative;
+    cursor: pointer;
+    transition: transform .08s;
+    animation: float 5s ease-in-out infinite;
+  }
+  #asteroid:active { transform: scale(.93); }
+  #asteroid.pulse { animation: float 5s ease-in-out infinite, hitPulse .15s; }
+  @keyframes float { 0%,100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+  @keyframes hitPulse { 0% { box-shadow: 0 0 90px #6ee7ffaa; } }
+  .crater { position: absolute; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #2a3050, #171b33); box-shadow: inset 2px 3px 6px #0009; }
+  .crystalDeco { position: absolute; font-size: 22px; filter: drop-shadow(0 0 6px #6ee7ff); }
+
+  /* ===== Latające liczby ===== */
+  .floatNum {
+    position: fixed; z-index: 50; pointer-events: none;
+    font-weight: 800; font-size: 20px; color: #8ff5ff;
+    text-shadow: 0 0 8px #0af, 0 1px 2px #000;
+    animation: floatUp 1s ease-out forwards;
+  }
+  @keyframes floatUp { to { transform: translateY(-90px); opacity: 0; } }
+
+  /* ===== Złota kometa ===== */
+  #comet {
+    position: fixed; z-index: 60; font-size: 44px; cursor: pointer;
+    filter: drop-shadow(0 0 14px #ffd76e);
+    animation: cometFly 12s linear forwards, spin 2s linear infinite;
+    display: none;
+  }
+  @keyframes cometFly { from { top: 8%; } to { top: 70%; } }
+  @keyframes spin { to { rotate: 360deg; } }
+
+  /* ===== Zakładki ===== */
+  nav {
+    position: relative; z-index: 2;
+    display: flex; background: #10153588; border-top: 1px solid #2a3468;
+  }
+  nav button {
+    flex: 1; padding: 10px 2px; background: none; border: none;
+    color: #8a95c8; font-size: 12px; font-weight: 600; cursor: pointer;
+    border-top: 2px solid transparent;
+  }
+  nav button.active { color: #fff; border-top-color: #6ee7ff; background: #1a2151aa; }
+  nav button .ico { display: block; font-size: 18px; margin-bottom: 2px; }
+
+  /* ===== Panel dolny ===== */
+  #panel {
+    position: relative; z-index: 2;
+    height: 42vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    background: #0d1230ee; border-top: 1px solid #2a3468;
+    padding: 10px 10px calc(12px + env(safe-area-inset-bottom));
+  }
+  .item {
+    display: flex; align-items: center; gap: 10px;
+    background: #161c44; border: 1px solid #2a3468; border-radius: 14px;
+    padding: 10px 12px; margin-bottom: 8px; cursor: pointer;
+    transition: background .15s;
+  }
+  .item:active { background: #1f2757; }
+  .item.locked { opacity: .45; }
+  .item.bought { border-color: #3ddc84; opacity: .8; cursor: default; }
+  .item .icon { font-size: 28px; width: 38px; text-align: center; }
+  .item .info { flex: 1; min-width: 0; }
+  .item .name { font-weight: 700; font-size: 14px; }
+  .item .desc { font-size: 11px; color: #9aa7d9; margin-top: 1px; }
+  .item .right { text-align: right; white-space: nowrap; }
+  .item .cost { font-size: 13px; font-weight: 700; color: #8ff5ff; }
+  .item .cost.cant { color: #ff8f8f; }
+  .item .owned { font-size: 18px; font-weight: 800; color: #ffd76e; }
+
+  .bigBtn {
+    display: block; width: 100%; padding: 14px; margin: 10px 0;
+    border: none; border-radius: 14px; font-size: 15px; font-weight: 800;
+    color: #081020; background: linear-gradient(135deg, #6ee7ff, #3d9bff);
+    cursor: pointer; box-shadow: 0 4px 18px #3d9bff44;
+  }
+  .bigBtn:disabled { filter: grayscale(1); opacity: .5; }
+  .bigBtn.gold { background: linear-gradient(135deg, #ffd76e, #ff9f43); box-shadow: 0 4px 18px #ff9f4344; }
+  .note { font-size: 12px; color: #9aa7d9; text-align: center; line-height: 1.5; padding: 4px 8px; }
+
+  .achv { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; margin-bottom: 6px; background: #161c44; border: 1px solid #2a3468; }
+  .achv.done { border-color: #ffd76e; }
+  .achv .icon { font-size: 22px; filter: grayscale(1); opacity: .4; }
+  .achv.done .icon { filter: none; opacity: 1; }
+  .achv .t { font-size: 13px; font-weight: 700; }
+  .achv .d { font-size: 11px; color: #9aa7d9; }
+
+  /* ===== Modal / overlay ===== */
+  #overlay {
+    position: fixed; inset: 0; z-index: 100; display: none;
+    background: #060814ee; align-items: center; justify-content: center; padding: 24px;
+  }
+  #overlay .box {
+    background: #161c44; border: 1px solid #4a5aa8; border-radius: 18px;
+    padding: 22px; max-width: 340px; width: 100%; text-align: center;
+  }
+  #overlay h2 { font-size: 20px; margin-bottom: 10px; }
+  #overlay p { font-size: 14px; color: #b8c2ee; line-height: 1.5; margin-bottom: 14px; }
+
+  /* ===== Toast ===== */
+  #toast {
+    position: fixed; left: 50%; top: 12%; translate: -50% 0; z-index: 90;
+    background: #161c44ee; border: 1px solid #ffd76e; color: #ffe9a8;
+    padding: 10px 18px; border-radius: 14px; font-size: 13px; font-weight: 700;
+    opacity: 0; transition: opacity .3s; pointer-events: none; text-align: center;
+    max-width: 86vw;
+  }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<header>
+  <div id="crystalCount">0 <span class="unit">💎</span></div>
+  <div id="cpsLabel">0 / sek.</div>
+  <div id="stardustLabel"></div>
+  <div id="boostBar"></div>
+</header>
+
+<div id="tapArea">
+  <div id="asteroid">
+    <div class="crater" style="width:22%;height:22%;top:18%;left:24%"></div>
+    <div class="crater" style="width:14%;height:14%;top:55%;left:60%"></div>
+    <div class="crater" style="width:10%;height:10%;top:64%;left:22%"></div>
+    <div class="crystalDeco" style="top:34%;left:58%">💎</div>
+    <div class="crystalDeco" style="top:62%;left:40%;font-size:15px">💎</div>
+  </div>
+</div>
+
+<div id="comet">☄️</div>
+
+<nav>
+  <button data-tab="mine" class="active"><span class="ico">⛏️</span>Kopalnia</button>
+  <button data-tab="upgrades"><span class="ico">🚀</span>Ulepszenia</button>
+  <button data-tab="prestige"><span class="ico">✨</span>Prestiż</button>
+  <button data-tab="achv"><span class="ico">🏆</span>Osiągnięcia</button>
+  <button data-tab="bonus"><span class="ico">🎁</span>Bonusy</button>
+</nav>
+<div id="panel"></div>
+
+<div id="overlay"><div class="box" id="overlayBox"></div></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   KOSMICZNY GÓRNIK — gra idle/clicker
+   Cała logika w jednym pliku — łatwa edycja na telefonie.
+   Miejsca do podpięcia reklam AdMob oznaczone: === ADMOB ===
+   ===================================================================== */
+
+// ---------- Definicje budynków ----------
+const BUILDINGS = [
+  { id: 'robot',   name: 'Astro-górnik',       icon: '🤖', baseCost: 15,      cps: 0.1 },
+  { id: 'drill',   name: 'Wiertło laserowe',   icon: '🔩', baseCost: 100,     cps: 1 },
+  { id: 'drone',   name: 'Dron wydobywczy',    icon: '🛸', baseCost: 1100,    cps: 8 },
+  { id: 'moon',    name: 'Kopalnia księżycowa',icon: '🌙', baseCost: 12000,   cps: 47 },
+  { id: 'ship',    name: 'Statek towarowy',    icon: '🚀', baseCost: 130000,  cps: 260 },
+  { id: 'station', name: 'Stacja orbitalna',   icon: '🛰️', baseCost: 1.4e6,  cps: 1400 },
+  { id: 'factory', name: 'Fabryka planetarna', icon: '🏭', baseCost: 2e7,     cps: 7800 },
+  { id: 'portal',  name: 'Portal wymiarowy',   icon: '🌀', baseCost: 3.3e8,   cps: 44000 },
+  { id: 'sun',     name: 'Sztuczna gwiazda',   icon: '☀️', baseCost: 5.1e9,  cps: 260000 },
+  { id: 'hole',    name: 'Czarna dziura',      icon: '🕳️', baseCost: 7.5e10, cps: 1.6e6 },
+];
+
+// ---------- Ulepszenia (kupowane raz) ----------
+// type: 'click' (mnoży klik), 'building' (mnoży cps budynku), 'global' (mnoży wszystko)
+const UPGRADES = [
+  { id: 'c1', name: 'Wzmocnione rękawice', icon: '🧤', cost: 100,    type: 'click', mult: 2, desc: 'Klikanie ×2' },
+  { id: 'c2', name: 'Tytanowy kilof',      icon: '⛏️', cost: 2500,   type: 'click', mult: 3, desc: 'Klikanie ×3' },
+  { id: 'c3', name: 'Plazmowe ostrze',     icon: '🔪', cost: 80000,  type: 'click', mult: 4, desc: 'Klikanie ×4' },
+  { id: 'c4', name: 'Rękawica mocy',       icon: '🧿', cost: 5e6,    type: 'click', mult: 5, desc: 'Klikanie ×5' },
+  { id: 'c5', name: 'Dotyk supernowej',    icon: '💥', cost: 4e8,    type: 'click', mult: 10, desc: 'Klikanie ×10' },
+  { id: 'b1', name: 'Lepsze akumulatory',  icon: '🔋', cost: 500,    type: 'building', target: 'robot', mult: 2, desc: 'Astro-górnicy ×2' },
+  { id: 'b2', name: 'Diamentowe wiertła',  icon: '💠', cost: 5000,   type: 'building', target: 'drill', mult: 2, desc: 'Wiertła ×2' },
+  { id: 'b3', name: 'Rój dronów',          icon: '🐝', cost: 55000,  type: 'building', target: 'drone', mult: 2, desc: 'Drony ×2' },
+  { id: 'b4', name: 'Baza Alfa',           icon: '🏗️', cost: 600000, type: 'building', target: 'moon', mult: 2, desc: 'Kopalnie księżycowe ×2' },
+  { id: 'b5', name: 'Napęd nadświetlny',   icon: '⚡', cost: 6.5e6,  type: 'building', target: 'ship', mult: 2, desc: 'Statki ×2' },
+  { id: 'b6', name: 'Panele słoneczne XXL',icon: '🔆', cost: 7e7,    type: 'building', target: 'station', mult: 2, desc: 'Stacje ×2' },
+  { id: 'b7', name: 'Automatyzacja AI',    icon: '🧠', cost: 1e9,    type: 'building', target: 'factory', mult: 2, desc: 'Fabryki ×2' },
+  { id: 'b8', name: 'Stabilizator portali',icon: '🔮', cost: 1.6e10, type: 'building', target: 'portal', mult: 2, desc: 'Portale ×2' },
+  { id: 'g1', name: 'Kosmiczna kawa',      icon: '☕', cost: 50000,  type: 'global', mult: 1.1, desc: 'Cała produkcja +10%' },
+  { id: 'g2', name: 'Związki zawodowe robotów', icon: '🤝', cost: 5e6, type: 'global', mult: 1.15, desc: 'Cała produkcja +15%' },
+  { id: 'g3', name: 'Galaktyczna giełda',  icon: '📈', cost: 5e8,    type: 'global', mult: 1.2, desc: 'Cała produkcja +20%' },
+  { id: 'g4', name: 'Przychylność kosmitów', icon: '👽', cost: 5e10, type: 'global', mult: 1.25, desc: 'Cała produkcja +25%' },
+];
+
+// ---------- Osiągnięcia (każde daje +1% do produkcji) ----------
+const ACHIEVEMENTS = [
+  { id: 'a_click1',  name: 'Pierwsze uderzenie', icon: '👆', desc: 'Kliknij 100 razy', check: s => s.totalClicks >= 100 },
+  { id: 'a_click2',  name: 'Zawodowy klikacz',   icon: '🖱️', desc: 'Kliknij 2 500 razy', check: s => s.totalClicks >= 2500 },
+  { id: 'a_click3',  name: 'Palce ze stali',     icon: '🦾', desc: 'Kliknij 15 000 razy', check: s => s.totalClicks >= 15000 },
+  { id: 'a_cr1',     name: 'Kolekcjoner',        icon: '💎', desc: 'Zdobądź łącznie 10 tys. kryształów', check: s => s.totalEarned >= 1e4 },
+  { id: 'a_cr2',     name: 'Magnat',             icon: '💰', desc: 'Zdobądź łącznie 10 mln kryształów', check: s => s.totalEarned >= 1e7 },
+  { id: 'a_cr3',     name: 'Krezus galaktyki',   icon: '👑', desc: 'Zdobądź łącznie 10 mld kryształów', check: s => s.totalEarned >= 1e10 },
+  { id: 'a_b1',      name: 'Brygada',            icon: '🤖', desc: 'Posiadaj 25 budynków', check: s => totalBuildings(s) >= 25 },
+  { id: 'a_b2',      name: 'Imperium wydobywcze',icon: '🏭', desc: 'Posiadaj 100 budynków', check: s => totalBuildings(s) >= 100 },
+  { id: 'a_b3',      name: 'Władca kosmosu',     icon: '🌌', desc: 'Posiadaj 250 budynków', check: s => totalBuildings(s) >= 250 },
+  { id: 'a_p1',      name: 'Nowy początek',      icon: '✨', desc: 'Wykonaj 1 prestiż', check: s => s.prestigeCount >= 1 },
+  { id: 'a_p2',      name: 'Wieczny powrót',     icon: '🔄', desc: 'Wykonaj 5 prestiżów', check: s => s.prestigeCount >= 5 },
+  { id: 'a_comet',   name: 'Łowca komet',        icon: '☄️', desc: 'Złap 10 złotych komet', check: s => s.cometsCaught >= 10 },
+  { id: 'a_streak',  name: 'Wierny górnik',      icon: '📅', desc: 'Seria logowań: 7 dni', check: s => s.loginStreak >= 7 },
+];
+
+// ---------- Stan gry ----------
+const DEFAULT_STATE = () => ({
+  crystals: 0,          // aktualna waluta
+  totalEarned: 0,       // łącznie w tej rozgrywce (do prestiżu)
+  allTimeEarned: 0,
+  totalClicks: 0,
+  buildings: {},        // id -> ilość
+  upgrades: {},         // id -> true
+  achievements: {},     // id -> true
+  stardust: 0,          // waluta prestiżu (+5% produkcji za sztukę)
+  prestigeCount: 0,
+  cometsCaught: 0,
+  loginStreak: 0,
+  lastLoginDay: '',
+  dailyClaimed: false,
+  boostUntil: 0,        // timestamp końca boostu x2 (reklama)
+  frenzyUntil: 0,       // timestamp końca szału x7 (kometa)
+  lastSeen: Date.now(),
+});
+let S = DEFAULT_STATE();
+
+const SAVE_KEY = 'kosmiczny_gornik_save_v1';
+
+// ---------- Pomocnicze ----------
+const $ = sel => document.querySelector(sel);
+const now = () => Date.now();
+
+function totalBuildings(s) {
+  return Object.values(s.buildings).reduce((a, b) => a + b, 0);
+}
+
+const SUFFIXES = ['', ' tys.', ' mln', ' mld', ' bln', ' bld', ' tryl.'];
+function fmt(n) {
+  if (n < 1000) return (Math.floor(n * 10) / 10).toString().replace('.', ',');
+  let tier = Math.min(Math.floor(Math.log10(n) / 3), SUFFIXES.length - 1);
+  const scaled = n / Math.pow(1000, tier);
+  return (Math.floor(scaled * 100) / 100).toString().replace('.', ',') + SUFFIXES[tier];
+}
+
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+// ---------- Obliczenia produkcji ----------
+function globalMult() {
+  let m = 1 + S.stardust * 0.05;                       // prestiż: +5% za pyłek
+  m *= 1 + Object.keys(S.achievements).length * 0.01;  // osiągnięcia: +1% za sztukę
+  for (const u of UPGRADES) if (S.upgrades[u.id] && u.type === 'global') m *= u.mult;
+  if (now() < S.frenzyUntil) m *= 7;                   // szał komety
+  if (now() < S.boostUntil) m *= 2;                    // boost z reklamy
+  return m;
+}
+
+function buildingCps(b) {
+  let m = 1;
+  for (const u of UPGRADES) if (S.upgrades[u.id] && u.type === 'building' && u.target === b.id) m *= u.mult;
+  return b.cps * (S.buildings[b.id] || 0) * m;
+}
+
+function totalCps() {
+  return BUILDINGS.reduce((sum, b) => sum + buildingCps(b), 0) * globalMult();
+}
+
+function clickPower() {
+  let p = 1;
+  for (const u of UPGRADES) if (S.upgrades[u.id] && u.type === 'click') p *= u.mult;
+  p += totalCps() * 0.02; // klik daje też 2% produkcji na sekundę — klikanie zawsze ma sens
+  return p * globalMult();
+}
+
+function buildingCost(b) {
+  return Math.ceil(b.baseCost * Math.pow(1.15, S.buildings[b.id] || 0));
+}
+
+function earn(amount) {
+  S.crystals += amount;
+  S.totalEarned += amount;
+  S.allTimeEarned += amount;
+}
+
+// ---------- Prestiż ----------
+function stardustGain() {
+  return Math.floor(Math.sqrt(S.totalEarned / 1e7));
+}
+
+function doPrestige() {
+  const gain = stardustGain();
+  if (gain < 1) return;
+  const keep = {
+    stardust: S.stardust + gain,
+    prestigeCount: S.prestigeCount + 1,
+    allTimeEarned: S.allTimeEarned,
+    totalClicks: S.totalClicks,
+    achievements: S.achievements,
+    cometsCaught: S.cometsCaught,
+    loginStreak: S.loginStreak,
+    lastLoginDay: S.lastLoginDay,
+    dailyClaimed: S.dailyClaimed,
+  };
+  S = Object.assign(DEFAULT_STATE(), keep);
+  save();
+  toast(`✨ Prestiż! Zdobyto ${fmt(gain)} gwiezdnego pyłu!`);
+  renderPanel();
+}
+
+// ---------- Zapis / odczyt ----------
+function save() {
+  S.lastSeen = now();
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {}
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) S = Object.assign(DEFAULT_STATE(), JSON.parse(raw));
+  } catch (e) {}
+}
+
+// ---------- Zarobki offline ----------
+let pendingOffline = 0;
+function checkOffline() {
+  const elapsed = Math.min((now() - S.lastSeen) / 1000, 8 * 3600); // max 8 h
+  if (elapsed > 60 && totalCps() > 0) {
+    pendingOffline = totalCps() * elapsed * 0.5; // offline działa na 50%
+    showOverlay(`
+      <h2>🌙 Witaj z powrotem!</h2>
+      <p>Twoje maszyny pracowały pod Twoją nieobecność i wydobyły:<br>
+      <b style="font-size:22px;color:#8ff5ff">${fmt(pendingOffline)} 💎</b></p>
+      <button class="bigBtn gold" onclick="claimOffline(true)">🎬 Obejrzyj reklamę i odbierz ×2</button>
+      <button class="bigBtn" onclick="claimOffline(false)">Odbierz zwykłą kwotę</button>
+    `);
+  }
+}
+function claimOffline(doubled) {
+  if (doubled) {
+    Ads.showRewarded(() => { earn(pendingOffline * 2); pendingOffline = 0; hideOverlay(); });
+  } else {
+    earn(pendingOffline); pendingOffline = 0; hideOverlay();
+  }
+}
+
+// ---------- Bonus dzienny ----------
+function checkDaily() {
+  const today = todayStr();
+  if (S.lastLoginDay !== today) {
+    const yesterday = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+    S.loginStreak = (S.lastLoginDay === yesterday) ? S.loginStreak + 1 : 1;
+    S.lastLoginDay = today;
+    S.dailyClaimed = false;
+  }
+}
+function dailyReward() {
+  return Math.max(500, totalCps() * 600) * Math.min(S.loginStreak, 7);
+}
+function claimDaily() {
+  if (S.dailyClaimed) return;
+  S.dailyClaimed = true;
+  const r = dailyReward();
+  earn(r);
+  toast(`🎁 Bonus dzienny: +${fmt(r)} 💎 (seria: ${S.loginStreak} dni)`);
+  renderPanel();
+  save();
+}
+
+/* =====================================================================
+   === ADMOB === Warstwa reklam.
+   W przeglądarce: symulacja. W aplikacji (Capacitor + @capacitor-community/admob)
+   podmień ciała funkcji zgodnie z instrukcją w README.
+   ===================================================================== */
+const Ads = {
+  showRewarded(onReward) {
+    // --- WERSJA APK: tutaj wywołaj AdMob.showRewardVideoAd() i w callbacku nagrody odpal onReward() ---
+    showOverlay(`
+      <h2>🎬 Reklama</h2>
+      <p>Tu w wersji na Google Play wyświetli się prawdziwa reklama z nagrodą (AdMob).<br>W przeglądarce — symulacja.</p>
+      <button class="bigBtn" id="adDone" disabled>Poczekaj 3 s…</button>
+    `);
+    let t = 3;
+    const btn = $('#adDone');
+    const iv = setInterval(() => {
+      t--;
+      if (t <= 0) {
+        clearInterval(iv);
+        btn.disabled = false;
+        btn.textContent = '✅ Odbierz nagrodę';
+        btn.onclick = () => { hideOverlay(); onReward(); };
+      } else btn.textContent = `Poczekaj ${t} s…`;
+    }, 1000);
+  },
+};
+
+function adBoost() {
+  Ads.showRewarded(() => {
+    S.boostUntil = now() + 120 * 1000; // 2 minuty x2
+    toast('⚡ Boost ×2 aktywny przez 2 minuty!');
+    save();
+  });
+}
+
+// ---------- Złota kometa ----------
+function scheduleComet() {
+  setTimeout(spawnComet, (60 + Math.random() * 120) * 1000); // co 1–3 min
+}
+function spawnComet() {
+  const c = $('#comet');
+  c.style.display = 'block';
+  c.style.left = (10 + Math.random() * 70) + 'vw';
+  c.style.animation = 'none'; void c.offsetWidth; // restart animacji
+  c.style.animation = '';
+  const hide = setTimeout(() => { c.style.display = 'none'; scheduleComet(); }, 12000);
+  c.onclick = () => {
+    clearTimeout(hide);
+    c.style.display = 'none';
+    S.cometsCaught++;
+    if (Math.random() < 0.5) {
+      const reward = Math.max(100, totalCps() * 90);
+      earn(reward);
+      toast(`☄️ Złota kometa! +${fmt(reward)} 💎`);
+    } else {
+      S.frenzyUntil = now() + 30 * 1000;
+      toast('☄️ SZAŁ WYDOBYCIA! Produkcja ×7 przez 30 sekund!');
+    }
+    if (navigator.vibrate) navigator.vibrate(60);
+    save();
+    scheduleComet();
+  };
+}
+
+// ---------- Klikanie asteroidy ----------
+function onTap(e) {
+  const p = clickPower();
+  earn(p);
+  S.totalClicks++;
+  if (navigator.vibrate) navigator.vibrate(12);
+  const ast = $('#asteroid');
+  ast.classList.remove('pulse'); void ast.offsetWidth;
+  ast.classList.add('pulse');
+  // latająca liczba
+  const f = document.createElement('div');
+  f.className = 'floatNum';
+  f.textContent = '+' + fmt(p);
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) || window.innerWidth / 2;
+  const y = (e.touches ? e.touches[0].clientY : e.clientY) || window.innerHeight / 3;
+  f.style.left = (x - 20 + (Math.random() * 40 - 20)) + 'px';
+  f.style.top = (y - 30) + 'px';
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 1000);
+}
+
+// ---------- UI: nagłówek ----------
+function renderHeader() {
+  $('#crystalCount').innerHTML = `${fmt(S.crystals)} <span class="unit">💎</span>`;
+  $('#cpsLabel').textContent = `${fmt(totalCps())} / sek. • klik: +${fmt(clickPower())}`;
+  $('#stardustLabel').textContent = S.stardust > 0
+    ? `✨ ${fmt(S.stardust)} gwiezdnego pyłu (+${Math.round(S.stardust * 5)}% produkcji)` : '';
+  const chips = [];
+  if (now() < S.frenzyUntil) chips.push(`<span class="boostChip gold">☄️ SZAŁ ×7 — ${Math.ceil((S.frenzyUntil - now()) / 1000)}s</span>`);
+  if (now() < S.boostUntil) chips.push(`<span class="boostChip">⚡ Boost ×2 — ${Math.ceil((S.boostUntil - now()) / 1000)}s</span>`);
+  $('#boostBar').innerHTML = chips.join('');
+}
+
+// ---------- UI: zakładki ----------
+let activeTab = 'mine';
+document.querySelectorAll('nav button').forEach(btn => {
+  btn.onclick = () => {
+    activeTab = btn.dataset.tab;
+    document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b === btn));
+    renderPanel();
+  };
+});
+
+function renderPanel() {
+  const p = $('#panel');
+  if (activeTab === 'mine') {
+    p.innerHTML = BUILDINGS.map(b => {
+      const count = S.buildings[b.id] || 0;
+      const cost = buildingCost(b);
+      const visible = count > 0 || S.totalEarned >= b.baseCost * 0.5;
+      if (!visible) return '';
+      const can = S.crystals >= cost;
+      return `<div class="item ${can ? '' : 'locked'}" data-buy="${b.id}">
+        <div class="icon">${b.icon}</div>
+        <div class="info">
+          <div class="name">${b.name}</div>
+          <div class="desc">${fmt(buildingCps(b) * globalMult())} 💎/sek. ${count ? '(razem)' : `• daje ${fmt(b.cps)}/sek.`}</div>
+        </div>
+        <div class="right">
+          <div class="cost ${can ? '' : 'cant'}">${fmt(cost)} 💎</div>
+          <div class="owned">${count || ''}</div>
+        </div>
+      </div>`;
+    }).join('') || '<div class="note">Klikaj w asteroidę, aby odblokować pierwsze maszyny! ⛏️</div>';
+    p.querySelectorAll('[data-buy]').forEach(el => el.onclick = () => buyBuilding(el.dataset.buy));
+
+  } else if (activeTab === 'upgrades') {
+    const list = UPGRADES.filter(u => !S.upgrades[u.id] && S.totalEarned >= u.cost * 0.3);
+    const bought = UPGRADES.filter(u => S.upgrades[u.id]);
+    p.innerHTML = (list.map(u => {
+      const can = S.crystals >= u.cost;
+      return `<div class="item ${can ? '' : 'locked'}" data-upg="${u.id}">
+        <div class="icon">${u.icon}</div>
+        <div class="info"><div class="name">${u.name}</div><div class="desc">${u.desc}</div></div>
+        <div class="right"><div class="cost ${can ? '' : 'cant'}">${fmt(u.cost)} 💎</div></div>
+      </div>`;
+    }).join('') || '<div class="note">Zdobywaj kryształy, aby odkryć nowe ulepszenia! 🚀</div>')
+    + (bought.length ? '<div class="note">— Kupione —</div>' + bought.map(u =>
+        `<div class="item bought"><div class="icon">${u.icon}</div>
+         <div class="info"><div class="name">${u.name}</div><div class="desc">${u.desc}</div></div>
+         <div class="right">✅</div></div>`).join('') : '');
+    p.querySelectorAll('[data-upg]').forEach(el => el.onclick = () => buyUpgrade(el.dataset.upg));
+
+  } else if (activeTab === 'prestige') {
+    const gain = stardustGain();
+    p.innerHTML = `
+      <div class="note" style="padding-top:10px">
+        ✨ <b>Prestiż</b> resetuje kryształy, maszyny i ulepszenia,<br>
+        ale daje <b>gwiezdny pył</b> — trwałe <b>+5% produkcji</b> za każdy pyłek, na zawsze.<br><br>
+        Zdobyte w tej rundzie: <b>${fmt(S.totalEarned)} 💎</b><br>
+        Pył do zdobycia teraz: <b style="color:#ffd76e">✨ ${fmt(gain)}</b>
+      </div>
+      <button class="bigBtn gold" id="prestigeBtn" ${gain < 1 ? 'disabled' : ''}>
+        ${gain >= 1 ? `✨ Prestiż — odbierz ${fmt(gain)} pyłu` : 'Zdobądź min. 10 mln 💎, aby odblokować'}
+      </button>
+      <div class="note">Twój pył: ✨ ${fmt(S.stardust)} • Prestiże: ${S.prestigeCount}</div>`;
+    const b = $('#prestigeBtn');
+    if (b && gain >= 1) b.onclick = () => showOverlay(`
+      <h2>✨ Na pewno?</h2>
+      <p>Stracisz kryształy, maszyny i ulepszenia,<br>ale zyskasz <b>${fmt(gain)} pyłu</b> (+${fmt(gain * 5)}% na zawsze).</p>
+      <button class="bigBtn gold" onclick="hideOverlay(); doPrestige()">Tak, resetuj!</button>
+      <button class="bigBtn" onclick="hideOverlay()">Jeszcze nie</button>`);
+
+  } else if (activeTab === 'achv') {
+    const doneCount = Object.keys(S.achievements).length;
+    p.innerHTML = `<div class="note">🏆 ${doneCount}/${ACHIEVEMENTS.length} — każde osiągnięcie daje <b>+1% produkcji</b></div>`
+      + ACHIEVEMENTS.map(a => `
+        <div class="achv ${S.achievements[a.id] ? 'done' : ''}">
+          <div class="icon">${a.icon}</div>
+          <div><div class="t">${a.name}</div><div class="d">${a.desc}</div></div>
+        </div>`).join('');
+
+  } else if (activeTab === 'bonus') {
+    p.innerHTML = `
+      <div class="note" style="padding-top:8px">🎁 <b>Bonus dzienny</b> — seria: ${S.loginStreak} ${S.loginStreak === 1 ? 'dzień' : 'dni'}</div>
+      <button class="bigBtn" id="dailyBtn" ${S.dailyClaimed ? 'disabled' : ''}>
+        ${S.dailyClaimed ? '✅ Odebrano — wróć jutro!' : `🎁 Odbierz ${fmt(dailyReward())} 💎`}
+      </button>
+      <div class="note">⚡ <b>Boost reklamowy</b> — obejrzyj reklamę, aby podwoić produkcję na 2 minuty</div>
+      <button class="bigBtn gold" id="adBoostBtn" ${now() < S.boostUntil ? 'disabled' : ''}>
+        ${now() < S.boostUntil ? `⚡ Boost aktywny (${Math.ceil((S.boostUntil - now()) / 1000)}s)` : '🎬 Obejrzyj reklamę → Boost ×2'}
+      </button>
+      <div class="note">Łącznie wydobyto (od początku): <b>${fmt(S.allTimeEarned)} 💎</b><br>
+      Kliknięcia: <b>${fmt(S.totalClicks)}</b> • Komety: <b>${S.cometsCaught}</b></div>`;
+    const d = $('#dailyBtn'); if (d && !S.dailyClaimed) d.onclick = claimDaily;
+    const a = $('#adBoostBtn'); if (a && now() >= S.boostUntil) a.onclick = adBoost;
+  }
+}
+
+function buyBuilding(id) {
+  const b = BUILDINGS.find(x => x.id === id);
+  const cost = buildingCost(b);
+  if (S.crystals < cost) return;
+  S.crystals -= cost;
+  S.buildings[id] = (S.buildings[id] || 0) + 1;
+  if (navigator.vibrate) navigator.vibrate(20);
+  renderPanel(); save();
+}
+
+function buyUpgrade(id) {
+  const u = UPGRADES.find(x => x.id === id);
+  if (S.upgrades[id] || S.crystals < u.cost) return;
+  S.crystals -= u.cost;
+  S.upgrades[id] = true;
+  toast(`🚀 Kupiono: ${u.name}!`);
+  if (navigator.vibrate) navigator.vibrate(30);
+  renderPanel(); save();
+}
+
+// ---------- Osiągnięcia — sprawdzanie ----------
+function checkAchievements() {
+  for (const a of ACHIEVEMENTS) {
+    if (!S.achievements[a.id] && a.check(S)) {
+      S.achievements[a.id] = true;
+      toast(`🏆 Osiągnięcie: ${a.name}! (+1% produkcji)`);
+      if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+    }
+  }
+}
+
+// ---------- Overlay / toast ----------
+function showOverlay(html) { $('#overlayBox').innerHTML = html; $('#overlay').style.display = 'flex'; }
+function hideOverlay() { $('#overlay').style.display = 'none'; }
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ---------- Tło: gwiazdy ----------
+(function makeStars() {
+  const wrap = $('#stars');
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2 + 1;
+    s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random() * 100}vw;top:${Math.random() * 100}vh;animation-delay:${Math.random() * 3}s`;
+    wrap.appendChild(s);
+  }
+})();
+
+// ---------- Pętla gry ----------
+let lastTick = now();
+function tick() {
+  const dt = (now() - lastTick) / 1000;
+  lastTick = now();
+  earn(totalCps() * dt);
+  renderHeader();
+  checkAchievements();
+}
+setInterval(tick, 100);
+setInterval(save, 5000);
+setInterval(() => { if (activeTab === 'bonus' || activeTab === 'mine') renderPanel(); }, 2000);
+window.addEventListener('beforeunload', save);
+document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
+
+// ---------- Start ----------
+load();
+checkDaily();
+checkOffline();
+renderHeader();
+renderPanel();
+scheduleComet();
+
+const ast = $('#asteroid');
+ast.addEventListener('touchstart', e => { e.preventDefault(); for (const _ of e.changedTouches) onTap(e); }, { passive: false });
+ast.addEventListener('mousedown', e => { if (!('ontouchstart' in window)) onTap(e); });
+</script>
+</body>
+</html>
