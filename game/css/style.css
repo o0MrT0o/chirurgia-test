@@ -327,3 +327,178 @@ nav button .ico { display: block; font-size: 18px; margin-bottom: 2px; }
   max-width: 86vw;
 }
 #toast.show { opacity: 1; }
+
+/* =====================================================================
+   OPRAWA WIZUALNA v2 — nadpisuje wcześniejsze reguły (kaskada CSS).
+   Sekcje: tło, nagłówek, asteroida, panel, karty, nawigacja, przyciski,
+   paski, toast, modal, liczby, statystyki, splash.
+   ===================================================================== */
+
+/* ===== Tło: mgławice + wineta ===== */
+.nebula {
+  position: fixed; border-radius: 50%; filter: blur(60px);
+  opacity: .35; pointer-events: none; z-index: 0;
+}
+.nebula.n1 {
+  width: 75vw; height: 75vw; left: -22vw; top: 4vh;
+  background: radial-gradient(circle, #4a2d8a, transparent 70%);
+  animation: drift1 26s ease-in-out infinite alternate;
+}
+.nebula.n2 {
+  width: 65vw; height: 65vw; right: -18vw; top: 42vh;
+  background: radial-gradient(circle, #14498a, transparent 70%);
+  animation: drift2 32s ease-in-out infinite alternate;
+}
+@keyframes drift1 { to { translate: 7vw 5vh; } }
+@keyframes drift2 { to { translate: -6vw -6vh; } }
+
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  background: radial-gradient(ellipse at 50% 38%, transparent 55%, #06081455 100%);
+}
+
+/* ===== Nagłówek ===== */
+#crystalCount {
+  font-size: 34px; letter-spacing: 1px;
+  background: linear-gradient(180deg, #ffffff, #9adcff 70%, #6ee7ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 16px #6ee7ff55);
+}
+#cpsLabel {
+  display: inline-block; margin-top: 4px; padding: 3px 14px;
+  border-radius: 999px; background: #161c44aa; border: 1px solid #2a3468;
+  color: #a8b4e0; font-size: 12px;
+}
+
+/* ===== Asteroida: sunący połysk + głębia ===== */
+#asteroid { overflow: hidden; }
+#asteroid::before {
+  content: ''; position: absolute; inset: -30%;
+  background: conic-gradient(from 0deg, transparent 0deg, #ffffff1c 45deg, transparent 90deg);
+  animation: sheen 8s linear infinite;
+  pointer-events: none;
+}
+@keyframes sheen { to { rotate: 360deg; } }
+#asteroid::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  box-shadow: inset 0 -14px 44px #0007, inset 0 6px 20px #ffffff14;
+  pointer-events: none;
+}
+
+/* ===== Panel dolny: szkło ===== */
+#panel {
+  background: linear-gradient(180deg, #0d1230f0, #0a0e28fa);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid #2c356e;
+}
+#panel::-webkit-scrollbar { width: 4px; }
+#panel::-webkit-scrollbar-thumb { background: #2c356e; border-radius: 2px; }
+
+/* ===== Karty ===== */
+.item {
+  background: linear-gradient(180deg, #1a2150, #151b42);
+  border-color: #2c356e;
+  box-shadow: 0 2px 10px #00000040;
+  transition: transform .12s, filter .15s;
+}
+.item:active { transform: scale(.98); filter: brightness(1.15); background: linear-gradient(180deg, #1a2150, #151b42); }
+.item .icon {
+  width: 42px; height: 42px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: #10153add; border: 1px solid #2a3468; border-radius: 12px;
+  font-size: 22px;
+}
+.item.ready { border-color: #ffd76e; box-shadow: 0 0 14px #ffd76e33, 0 2px 10px #00000040; }
+.item.bought { background: linear-gradient(180deg, #14251c, #10201a); }
+
+.stat { background: linear-gradient(180deg, #1a2150, #141a3e); border-color: #2c356e; }
+.stat .v { text-shadow: 0 0 12px #6ee7ff33; }
+.achv { background: linear-gradient(180deg, #1a2150, #151b42); border-color: #2c356e; }
+.achv.done { background: linear-gradient(90deg, #26200e, #151b42 60%); }
+.art, .skinTile { background: linear-gradient(180deg, #1a2150, #151b42); border-color: #2c356e; }
+.skinTile { transition: transform .12s; }
+.skinTile:active { transform: scale(.95); }
+
+/* ===== Nawigacja ===== */
+nav {
+  background: #0b0f2ae6;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-top-color: #232c5c;
+}
+nav button { transition: color .2s; }
+nav button.active {
+  background: linear-gradient(180deg, #6ee7ff21, transparent 75%);
+  text-shadow: 0 0 12px #6ee7ff99;
+}
+nav button .ico { transition: transform .2s; }
+nav button.active .ico { transform: translateY(-1px) scale(1.18); }
+
+/* ===== Przyciski ===== */
+.bigBtn { transition: transform .12s, filter .2s; }
+.bigBtn:active { transform: scale(.97); }
+.bigBtn.gold { position: relative; overflow: hidden; }
+.bigBtn.gold::after {
+  content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
+  background: linear-gradient(100deg, transparent, #ffffff66, transparent);
+  animation: btnShine 3.2s ease-in-out infinite;
+}
+@keyframes btnShine { 0%, 65% { left: -60%; } 100% { left: 140%; } }
+.buyToggle button { border-radius: 999px; transition: background .15s, color .15s, box-shadow .15s; }
+.buyToggle button.active { box-shadow: 0 0 12px #6ee7ff33; }
+
+/* ===== Paski postępu: migotanie ===== */
+.mfill, .bossHp { position: relative; overflow: hidden; }
+.mfill::after, .bossHp::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 30%, #ffffff4d 50%, transparent 70%);
+  background-size: 220% 100%;
+  animation: barShimmer 1.8s linear infinite;
+}
+@keyframes barShimmer { from { background-position: 200% 0; } to { background-position: -60% 0; } }
+
+/* ===== Toast ===== */
+#toast {
+  top: 10%; translate: -50% -10px;
+  transition: opacity .3s, translate .3s;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 8px 28px #00000090, 0 0 14px #ffd76e22;
+}
+#toast.show { translate: -50% 0; }
+
+/* ===== Modal ===== */
+#overlay {
+  background: #060814d9;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+#overlay .box {
+  animation: popIn .28s cubic-bezier(.2, 1.4, .4, 1);
+  box-shadow: 0 14px 44px #000000aa, 0 0 0 1px #4a5aa833;
+  background: linear-gradient(180deg, #1a2150, #12173a);
+}
+@keyframes popIn { from { scale: .82; opacity: 0; } }
+
+/* ===== Latające liczby ===== */
+.floatNum { animation: floatUp2 1s cubic-bezier(.2, .7, .4, 1) forwards; }
+@keyframes floatUp2 {
+  0% { translate: 0 0; scale: 1.3; opacity: 1; }
+  100% { translate: 0 -100px; scale: .85; opacity: 0; }
+}
+
+/* ===== Samouczek ===== */
+#coach {
+  background: linear-gradient(180deg, #1f2757f2, #161c44f2);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+
+/* ===== Ekran startowy ===== */
+#splash {
+  background: radial-gradient(ellipse at 50% 30%, #1a2151ee 0%, #0b1026f2 60%, #060814fa 100%);
+}
+#splash h1 { font-size: 38px; }
+#splash .splashAst {
+  animation: float 4s ease-in-out infinite, glowPulse 2.4s ease-in-out infinite alternate;
+}
+@keyframes glowPulse {
+  from { filter: drop-shadow(0 0 16px #6ee7ff44); }
+  to   { filter: drop-shadow(0 0 36px #6ee7ffaa); }
+}
