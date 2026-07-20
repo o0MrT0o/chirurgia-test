@@ -162,6 +162,8 @@ function doPrestige() {
     tutorialStep: S.tutorialStep,
     research: S.research,
     researchDone: S.researchDone,
+    skin: S.skin,
+    skinsBought: S.skinsBought,
   };
   S = Object.assign(DEFAULT_STATE(), keep);
   save();
@@ -355,6 +357,32 @@ function claimResearch() {
   save();
   return r;
 }
+
+// ---------- Skórki ----------
+function skinOwned(sk) {
+  if (sk.id === 'classic') return true;
+  if (sk.cost) return !!(S.skinsBought && S.skinsBought[sk.id]);
+  return sk.cond ? sk.cond(S) : false;
+}
+
+function buySkin(id) {
+  const sk = SKINS.find(x => x.id === id);
+  if (!sk || !sk.cost || skinOwned(sk) || S.stardust < sk.cost) return false;
+  S.stardust -= sk.cost;
+  S.skinsBought[id] = true;
+  save();
+  return true;
+}
+
+function selectSkin(id) {
+  const sk = SKINS.find(x => x.id === id);
+  if (!sk || !skinOwned(sk)) return false;
+  S.skin = id;
+  save();
+  return true;
+}
+
+function skinsOwnedCount() { return SKINS.filter(skinOwned).length; }
 
 // ---------- Bossowie ----------
 function bossMaxHp() {

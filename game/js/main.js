@@ -30,6 +30,7 @@ function startGame() {
   checkDaily();
   makeStars();
   initTabs();
+  applySkin();
   renderHeader();
   renderPanel();
   scheduleComet();

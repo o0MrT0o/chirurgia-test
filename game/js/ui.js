@@ -328,15 +328,66 @@ function uiDoPrestige() {
   renderPanel();
 }
 
-// ---------- Zakładka: Osiągnięcia ----------
+// ---------- Zakładka: Sukcesy (skórki + osiągnięcia) ----------
+function applySkin() {
+  const ast = $('#asteroid');
+  const sk = SKINS.find(x => x.id === S.skin) || SKINS[0];
+  SKINS.forEach(s => ast.classList.remove(s.css));
+  if (sk.id !== 'classic') ast.classList.add(sk.css);
+}
+
+function renderSkins() {
+  return `<div class="note" style="padding-top:8px">🎨 <b>Skórki asteroidy</b> — ${skinsOwnedCount()}/${SKINS.length}
+    • masz ✨ ${fmt(S.stardust)}</div>
+    <div class="skinGrid">${SKINS.map(sk => {
+      const owned = skinOwned(sk);
+      const sel = S.skin === sk.id;
+      const status = sel ? '✅ wybrana'
+        : owned ? 'dotknij, aby wybrać'
+        : sk.cost ? `kup: ✨ ${sk.cost}`
+        : `🔒 ${sk.condDesc}`;
+      return `<div class="skinTile ${sel ? 'sel' : ''} ${owned || sk.cost ? '' : 'lockedSkin'}" data-skin="${sk.id}">
+        <div class="skinPrev ${sk.css !== 'skin-classic' ? sk.css : ''}"></div>
+        <div class="sn">${sk.name}</div>
+        <div class="ss">${status}</div>
+      </div>`;
+    }).join('')}</div>`;
+}
+
 function renderAchievements(p) {
   const doneCount = Object.keys(S.achievements).length;
-  p.innerHTML = `<div class="note">🏆 ${doneCount}/${ACHIEVEMENTS.length} — każde osiągnięcie daje <b>+${BALANCE.achievementBonus * 100}% produkcji</b></div>`
+  p.innerHTML = renderSkins()
+    + `<div class="note">🏆 <b>Osiągnięcia</b> ${doneCount}/${ACHIEVEMENTS.length} — każde daje <b>+${BALANCE.achievementBonus * 100}% produkcji</b></div>`
     + ACHIEVEMENTS.map(a => `
       <div class="achv ${S.achievements[a.id] ? 'done' : ''}">
         <div class="icon">${a.icon}</div>
         <div><div class="t">${a.name}</div><div class="d">${a.desc}</div></div>
       </div>`).join('');
+
+  p.querySelectorAll('[data-skin]').forEach(el => el.onclick = () => {
+    const sk = SKINS.find(x => x.id === el.dataset.skin);
+    if (skinOwned(sk)) {
+      if (selectSkin(sk.id)) {
+        applySkin();
+        toast(`🎨 Skórka: ${sk.name}!`);
+        Sound.buy();
+        renderPanel();
+      }
+    } else if (sk.cost) {
+      if (buySkin(sk.id)) {
+        selectSkin(sk.id);
+        applySkin();
+        toast(`🎨 Kupiono skórkę ${sk.name} za ✨ ${sk.cost}!`);
+        Sound.fanfare();
+        if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+        renderPanel();
+      } else {
+        toast(`✨ Potrzebujesz ${sk.cost} pyłu (masz ${fmt(S.stardust)})`);
+      }
+    } else {
+      toast(`🔒 Warunek: ${sk.condDesc}`);
+    }
+  });
 }
 
 // ---------- Zakładka: Bonusy ----------

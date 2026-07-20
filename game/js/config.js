@@ -144,6 +144,22 @@ const ARTIFACTS = [
   { id: 'art_i3', planet: 'io',     name: 'Oko Io',              icon: '👁️' },
 ];
 
+// ---------- Skórki asteroidy (kosmetyka) ----------
+// Odblokowanie: cost = kup za gwiezdny pył, cond = spełnij warunek (auto).
+// css = klasa nadawana asteroidzie i podglądowi (style w style.css).
+const SKINS = [
+  { id: 'classic', name: 'Klasyczna',         css: 'skin-classic' },
+  { id: 'gold',    name: 'Złota',             css: 'skin-gold',    cost: 5 },
+  { id: 'ice',     name: 'Lodowa',            css: 'skin-ice',     cond: s => s.loginStreak >= 3,            condDesc: 'seria logowań: 3 dni' },
+  { id: 'lava',    name: 'Lawowa',            css: 'skin-lava',    cond: s => (s.bossesKilled || 0) >= 3,    condDesc: 'pokonaj 3 bossów' },
+  { id: 'cheese',  name: 'Serowa',            css: 'skin-cheese',  cond: s => s.totalClicks >= 15000,        condDesc: '15 tys. kliknięć' },
+  { id: 'emerald', name: 'Szmaragdowa',       css: 'skin-emerald', cost: 10 },
+  { id: 'heart',   name: 'Kryształowe serce', css: 'skin-heart',   cond: s => s.loginStreak >= 7,            condDesc: 'seria logowań: 7 dni' },
+  { id: 'void',    name: 'Otchłań',           css: 'skin-void',    cond: s => (s.bossesKilled || 0) >= 10,   condDesc: 'pokonaj 10 bossów' },
+  { id: 'star',    name: 'Gwiezdna',          css: 'skin-star',    cond: s => s.prestigeCount >= 5,          condDesc: '5 prestiżów' },
+  { id: 'rainbow', name: 'Tęczowa',           css: 'skin-rainbow', cost: 25 },
+];
+
 // ---------- Laboratorium badań ----------
 // Badania trwają realny czas i dają trwałe bonusy. Jedno naraz.
 // req = id badania, które trzeba ukończyć wcześniej (łańcuch).

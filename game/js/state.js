@@ -35,6 +35,8 @@ const DEFAULT_STATE = () => ({
   bossesKilled: 0,      // pokonani bossowie łącznie
   research: null,       // aktywne badanie: { id, end } albo null
   researchDone: {},     // id badania -> true (ukończone)
+  skin: 'classic',      // wybrana skórka asteroidy
+  skinsBought: {},      // skórki kupione za pył (te z warunkiem liczą się same)
   totalUpgradesBought: 0, // ulepszenia kupione łącznie (od początku gry)
   playSeconds: 0,       // łączny czas gry (sekundy)
   bestCps: 0,           // rekordowa produkcja na sekundę

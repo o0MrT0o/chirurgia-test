@@ -90,12 +90,39 @@ header {
   width: min(52vw, 240px); height: min(52vw, 240px);
   border-radius: 50%;
   background: radial-gradient(circle at 32% 30%, #a8b4d8 0%, #6b7699 35%, #3d4568 70%, #262c4a 100%);
-  box-shadow: 0 0 60px #6ee7ff33, inset -18px -20px 46px #0008, inset 12px 12px 30px #fff2;
+  box-shadow: 0 0 60px var(--glow, #6ee7ff33), inset -18px -20px 46px #0008, inset 12px 12px 30px #fff2;
   position: relative;
   cursor: pointer;
   transition: transform .08s;
   animation: float 5s ease-in-out infinite;
 }
+
+/* ===== Skórki asteroidy (współdzielone z podglądem .skinPrev) ===== */
+.skin-gold    { background: radial-gradient(circle at 32% 30%, #ffe9a8 0%, #ffd76e 35%, #b8860b 70%, #6b4e00 100%) !important; --glow: #ffd76e55; }
+.skin-ice     { background: radial-gradient(circle at 32% 30%, #eafcff 0%, #a8e6f0 35%, #4aa8c0 70%, #1a4a5c 100%) !important; --glow: #a8e6f055; }
+.skin-lava    { background: radial-gradient(circle at 32% 30%, #ffb08f 0%, #ff5f3c 35%, #a8231a 70%, #4a0d08 100%) !important; --glow: #ff5f3c55; }
+.skin-cheese  { background: radial-gradient(circle at 32% 30%, #fff3b0 0%, #ffd76e 40%, #d4a017 75%, #8a6508 100%) !important; --glow: #ffd76e44; }
+.skin-emerald { background: radial-gradient(circle at 32% 30%, #b8ffd8 0%, #3ddc84 35%, #1a8a4a 70%, #0a3d20 100%) !important; --glow: #3ddc8455; }
+.skin-heart   { background: radial-gradient(circle at 32% 30%, #ffd8ec 0%, #ff8fc8 35%, #d4488f 70%, #6b1a44 100%) !important; --glow: #ff8fc855; }
+.skin-void    { background: radial-gradient(circle at 32% 30%, #6b4ea8 0%, #3d2a6b 40%, #1a0d3d 70%, #060314 100%) !important; --glow: #8a5fff55; }
+.skin-star    { background: radial-gradient(circle at 32% 30%, #d8e4ff 0%, #6b8fff 35%, #2a3da8 70%, #0d1448 100%) !important; --glow: #6b8fff66; }
+.skin-rainbow { background: conic-gradient(from 0deg, #ff5f5f, #ffd76e, #3ddc84, #6ee7ff, #8a5fff, #ff8fc8, #ff5f5f) !important; --glow: #ffffff55; }
+
+/* ===== Galeria skórek ===== */
+.skinGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0; }
+.skinTile {
+  background: #161c44; border: 1px solid #2a3468; border-radius: 12px;
+  padding: 10px 4px; text-align: center; cursor: pointer;
+}
+.skinTile.sel { border-color: #6ee7ff; box-shadow: 0 0 10px #6ee7ff33; }
+.skinTile.lockedSkin { opacity: .5; }
+.skinPrev {
+  width: 44px; height: 44px; border-radius: 50%; margin: 0 auto 5px;
+  background: radial-gradient(circle at 32% 30%, #a8b4d8 0%, #6b7699 35%, #3d4568 70%, #262c4a 100%);
+  box-shadow: inset -5px -6px 12px #0008, inset 3px 3px 8px #fff2;
+}
+.skinTile .sn { font-size: 10px; font-weight: 700; }
+.skinTile .ss { font-size: 9px; color: #9aa7d9; margin-top: 2px; line-height: 1.2; }
 #asteroid:active { transform: scale(.93); }
 #asteroid.pulse { animation: float 5s ease-in-out infinite, hitPulse .15s; }
 @keyframes float { 0%,100% { translate: 0 0; } 50% { translate: 0 -10px; } }
