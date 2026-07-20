@@ -114,6 +114,7 @@ function renderExpeditions(p) {
     html += `</p><button class="bigBtn" onclick="hideOverlay(); renderPanel()">Super!</button>`;
     showOverlay(html);
     if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+    Sound.fanfare();
   };
   const rushBtn = $('#rushExpBtn');
   if (rushBtn) rushBtn.onclick = () => Ads.showRewarded(() => {
@@ -164,6 +165,7 @@ function renderMine(p) {
   p.querySelectorAll('[data-buy]').forEach(el => el.onclick = () => {
     if (buyBuilding(el.dataset.buy, Number(el.dataset.qty))) {
       if (navigator.vibrate) navigator.vibrate(20);
+      Sound.buy();
       renderPanel();
     }
   });
@@ -191,6 +193,7 @@ function renderUpgrades(p) {
     if (buyUpgrade(el.dataset.upg)) {
       toast(`🚀 Kupiono: ${u.name}!`);
       if (navigator.vibrate) navigator.vibrate(30);
+      Sound.buy();
       renderPanel();
     }
   });
@@ -249,6 +252,7 @@ function renderPrestige(p) {
     if (buyTalent(el.dataset.talent)) {
       toast(`🌟 ${t.name} → poziom ${talentLevel(t.id)} (${t.eff(talentLevel(t.id))})`);
       if (navigator.vibrate) navigator.vibrate(30);
+      Sound.buy();
       renderPanel();
     }
   });
@@ -324,7 +328,7 @@ function renderBonus(p) {
   const d = $('#dailyBtn');
   if (d && !S.dailyClaimed) d.onclick = () => {
     const r = claimDaily();
-    if (r > 0) toast(`🎁 Bonus dzienny: +${fmt(r)} 💎 (seria: ${S.loginStreak} dni)`);
+    if (r > 0) { toast(`🎁 Bonus dzienny: +${fmt(r)} 💎 (seria: ${S.loginStreak} dni)`); Sound.claim(); }
     renderPanel();
   };
   const a = $('#adBoostBtn');
@@ -336,12 +340,28 @@ function renderBonus(p) {
         ? `🎯 Komplet misji dnia! +${fmt(res.reward)} 💎 i +${BALANCE.missionSetBonus} ✨ pyłu!`
         : `🎯 Misja wykonana! +${fmt(res.reward)} 💎`);
       if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+      Sound.claim();
       renderPanel();
     }
   });
 }
 
 // ---------- Klikanie asteroidy ----------
+function spawnParticles(x, y, count) {
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('span');
+    s.className = 'particle';
+    s.textContent = Math.random() < 0.3 ? '💎' : '✦';
+    const ang = Math.random() * Math.PI * 2;
+    const dist = 40 + Math.random() * 60;
+    s.style.cssText = `left:${x}px;top:${y}px;`
+      + `--dx:${Math.cos(ang) * dist}px;--dy:${Math.sin(ang) * dist - 30}px;`
+      + `--rot:${Math.random() * 360 - 180}deg`;
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 700);
+  }
+}
+
 function onTap(e) {
   let p = clickPower();
   const crit = Math.random() < critChance(); // talent Złoty dotyk
@@ -350,14 +370,20 @@ function onTap(e) {
   S.totalClicks++;
   missionBump('clicks');
   if (navigator.vibrate) navigator.vibrate(crit ? 40 : 12);
+  if (crit) Sound.crit(); else Sound.click();
   const ast = $('#asteroid');
   ast.classList.remove('pulse'); void ast.offsetWidth;
   ast.classList.add('pulse');
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) || window.innerWidth / 2;
+  const y = (e.touches ? e.touches[0].clientY : e.clientY) || window.innerHeight / 3;
+  spawnParticles(x, y, crit ? 10 : 3);
+  if (crit) {
+    document.body.classList.remove('shake'); void document.body.offsetWidth;
+    document.body.classList.add('shake');
+  }
   const f = document.createElement('div');
   f.className = 'floatNum' + (crit ? ' crit' : '');
   f.textContent = (crit ? 'KRYT! +' : '+') + fmt(p);
-  const x = (e.touches ? e.touches[0].clientX : e.clientX) || window.innerWidth / 2;
-  const y = (e.touches ? e.touches[0].clientY : e.clientY) || window.innerHeight / 3;
   f.style.left = (x - 20 + (Math.random() * 40 - 20)) + 'px';
   f.style.top = (y - 30) + 'px';
   document.body.appendChild(f);
@@ -392,6 +418,7 @@ function spawnComet() {
       toast(`☄️ SZAŁ WYDOBYCIA! Produkcja ×${BALANCE.frenzyMult} przez ${BALANCE.frenzySeconds} sekund!`);
     }
     if (navigator.vibrate) navigator.vibrate(60);
+    Sound.comet();
     save();
     scheduleComet();
   };
@@ -432,6 +459,8 @@ function spawnMeteor() {
     const reward = Math.max(50, totalCps() * 15 + clickPower() * 5);
     earn(reward);
     if (navigator.vibrate) navigator.vibrate(25);
+    Sound.meteor();
+    spawnParticles(ev.clientX, ev.clientY, 5);
     const f = document.createElement('div');
     f.className = 'floatNum';
     f.textContent = '+' + fmt(reward);

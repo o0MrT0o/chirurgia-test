@@ -12,6 +12,50 @@ body {
   touch-action: manipulation;
 }
 
+/* ===== Ekran startowy ===== */
+#splash {
+  position: fixed; inset: 0; z-index: 200;
+  background: radial-gradient(ellipse at 50% 30%, #1a2151 0%, #0b1026 60%, #060814 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; text-align: center; cursor: pointer;
+  transition: opacity .5s;
+}
+#splash.hide { opacity: 0; pointer-events: none; }
+#splash h1 {
+  font-size: 34px; font-weight: 900; letter-spacing: 2px; line-height: 1.2;
+  background: linear-gradient(135deg, #b7f4ff, #6ee7ff, #3d9bff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 18px #6ee7ff55);
+}
+#splash .splashAst { font-size: 84px; animation: float 4s ease-in-out infinite; filter: drop-shadow(0 0 24px #6ee7ff66); }
+#splash .tagline { font-size: 14px; color: #9aa7d9; }
+#splash .tapHint { font-size: 15px; font-weight: 700; color: #ffd76e; animation: twinkle 1.6s infinite; margin-top: 18px; }
+
+/* ===== Przycisk dźwięku ===== */
+#soundBtn {
+  position: fixed; top: calc(8px + env(safe-area-inset-top)); right: 10px; z-index: 80;
+  width: 38px; height: 38px; border-radius: 50%; border: 1px solid #2a3468;
+  background: #161c44cc; font-size: 17px; cursor: pointer; color: #fff;
+}
+
+/* ===== Cząsteczki przy klikaniu ===== */
+.particle {
+  position: fixed; z-index: 45; pointer-events: none; font-size: 13px;
+  animation: particleFly .7s ease-out forwards;
+}
+@keyframes particleFly {
+  to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+}
+
+/* ===== Wstrząs ekranu (kryt) ===== */
+body.shake { animation: shakeIt .3s; }
+@keyframes shakeIt {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-5px, 3px); }
+  50% { transform: translate(4px, -3px); }
+  75% { transform: translate(-3px, 2px); }
+}
+
 /* ===== Gwiazdy w tle ===== */
 .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
 .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 3s infinite; }

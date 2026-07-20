@@ -27,6 +27,7 @@ const DEFAULT_STATE = () => ({
   dailyMissions: { date: '', missions: [] }, // misje dnia
   missionCounters: {},  // dzienne liczniki postępu misji
   missionsCompleted: 0, // wykonane misje łącznie (od początku gry)
+  soundOn: true,        // dźwięki włączone?
   expedition: null,     // aktywna wyprawa: { planet, end } albo null
   expeditionsDone: 0,   // ukończone wyprawy łącznie
   artifacts: {},        // id artefaktu -> true (kolekcja)

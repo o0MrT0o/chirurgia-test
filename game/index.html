@@ -5,11 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="theme-color" content="#0b1026" />
 <title>Kosmiczny Górnik</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
 <div class="stars" id="stars"></div>
+
+<div id="splash">
+  <div class="splashAst">🪨</div>
+  <h1>💎 KOSMICZNY<br>GÓRNIK</h1>
+  <p class="tagline">Wydobywaj kryształy. Podbij galaktykę.</p>
+  <p class="tapHint">▶ Dotknij, aby grać</p>
+</div>
+
+<button id="soundBtn" title="Dźwięk wł./wył.">🔊</button>
 
 <header>
   <div id="crystalCount">0 <span class="unit">💎</span></div>
@@ -43,10 +53,11 @@
 <div id="overlay"><div class="box" id="overlayBox"></div></div>
 <div id="toast"></div>
 
-<!-- Kolejność ma znaczenie: config -> state -> logic -> ads -> ui -> main -->
+<!-- Kolejność ma znaczenie: config -> state -> logic -> sound -> ads -> ui -> main -->
 <script src="js/config.js"></script>
 <script src="js/state.js"></script>
 <script src="js/logic.js"></script>
+<script src="js/sound.js"></script>
 <script src="js/ads.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>

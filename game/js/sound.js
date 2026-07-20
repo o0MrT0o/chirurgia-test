@@ -1,0 +1,55 @@
+'use strict';
+/* =====================================================================
+   SOUND.JS — dźwięki syntezowane na żywo przez WebAudio.
+   Zero plików audio = zero dodatkowych megabajtów w APK.
+   Przeglądarka wymaga gestu użytkownika, więc Sound.unlock() wołamy
+   przy pierwszym dotknięciu (ekran startowy).
+   ===================================================================== */
+
+const Sound = (() => {
+  let ctx = null;
+
+  function ensure() {
+    try {
+      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (ctx && ctx.state === 'suspended') ctx.resume();
+    } catch (e) { ctx = null; }
+    return ctx;
+  }
+
+  // Pojedynczy ton: częstotliwość, długość, barwa, głośność, opóźnienie.
+  function beep(freq, dur = 0.08, type = 'sine', vol = 0.12, delay = 0) {
+    if (!S.soundOn) return;
+    const c = ensure();
+    if (!c) return;
+    try {
+      const t = c.currentTime + delay;
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g).connect(c.destination);
+      o.start(t);
+      o.stop(t + dur + 0.02);
+    } catch (e) {}
+  }
+
+  return {
+    unlock() { ensure(); },
+    click()   { beep(550 + Math.random() * 250, 0.05, 'triangle', 0.07); },
+    crit()    { beep(880, 0.09, 'square', 0.1); beep(1320, 0.12, 'square', 0.09, 0.05); },
+    buy()     { beep(440, 0.06, 'sine', 0.11); beep(660, 0.08, 'sine', 0.11, 0.06); },
+    fanfare() { [523, 659, 784, 1047].forEach((f, i) => beep(f, 0.12, 'triangle', 0.11, i * 0.09)); },
+    comet()   { beep(1200, 0.15, 'sine', 0.11); beep(1600, 0.2, 'sine', 0.09, 0.08); },
+    meteor()  { beep(220, 0.12, 'sawtooth', 0.13); beep(140, 0.14, 'sawtooth', 0.1, 0.05); },
+    claim()   { [392, 523, 659].forEach((f, i) => beep(f, 0.1, 'sine', 0.11, i * 0.07)); },
+  };
+})();
+
+function toggleSound() {
+  S.soundOn = !S.soundOn;
+  $('#soundBtn').textContent = S.soundOn ? '🔊' : '🔇';
+  if (S.soundOn) Sound.buy();
+  save();
+}

@@ -28,7 +28,7 @@ ekran do `ui.js`.
 - [x] **Etap 3** — duży prestiż: drzewko talentów (3 gałęzie, 9 talentów z poziomami, kryty, rabaty, dłuższe boosty)
 - [x] **Etap 4** — misje dzienne (3/dzień, pył za komplet) + eventy losowe (deszcz meteorytów, gorączka kryształowa)
 - [x] **Etap 5** — ekspedycje na 5 planet (wyprawy czasowe 15 min–24 h, skracanie reklamą) + kolekcja 15 artefaktów
-- [ ] **Etap 6** — oprawa: dźwięki, animacje, ikona aplikacji, ekran startowy
+- [x] **Etap 6** — oprawa: dźwięki WebAudio, ekran startowy, cząsteczki, wstrząs przy krycie, ikona (`icon.svg`)
 - [ ] **Etap 7** — prawdziwy AdMob + podpisany AAB do publikacji
 
 ## 🎮 Mechaniki (zaprojektowane pod długą retencję graczy)
@@ -86,8 +86,11 @@ W przeglądarce reklamy są symulowane. Aby zarabiać naprawdę:
    — klucz trzymaj w GitHub Secrets, nigdy w repo.)
 3. Zmień identyfikator aplikacji `com.mrt.kosmicznygornik` w
    `.github/workflows/build-apk.yml` na własny (musi być unikalny w Google Play).
-4. Przygotuj: ikonę 512×512, grafikę promocyjną 1024×500, min. 2 zrzuty ekranu,
-   opis i politykę prywatności (wymagana przy AdMob — darmowe generatory online).
+4. Przygotuj: ikonę 512×512 (w repo jest gotowa `game/icon.svg` — przekonwertuj
+   na PNG np. na [icon.kitchen](https://icon.kitchen), które od razu wygeneruje
+   też wszystkie rozmiary dla Androida), grafikę promocyjną 1024×500, min. 2
+   zrzuty ekranu, opis i politykę prywatności (wymagana przy AdMob — darmowe
+   generatory online).
 
 ## ⚖️ Balans gry
 
