@@ -807,14 +807,60 @@ function toast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ---------- Tło: gwiazdy ----------
+// ---------- Tło: gwiazdy w 3 warstwach + błyski + pył kosmiczny ----------
 function makeStars() {
   const wrap = $('#stars');
-  for (let i = 0; i < 60; i++) {
+  wrap.innerHTML = '';
+  const colors = ['#ffffff', '#ffffff', '#ffffff', '#9adcff', '#ffe9a8', '#ffc8e0'];
+  const layers = [
+    { n: 55, min: 1.0, max: 1.6, cls: 'l1' }, // dalekie, drobne
+    { n: 26, min: 1.8, max: 2.6, cls: 'l2' }, // średnie
+    { n: 9,  min: 2.8, max: 3.6, cls: 'l3' }, // bliskie, z poświatą
+  ];
+  for (const L of layers) {
+    const layer = document.createElement('div');
+    layer.className = 'starLayer ' + L.cls;
+    for (let i = 0; i < L.n; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = L.min + Math.random() * (L.max - L.min);
+      const c = colors[Math.floor(Math.random() * colors.length)];
+      s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random() * 100}vw;top:${Math.random() * 100}vh;`
+        + `background:${c};animation-duration:${2 + Math.random() * 3}s;animation-delay:${Math.random() * 3}s;`
+        + (size > 2.6 ? `box-shadow:0 0 ${Math.round(size * 3)}px ${c};` : '');
+      layer.appendChild(s);
+    }
+    wrap.appendChild(layer);
+  }
+  // gwiazdy-błyski (krzyżyki)
+  for (let i = 0; i < 6; i++) {
     const s = document.createElement('div');
-    s.className = 'star';
-    const size = Math.random() * 2 + 1;
-    s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random() * 100}vw;top:${Math.random() * 100}vh;animation-delay:${Math.random() * 3}s`;
+    s.className = 'sparkStar';
+    s.textContent = '✦';
+    s.style.cssText = `left:${Math.random() * 100}vw;top:${Math.random() * 100}vh;`
+      + `font-size:${7 + Math.random() * 6}px;animation-delay:${Math.random() * 5}s;`
+      + `color:${colors[Math.floor(Math.random() * colors.length)]}`;
     wrap.appendChild(s);
   }
+  // pyłki unoszące się ku górze
+  for (let i = 0; i < 12; i++) {
+    const d = document.createElement('div');
+    d.className = 'dust';
+    d.style.cssText = `left:${Math.random() * 100}vw;`
+      + `animation-duration:${18 + Math.random() * 18}s;animation-delay:${-Math.random() * 30}s;`;
+    wrap.appendChild(d);
+  }
+}
+
+// Spadająca gwiazda przecina tło co kilkanaście sekund.
+function scheduleShootingStar() {
+  setTimeout(() => {
+    const s = document.createElement('div');
+    s.className = 'shootingStar';
+    s.style.left = (40 + Math.random() * 55) + 'vw';
+    s.style.top = (Math.random() * 30) + 'vh';
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1400);
+    scheduleShootingStar();
+  }, (6 + Math.random() * 14) * 1000);
 }

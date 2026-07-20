@@ -29,6 +29,7 @@ function startGame() {
   load();
   checkDaily();
   makeStars();
+  scheduleShootingStar();
   initTabs();
   applySkin();
   renderHeader();
