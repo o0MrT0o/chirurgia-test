@@ -28,6 +28,7 @@ const DEFAULT_STATE = () => ({
   missionCounters: {},  // dzienne liczniki postępu misji
   missionsCompleted: 0, // wykonane misje łącznie (od początku gry)
   soundOn: true,        // dźwięki włączone?
+  tutorialStep: 0,      // krok samouczka (99 = ukończony/pominięty)
   expedition: null,     // aktywna wyprawa: { planet, end } albo null
   expeditionsDone: 0,   // ukończone wyprawy łącznie
   artifacts: {},        // id artefaktu -> true (kolekcja)
@@ -76,5 +77,24 @@ function load() {
     if (raw) S = Object.assign(DEFAULT_STATE(), JSON.parse(raw));
     // migracja starych zapisów: pył sprzed drzewka talentów liczy się jako zdobyty
     if (!S.totalStardustEarned && S.stardust > 0) S.totalStardustEarned = S.stardust;
+    // migracja: doświadczeni gracze nie dostają samouczka
+    if (S.tutorialStep === 0 && S.allTimeEarned > 1000) S.tutorialStep = 99;
   } catch (e) {}
+}
+
+// ---------- Kopia zapasowa (eksport/import zapisu) ----------
+function exportSave() {
+  return btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+}
+
+function importSave(code) {
+  try {
+    const obj = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+    if (typeof obj.crystals !== 'number' || typeof obj.totalEarned !== 'number') return false;
+    S = Object.assign(DEFAULT_STATE(), obj);
+    save();
+    return true;
+  } catch (e) {
+    return false;
+  }
 }

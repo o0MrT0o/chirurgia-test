@@ -324,6 +324,11 @@ function renderBonus(p) {
       <div class="stat"><div class="v">${Object.keys(S.achievements).length}/${ACHIEVEMENTS.length}</div><div class="k">osiągnięcia</div></div>
       <div class="stat"><div class="v">🧭 ${S.expeditionsDone || 0}</div><div class="k">ukończone wyprawy</div></div>
       <div class="stat"><div class="v">🏺 ${artifactCount()}/${ARTIFACTS.length}</div><div class="k">artefakty</div></div>
+    </div>
+    <div class="note">💾 <b>Kopia zapasowa</b> — przenieś postęp na inny telefon</div>
+    <div class="saveBtns">
+      <button class="bigBtn" id="exportBtn">📤 Eksportuj</button>
+      <button class="bigBtn" id="importBtn">📥 Importuj</button>
     </div>`;
   const d = $('#dailyBtn');
   if (d && !S.dailyClaimed) d.onclick = () => {
@@ -344,6 +349,8 @@ function renderBonus(p) {
       renderPanel();
     }
   });
+  const ex = $('#exportBtn'); if (ex) ex.onclick = showExportOverlay;
+  const im = $('#importBtn'); if (im) im.onclick = showImportOverlay;
 }
 
 // ---------- Klikanie asteroidy ----------
@@ -495,6 +502,84 @@ function claimOffline(doubled) {
   } else {
     earn(pendingOffline); pendingOffline = 0; hideOverlay();
   }
+}
+
+// ---------- Samouczek ----------
+const TUTORIAL_STEPS = [
+  { text: '👆 Klikaj w asteroidę, aby wydobywać kryształy!', done: () => S.totalClicks >= 10 },
+  { text: '⛏️ Super! Kup pierwszego Astro-górnika w zakładce Kopalnia.', done: () => totalBuildings(S) >= 1, glow: 'mine' },
+  { text: '🤖 Maszyny kopią same! Kup teraz ulepszenie w zakładce Ulepszenia (potrzeba 100 💎).', done: () => (S.totalUpgradesBought || 0) >= 1, glow: 'upgrades' },
+  { text: '🎉 Świetnie Ci idzie! Zaglądaj do misji 🎁, wysyłaj wyprawy 🪐 i wracaj codziennie po bonusy!', done: null },
+];
+
+let lastCoachStep = -1;
+
+function updateTutorial() {
+  const coach = $('#coach');
+  if (S.tutorialStep >= TUTORIAL_STEPS.length || S.tutorialStep === 99) {
+    if (coach.style.display !== 'none') {
+      coach.style.display = 'none';
+      document.querySelectorAll('nav button').forEach(b => b.classList.remove('glow'));
+    }
+    return;
+  }
+  const step = TUTORIAL_STEPS[S.tutorialStep];
+  if (step.done && step.done()) {
+    S.tutorialStep++;
+    Sound.claim();
+    save();
+    return;
+  }
+  if (lastCoachStep !== S.tutorialStep) {
+    lastCoachStep = S.tutorialStep;
+    coach.style.display = 'flex';
+    $('#coachText').textContent = step.text;
+    const isLast = S.tutorialStep === TUTORIAL_STEPS.length - 1;
+    $('#coachBtn').textContent = isLast ? '✅ OK!' : '✖';
+    $('#coachBtn').onclick = () => { S.tutorialStep = 99; save(); updateTutorial(); };
+    document.querySelectorAll('nav button').forEach(b =>
+      b.classList.toggle('glow', !!step.glow && b.dataset.tab === step.glow));
+  }
+}
+
+// ---------- Kopia zapasowa (eksport/import) ----------
+function showExportOverlay() {
+  const code = exportSave();
+  showOverlay(`
+    <h2>📤 Eksport zapisu</h2>
+    <p>Skopiuj poniższy kod i schowaj w bezpiecznym miejscu<br>(np. w notatkach):</p>
+    <textarea class="saveArea" id="exportArea" readonly>${code}</textarea>
+    <button class="bigBtn" id="copySaveBtn">📋 Skopiuj do schowka</button>
+    <button class="bigBtn" onclick="hideOverlay()">Zamknij</button>`);
+  $('#copySaveBtn').onclick = () => {
+    const area = $('#exportArea');
+    area.select();
+    const done = () => toast('📋 Zapis skopiowany do schowka!');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(done, () => { document.execCommand('copy'); done(); });
+    } else { document.execCommand('copy'); done(); }
+  };
+}
+
+function showImportOverlay() {
+  showOverlay(`
+    <h2>📥 Import zapisu</h2>
+    <p>Wklej kod zapisu. <b>Uwaga:</b> obecny postęp zostanie nadpisany!</p>
+    <textarea class="saveArea" id="importArea" placeholder="Wklej kod tutaj..."></textarea>
+    <button class="bigBtn gold" id="doImportBtn">📥 Wczytaj zapis</button>
+    <button class="bigBtn" onclick="hideOverlay()">Anuluj</button>`);
+  $('#doImportBtn').onclick = () => {
+    if (importSave($('#importArea').value)) {
+      hideOverlay();
+      checkDaily();
+      renderHeader();
+      renderPanel();
+      toast('✅ Zapis wczytany pomyślnie!');
+      Sound.fanfare();
+    } else {
+      toast('❌ Nieprawidłowy kod zapisu!');
+    }
+  };
 }
 
 // ---------- Overlay / toast ----------

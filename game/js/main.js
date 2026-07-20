@@ -16,6 +16,7 @@ function tick() {
   const cps = totalCps();
   if (cps > (S.bestCps || 0)) S.bestCps = cps;
   renderHeader();
+  updateTutorial();
   for (const a of checkAchievements()) {
     toast(`🏆 Osiągnięcie: ${a.name}! (+${BALANCE.achievementBonus * 100}% produkcji)`);
     if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
