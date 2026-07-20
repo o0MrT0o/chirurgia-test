@@ -34,6 +34,7 @@ function globalMult() {
   const ownedTypes = BUILDINGS.filter(b => (S.buildings[b.id] || 0) > 0).length;
   m *= 1 + ownedTypes * talentLevel('tp3') * 0.02;       // Synergia
   m *= 1 + artifactCount() * BALANCE.artifactBonus;      // kolekcja artefaktów
+  m *= researchMult('prod');                             // badania: produkcja
   for (const u of UPGRADES) if (S.upgrades[u.id] && u.type === 'global') m *= u.mult;
   if (now() < S.frenzyUntil) m *= BALANCE.frenzyMult;
   if (now() < S.boostUntil) m *= BALANCE.adBoostMult;
@@ -54,6 +55,7 @@ function clickPower() {
   let p = 1;
   for (const u of UPGRADES) if (S.upgrades[u.id] && u.type === 'click') p *= u.mult;
   p *= 1 + talentLevel('tc1') * 0.25;                             // Silne dłonie
+  p *= researchMult('click');                                     // badania: moc kliku
   p += totalCps() * (BALANCE.clickCpsBonus + talentLevel('tc2') * 0.01); // Echo kliknięcia
   if (now() < S.feverUntil) p *= BALANCE.feverMult;               // gorączka kryształowa
   return p * globalMult();
@@ -62,8 +64,12 @@ function clickPower() {
 // Szansa na krytyczny klik ×10 (talent Złoty dotyk).
 function critChance() { return talentLevel('tc3') * 0.02; }
 
-// Rabat na budynki (talent Tania siła robocza).
-function costDiscount() { return 1 - talentLevel('tp2') * 0.02; }
+// Rabat na budynki (talent Tania siła robocza + badanie Nanoroboty).
+function costDiscount() {
+  let d = 1 - talentLevel('tp2') * 0.02;
+  for (const r of RESEARCH) if (isResearchDone(r.id) && r.costDisc) d *= 1 - r.costDisc;
+  return d;
+}
 
 function buildingCost(b) {
   return Math.ceil(b.baseCost * costDiscount() * Math.pow(BALANCE.costGrowth, S.buildings[b.id] || 0));
@@ -154,6 +160,8 @@ function doPrestige() {
     bossesKilled: S.bossesKilled,
     soundOn: S.soundOn,
     tutorialStep: S.tutorialStep,
+    research: S.research,
+    researchDone: S.researchDone,
   };
   S = Object.assign(DEFAULT_STATE(), keep);
   save();
@@ -172,8 +180,12 @@ function offlineEarnings() {
   return 0;
 }
 
-// Mnożnik odstępu między kometami (talent Magnes komet).
-function cometDelayMult() { return 1 - talentLevel('tt2') * 0.08; }
+// Mnożnik odstępu między kometami (talent Magnes komet + badanie Teoria komet).
+function cometDelayMult() {
+  let d = 1 - talentLevel('tt2') * 0.08;
+  for (const r of RESEARCH) if (isResearchDone(r.id) && r.cometFreq) d *= 1 - r.cometFreq;
+  return d;
+}
 
 // Długość boostu reklamowego w sekundach (talent Wieczny boost).
 function boostDuration() { return BALANCE.adBoostSeconds + talentLevel('tt3') * 15; }
@@ -299,6 +311,49 @@ function claimExpedition() {
   S.expedition = null;
   save();
   return { loot, artifact, duplicate, dust };
+}
+
+// ---------- Laboratorium badań ----------
+function isResearchDone(id) { return !!(S.researchDone && S.researchDone[id]); }
+
+function researchUnlocked(r) { return !r.req || isResearchDone(r.req); }
+
+function researchDoneCount() { return Object.keys(S.researchDone || {}).length; }
+
+// Suma efektu danego typu ze wszystkich ukończonych badań (mnożnikowo).
+function researchMult(field) {
+  let m = 1;
+  for (const r of RESEARCH) if (isResearchDone(r.id) && r[field]) m *= 1 + r[field];
+  return m;
+}
+
+function startResearch(id) {
+  const r = RESEARCH.find(x => x.id === id);
+  if (!r || S.research || isResearchDone(id) || !researchUnlocked(r) || S.crystals < r.cost) return false;
+  S.crystals -= r.cost;
+  S.research = { id, end: now() + r.hours * 3600 * 1000 };
+  save();
+  return true;
+}
+
+function researchRemaining() {
+  return S.research ? Math.max(0, S.research.end - now()) : 0;
+}
+
+function rushResearch() {
+  if (!S.research) return;
+  S.research.end -= BALANCE.rushMinutes * 60 * 1000;
+  save();
+}
+
+// Odbiór ukończonego badania; zwraca definicję badania albo null.
+function claimResearch() {
+  if (!S.research || researchRemaining() > 0) return null;
+  const r = RESEARCH.find(x => x.id === S.research.id);
+  S.researchDone[r.id] = true;
+  S.research = null;
+  save();
+  return r;
 }
 
 // ---------- Bossowie ----------

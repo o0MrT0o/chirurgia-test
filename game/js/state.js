@@ -33,6 +33,8 @@ const DEFAULT_STATE = () => ({
   expeditionsDone: 0,   // ukończone wyprawy łącznie
   artifacts: {},        // id artefaktu -> true (kolekcja)
   bossesKilled: 0,      // pokonani bossowie łącznie
+  research: null,       // aktywne badanie: { id, end } albo null
+  researchDone: {},     // id badania -> true (ukończone)
   totalUpgradesBought: 0, // ulepszenia kupione łącznie (od początku gry)
   playSeconds: 0,       // łączny czas gry (sekundy)
   bestCps: 0,           // rekordowa produkcja na sekundę

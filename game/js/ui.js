@@ -85,6 +85,43 @@ function renderExpeditions(p) {
       }).join('');
   }
 
+  // — Laboratorium —
+  let labHtml;
+  if (S.research) {
+    const r = RESEARCH.find(x => x.id === S.research.id);
+    const remaining = researchRemaining();
+    const total = r.hours * 3600 * 1000;
+    const pct = Math.min(100, Math.round((1 - remaining / total) * 100));
+    labHtml = remaining <= 0
+      ? `<div class="note branchHead">🧪 Laboratorium</div>
+         <div class="note">${r.icon} Badanie <b>${r.name}</b> ukończone!</div>
+         <button class="bigBtn gold" id="claimResBtn">🎓 Odbierz: ${r.desc}</button>`
+      : `<div class="note branchHead">🧪 Laboratorium</div>
+         <div class="note">${r.icon} Trwa badanie: <b>${r.name}</b> (${r.desc})</div>
+         <div class="mbar" style="height:10px"><div class="mfill" style="width:${pct}%"></div></div>
+         <div class="note">Koniec za: <b>${fmtCountdown(remaining)}</b></div>
+         <button class="bigBtn gold" id="rushResBtn">🎬 Obejrzyj reklamę → skróć o ${BALANCE.rushMinutes} min</button>`;
+  } else {
+    const next = RESEARCH.filter(r => !isResearchDone(r.id) && researchUnlocked(r));
+    const locked = RESEARCH.filter(r => !isResearchDone(r.id) && !researchUnlocked(r));
+    labHtml = `<div class="note branchHead">🧪 Laboratorium — ukończone: ${researchDoneCount()}/${RESEARCH.length}</div>`
+      + (next.length === 0 && locked.length === 0
+        ? '<div class="note">🎓 Wszystkie badania ukończone!</div>'
+        : next.map(r => {
+            const can = S.crystals >= r.cost;
+            const time = r.hours < 1 ? `${r.hours * 60} min` : `${r.hours} h`;
+            return `<div class="item ${can ? '' : 'locked'}" data-research="${r.id}">
+              <div class="icon">${r.icon}</div>
+              <div class="info">
+                <div class="name">${r.name} <span class="qty">${time}</span></div>
+                <div class="desc">${r.desc}</div>
+              </div>
+              <div class="right"><div class="cost ${can ? '' : 'cant'}">${fmt(r.cost)} 💎</div></div>
+            </div>`;
+          }).join('')
+          + (locked.length ? `<div class="note">🔒 Kolejne badania odblokują się po ukończeniu poprzednich (${locked.length} w kolejce)</div>` : ''));
+  }
+
   const artHtml = `<div class="note">🏺 <b>Kolekcja artefaktów</b> — ${artifactCount()}/${ARTIFACTS.length}
     (bonus: <b>+${Math.round(artifactCount() * BALANCE.artifactBonus * 100)}% produkcji</b>)
     • duplikat = +${BALANCE.duplicateDust} ✨</div>
@@ -94,7 +131,34 @@ function renderExpeditions(p) {
         <div class="an">${S.artifacts[a.id] ? a.name : '???'}</div>
       </div>`).join('')}</div>`;
 
-  p.innerHTML = topHtml + artHtml;
+  p.innerHTML = topHtml + labHtml + artHtml;
+
+  p.querySelectorAll('[data-research]').forEach(el => el.onclick = () => {
+    const r = RESEARCH.find(x => x.id === el.dataset.research);
+    if (startResearch(el.dataset.research)) {
+      toast(`🧪 Rozpoczęto badanie: ${r.name}! Potrwa ${r.hours < 1 ? r.hours * 60 + ' min' : r.hours + ' h'}.`);
+      Sound.buy();
+      if (navigator.vibrate) navigator.vibrate(30);
+      renderPanel();
+    }
+  });
+  const claimRes = $('#claimResBtn');
+  if (claimRes) claimRes.onclick = () => {
+    const r = claimResearch();
+    if (!r) return;
+    showOverlay(`<h2>🎓 Badanie ukończone!</h2>
+      <p><span style="font-size:34px">${r.icon}</span><br><b>${r.name}</b><br>
+      Trwały efekt: <b style="color:#8ff5ff">${r.desc}</b></p>
+      <button class="bigBtn gold" onclick="hideOverlay(); renderPanel()">Eureka! 🎉</button>`);
+    Sound.fanfare();
+    if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+  };
+  const rushRes = $('#rushResBtn');
+  if (rushRes) rushRes.onclick = () => Ads.showRewarded(() => {
+    rushResearch();
+    toast(`⏩ Badanie skrócone o ${BALANCE.rushMinutes} min!`);
+    renderPanel();
+  });
 
   p.querySelectorAll('[data-planet]').forEach(el => el.onclick = () => {
     if (startExpedition(el.dataset.planet)) {
@@ -326,6 +390,8 @@ function renderBonus(p) {
       <div class="stat"><div class="v">🏺 ${artifactCount()}/${ARTIFACTS.length}</div><div class="k">artefakty</div></div>
       <div class="stat"><div class="v">⚔️ ${S.bossesKilled || 0}</div><div class="k">pokonani bossowie</div></div>
       <div class="stat"><div class="v">📅 ${S.loginStreak}</div><div class="k">seria logowań (dni)</div></div>
+      <div class="stat"><div class="v">🧪 ${researchDoneCount()}/${RESEARCH.length}</div><div class="k">ukończone badania</div></div>
+      <div class="stat"><div class="v">🎯 ${S.missionsCompleted || 0}</div><div class="k">wykonane misje</div></div>
     </div>
     <div class="note">💾 <b>Kopia zapasowa</b> — przenieś postęp na inny telefon</div>
     <div class="saveBtns">

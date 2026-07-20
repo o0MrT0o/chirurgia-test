@@ -31,7 +31,7 @@ ekran do `ui.js`.
 - [x] **Etap 6** — oprawa: dźwięki WebAudio, ekran startowy, cząsteczki, wstrząs przy krycie, ikona (`icon.svg`)
 - [x] **Etap 8** — tutorial dla nowych graczy + eksport/import zapisu (kopia zapasowa)
 - [x] **Etap 9** — bossowie-asteroidy: 5 bossów, walka na czas z paskiem HP, nagrody: kryształy + pył + szansa na artefakt
-- [ ] **Etap 10** — laboratorium badań (badania czasowe dające trwałe ulepszenia)
+- [x] **Etap 10** — laboratorium badań: 10 badań czasowych (30 min–12 h) w łańcuchu, trwałe bonusy, skracanie reklamą; zakładka Wyprawy → „Baza"
 - [ ] **Etap 11** — skórki asteroidy (kosmetyka za osiągnięcia i pył)
 - [ ] **Etap 7 (finał)** — prawdziwy AdMob + podpisany AAB do publikacji
 

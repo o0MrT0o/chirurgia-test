@@ -144,6 +144,34 @@ const ARTIFACTS = [
   { id: 'art_i3', planet: 'io',     name: 'Oko Io',              icon: '👁️' },
 ];
 
+// ---------- Laboratorium badań ----------
+// Badania trwają realny czas i dają trwałe bonusy. Jedno naraz.
+// req = id badania, które trzeba ukończyć wcześniej (łańcuch).
+// Efekty: prod (+% produkcji), click (+% kliku), costDisc (tańsze budynki),
+// cometFreq (częstsze komety) — działają na zawsze po ukończeniu.
+const RESEARCH = [
+  { id: 'r1',  name: 'Analiza spektralna',    icon: '🔬', hours: 0.5, cost: 5000, prod: 0.05,
+    desc: 'produkcja +5%' },
+  { id: 'r2',  name: 'Geologia asteroid',     icon: '🪨', hours: 1,  cost: 25000, click: 0.5,  req: 'r1',
+    desc: 'moc kliku +50%' },
+  { id: 'r3',  name: 'Optymalizacja wierteł', icon: '⚙️', hours: 2,  cost: 150000, prod: 0.10, req: 'r2',
+    desc: 'produkcja +10%' },
+  { id: 'r4',  name: 'Nanoroboty',            icon: '🦠', hours: 3,  cost: 1e6,  costDisc: 0.05, req: 'r3',
+    desc: 'budynki tańsze o 5%' },
+  { id: 'r5',  name: 'Krystalografia',        icon: '💎', hours: 4,  cost: 8e6,  prod: 0.15, req: 'r4',
+    desc: 'produkcja +15%' },
+  { id: 'r6',  name: 'Teoria komet',          icon: '☄️', hours: 5,  cost: 5e7,  cometFreq: 0.15, req: 'r5',
+    desc: 'komety częstsze o 15%' },
+  { id: 'r7',  name: 'Fizyka kwantowa',       icon: '⚛️', hours: 6,  cost: 4e8,  click: 1, req: 'r6',
+    desc: 'moc kliku +100%' },
+  { id: 'r8',  name: 'Astro-ekonomia',        icon: '📊', hours: 8,  cost: 3e9,  prod: 0.20, req: 'r7',
+    desc: 'produkcja +20%' },
+  { id: 'r9',  name: 'Ciemna materia',        icon: '🌌', hours: 10, cost: 2e10, prod: 0.25, req: 'r8',
+    desc: 'produkcja +25%' },
+  { id: 'r10', name: 'Teoria wszystkiego',    icon: '🧠', hours: 12, cost: 1e11, prod: 0.30, click: 1, req: 'r9',
+    desc: 'produkcja +30% i moc kliku +100%' },
+];
+
 // ---------- Misje dzienne ----------
 // Codziennie losowane są 3 z poniższych typów. counter = licznik dzienny,
 // desc(n) = opis z celem, dynamicTarget = cel liczony z produkcji gracza.
@@ -220,4 +248,6 @@ const ACHIEVEMENTS = [
   { id: 'a_art2',   name: 'Kolekcjoner legend',  icon: '💠', desc: 'Zbierz wszystkie 15 artefaktów', check: s => Object.keys(s.artifacts || {}).length >= 15 },
   { id: 'a_boss1',  name: 'Pogromca kolosów',    icon: '⚔️', desc: 'Pokonaj 3 bossów',            check: s => (s.bossesKilled || 0) >= 3 },
   { id: 'a_boss2',  name: 'Postrach galaktyki',  icon: '👑', desc: 'Pokonaj 20 bossów',           check: s => (s.bossesKilled || 0) >= 20 },
+  { id: 'a_lab1',   name: 'Młody naukowiec',     icon: '🧪', desc: 'Ukończ 3 badania',            check: s => Object.keys(s.researchDone || {}).length >= 3 },
+  { id: 'a_lab2',   name: 'Geniusz galaktyki',   icon: '🎓', desc: 'Ukończ wszystkie 10 badań',   check: s => Object.keys(s.researchDone || {}).length >= 10 },
 ];
