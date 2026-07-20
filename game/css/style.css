@@ -82,6 +82,20 @@ header {
 @keyframes cometFly { from { top: 8%; } to { top: 70%; } }
 @keyframes spin { to { rotate: 360deg; } }
 
+/* ===== Deszcz meteorytów ===== */
+.meteor {
+  position: fixed; top: -60px; z-index: 60; font-size: 34px; cursor: pointer;
+  filter: drop-shadow(0 0 10px #ff9f43);
+  animation: meteorFall linear forwards;
+  touch-action: none;
+}
+@keyframes meteorFall { to { top: 105vh; rotate: 260deg; } }
+
+/* ===== Misje dzienne ===== */
+.item.ready { border-color: #ffd76e; box-shadow: 0 0 12px #ffd76e33; }
+.mbar { height: 6px; background: #0d1230; border-radius: 3px; margin: 4px 0 2px; overflow: hidden; }
+.mfill { height: 100%; background: linear-gradient(90deg, #6ee7ff, #3ddc84); border-radius: 3px; transition: width .3s; }
+
 /* ===== Zakładki ===== */
 nav {
   position: relative; z-index: 2;

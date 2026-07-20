@@ -32,6 +32,7 @@ function startGame() {
   renderPanel();
   showOfflineWindow();
   scheduleComet();
+  scheduleRandomEvent();
 
   const ast = $('#asteroid');
   ast.addEventListener('touchstart', e => { e.preventDefault(); onTap(e); }, { passive: false });

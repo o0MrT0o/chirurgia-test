@@ -54,6 +54,7 @@ function clickPower() {
   for (const u of UPGRADES) if (S.upgrades[u.id] && u.type === 'click') p *= u.mult;
   p *= 1 + talentLevel('tc1') * 0.25;                             // Silne dłonie
   p += totalCps() * (BALANCE.clickCpsBonus + talentLevel('tc2') * 0.01); // Echo kliknięcia
+  if (now() < S.feverUntil) p *= BALANCE.feverMult;               // gorączka kryształowa
   return p * globalMult();
 }
 
@@ -71,6 +72,7 @@ function earn(amount) {
   S.crystals += amount;
   S.totalEarned += amount;
   S.allTimeEarned += amount;
+  missionBump('earned', amount);
 }
 
 // ---------- Zakupy ----------
@@ -97,6 +99,7 @@ function buyBuilding(id, n = 1) {
   if (n < 1 || S.crystals < cost) return false;
   S.crystals -= cost;
   S.buildings[id] = (S.buildings[id] || 0) + n;
+  missionBump('buildings', n);
   save();
   return true;
 }
@@ -113,6 +116,7 @@ function buyUpgrade(id) {
   S.crystals -= u.cost;
   S.upgrades[id] = true;
   S.totalUpgradesBought = (S.totalUpgradesBought || 0) + 1;
+  missionBump('upgrades');
   save();
   return true;
 }
@@ -140,6 +144,9 @@ function doPrestige() {
     totalUpgradesBought: S.totalUpgradesBought,
     playSeconds: S.playSeconds,
     bestCps: S.bestCps,
+    dailyMissions: S.dailyMissions,
+    missionCounters: S.missionCounters,
+    missionsCompleted: S.missionsCompleted,
   };
   S = Object.assign(DEFAULT_STATE(), keep);
   save();
@@ -173,6 +180,52 @@ function checkDaily() {
     S.lastLoginDay = today;
     S.dailyClaimed = false;
   }
+  if (S.dailyMissions.date !== today) generateMissions();
+}
+
+// ---------- Misje dzienne ----------
+function generateMissions() {
+  const pool = [...MISSION_TYPES];
+  const chosen = [];
+  for (let i = 0; i < BALANCE.missionCount && pool.length; i++) {
+    const mt = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+    const target = Math.round(mt.dynamicTarget ? mt.dynamicTarget() : mt.target);
+    chosen.push({ type: mt.id, target, claimed: false });
+  }
+  S.dailyMissions = { date: todayStr(), missions: chosen };
+  S.missionCounters = {};
+  save();
+}
+
+// Zwiększ dzienny licznik postępu misji (wołane z akcji gracza).
+function missionBump(counter, amount = 1) {
+  S.missionCounters[counter] = (S.missionCounters[counter] || 0) + amount;
+}
+
+function missionProgress(m) {
+  const mt = MISSION_TYPES.find(t => t.id === m.type);
+  return Math.min(S.missionCounters[mt.counter] || 0, m.target);
+}
+
+function missionReward() {
+  return Math.max(BALANCE.missionRewardMin, totalCps() * BALANCE.missionRewardCps);
+}
+
+// Odbierz nagrodę za misję; zwraca {reward, setDone} albo null.
+function claimMission(i) {
+  const m = S.dailyMissions.missions[i];
+  if (!m || m.claimed || missionProgress(m) < m.target) return null;
+  m.claimed = true;
+  const reward = missionReward();
+  earn(reward);
+  S.missionsCompleted = (S.missionsCompleted || 0) + 1;
+  const setDone = S.dailyMissions.missions.every(x => x.claimed);
+  if (setDone) {
+    S.stardust += BALANCE.missionSetBonus;
+    S.totalStardustEarned = (S.totalStardustEarned || 0) + BALANCE.missionSetBonus;
+  }
+  save();
+  return { reward, setDone };
 }
 
 function dailyReward() {

@@ -23,6 +23,15 @@ const BALANCE = {
   tierThresholds: [10, 25, 50, 100, 200], // progi posiadania budynku odblokowujące ulepszenia
   tierMult: 2,             // każde ulepszenie progowe: produkcja budynku ×2
   tierCostFactor: 8,       // koszt ulepszenia progowego = baseCost × próg × ta_liczba
+  missionCount: 3,         // ile misji dziennie
+  missionRewardCps: 900,   // nagroda za misję = produkcja/sek. × ta_liczba
+  missionRewardMin: 2500,  // ...ale nie mniej niż tyle
+  missionSetBonus: 1,      // pył za wykonanie kompletu misji dnia
+  eventMinDelay: 180,      // eventy losowe: min odstęp (sekundy)
+  eventMaxDelay: 360,      // eventy losowe: max odstęp (sekundy)
+  feverMult: 5,            // gorączka kryształowa: klik ×5
+  feverSeconds: 20,        // ...przez 20 sekund
+  meteorCount: 12,         // deszcz meteorytów: ile meteorów spada
 };
 
 // ---------- Budynki (produkcja pasywna) ----------
@@ -84,6 +93,19 @@ const UPGRADES = [
   }
 })();
 
+// ---------- Misje dzienne ----------
+// Codziennie losowane są 3 z poniższych typów. counter = licznik dzienny,
+// desc(n) = opis z celem, dynamicTarget = cel liczony z produkcji gracza.
+const MISSION_TYPES = [
+  { id: 'clicks',    icon: '👆', target: 200, counter: 'clicks',    desc: n => `Kliknij ${fmt(n)} razy` },
+  { id: 'buildings', icon: '🏗️', target: 30,  counter: 'buildings', desc: n => `Kup ${fmt(n)} budynków` },
+  { id: 'earn',      icon: '💎', target: 0,   counter: 'earned',    desc: n => `Wydobądź ${fmt(n)} kryształów`,
+    dynamicTarget: () => Math.max(10000, totalCps() * 1800) },
+  { id: 'comets',    icon: '☄️', target: 2,   counter: 'comets',    desc: n => `Złap ${n} złote komety` },
+  { id: 'upgrades',  icon: '🚀', target: 2,   counter: 'upgrades',  desc: n => `Kup ${n} ulepszenia` },
+  { id: 'ads',       icon: '🎬', target: 1,   counter: 'ads',       desc: n => `Obejrzyj ${n} reklamę z nagrodą` },
+];
+
 // ---------- Drzewko talentów (kupowane za gwiezdny pył z prestiżu) ----------
 // Koszt poziomu = costBase × (aktualny_poziom + 1).
 // req = wymagany poziom innego talentu, zanim ten się odblokuje.
@@ -139,4 +161,6 @@ const ACHIEVEMENTS = [
   { id: 'a_time',   name: 'Weteran kosmosu',     icon: '⏳', desc: 'Graj łącznie 24 godziny',  check: s => (s.playSeconds || 0) >= 86400 },
   { id: 'a_tal1',   name: 'Uczeń gwiazd',        icon: '🌟', desc: 'Kup 10 poziomów talentów', check: s => Object.values(s.talents || {}).reduce((a, b) => a + b, 0) >= 10 },
   { id: 'a_dust',   name: 'Gwiezdny alchemik',   icon: '🌠', desc: 'Zdobądź łącznie 100 pyłu', check: s => (s.totalStardustEarned || 0) >= 100 },
+  { id: 'a_mis1',   name: 'Sumienny wykonawca',  icon: '🎯', desc: 'Wykonaj 10 misji dziennych',  check: s => (s.missionsCompleted || 0) >= 10 },
+  { id: 'a_mis2',   name: 'Mistrz zleceń',       icon: '🏅', desc: 'Wykonaj 50 misji dziennych',  check: s => (s.missionsCompleted || 0) >= 50 },
 ];

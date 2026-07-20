@@ -12,6 +12,7 @@ function renderHeader() {
     ? `✨ ${fmt(S.stardust)} pyłu do wydania • 🌟 talenty: ${talentLevelsTotal()} poz.` : '';
   const chips = [];
   if (now() < S.frenzyUntil) chips.push(`<span class="boostChip gold">☄️ SZAŁ ×${BALANCE.frenzyMult} — ${Math.ceil((S.frenzyUntil - now()) / 1000)}s</span>`);
+  if (now() < S.feverUntil) chips.push(`<span class="boostChip gold">💥 GORĄCZKA: klik ×${BALANCE.feverMult} — ${Math.ceil((S.feverUntil - now()) / 1000)}s</span>`);
   if (now() < S.boostUntil) chips.push(`<span class="boostChip">⚡ Boost ×${BALANCE.adBoostMult} — ${Math.ceil((S.boostUntil - now()) / 1000)}s</span>`);
   $('#boostBar').innerHTML = chips.join('');
 }
@@ -187,8 +188,30 @@ function renderAchievements(p) {
 }
 
 // ---------- Zakładka: Bonusy ----------
+function renderMissions() {
+  const missions = S.dailyMissions.missions || [];
+  if (!missions.length) return '';
+  const allDone = missions.every(m => m.claimed);
+  return `<div class="note" style="padding-top:8px">🎯 <b>Misje dzienne</b> — komplet: <b>+${BALANCE.missionSetBonus} ✨ pyłu</b>${allDone ? ' ✅' : ''}</div>`
+    + missions.map((m, i) => {
+      const mt = MISSION_TYPES.find(t => t.id === m.type);
+      const prog = missionProgress(m);
+      const done = prog >= m.target;
+      const pct = Math.round(prog / m.target * 100);
+      return `<div class="item ${m.claimed ? 'bought' : done ? 'ready' : ''}" data-mission="${i}">
+        <div class="icon">${mt.icon}</div>
+        <div class="info">
+          <div class="name">${mt.desc(m.target)}</div>
+          <div class="mbar"><div class="mfill" style="width:${pct}%"></div></div>
+          <div class="desc">${fmt(prog)} / ${fmt(m.target)}</div>
+        </div>
+        <div class="right"><div class="cost">${m.claimed ? '✅' : done ? '🎁 Odbierz!' : fmt(missionReward()) + ' 💎'}</div></div>
+      </div>`;
+    }).join('');
+}
+
 function renderBonus(p) {
-  p.innerHTML = `
+  p.innerHTML = renderMissions() + `
     <div class="note" style="padding-top:8px">🎁 <b>Bonus dzienny</b> — seria: ${S.loginStreak} ${S.loginStreak === 1 ? 'dzień' : 'dni'}</div>
     <button class="bigBtn" id="dailyBtn" ${S.dailyClaimed ? 'disabled' : ''}>
       ${S.dailyClaimed ? '✅ Odebrano — wróć jutro!' : `🎁 Odbierz ${fmt(dailyReward())} 💎`}
@@ -220,6 +243,16 @@ function renderBonus(p) {
   };
   const a = $('#adBoostBtn');
   if (a && now() >= S.boostUntil) a.onclick = adBoost;
+  p.querySelectorAll('[data-mission]').forEach(el => el.onclick = () => {
+    const res = claimMission(Number(el.dataset.mission));
+    if (res) {
+      toast(res.setDone
+        ? `🎯 Komplet misji dnia! +${fmt(res.reward)} 💎 i +${BALANCE.missionSetBonus} ✨ pyłu!`
+        : `🎯 Misja wykonana! +${fmt(res.reward)} 💎`);
+      if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+      renderPanel();
+    }
+  });
 }
 
 // ---------- Klikanie asteroidy ----------
@@ -229,6 +262,7 @@ function onTap(e) {
   if (crit) p *= 10;
   earn(p);
   S.totalClicks++;
+  missionBump('clicks');
   if (navigator.vibrate) navigator.vibrate(crit ? 40 : 12);
   const ast = $('#asteroid');
   ast.classList.remove('pulse'); void ast.offsetWidth;
@@ -262,6 +296,7 @@ function spawnComet() {
     clearTimeout(hide);
     c.style.display = 'none';
     S.cometsCaught++;
+    missionBump('comets');
     if (Math.random() < 0.5) {
       const reward = Math.max(100, totalCps() * 90);
       earn(reward);
@@ -274,6 +309,54 @@ function spawnComet() {
     save();
     scheduleComet();
   };
+}
+
+// ---------- Eventy losowe: deszcz meteorytów i gorączka kryształowa ----------
+function scheduleRandomEvent() {
+  const delay = BALANCE.eventMinDelay + Math.random() * (BALANCE.eventMaxDelay - BALANCE.eventMinDelay);
+  setTimeout(() => {
+    if (Math.random() < 0.5) startMeteorShower(); else startCrystalFever();
+    scheduleRandomEvent();
+  }, delay * 1000);
+}
+
+function startCrystalFever() {
+  S.feverUntil = now() + BALANCE.feverSeconds * 1000;
+  toast(`💥 GORĄCZKA KRYSZTAŁOWA! Klikanie ×${BALANCE.feverMult} przez ${BALANCE.feverSeconds} sekund!`);
+  if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+  save();
+}
+
+function startMeteorShower() {
+  toast('🌠 DESZCZ METEORYTÓW! Łap spadające meteory!');
+  if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+  for (let i = 0; i < BALANCE.meteorCount; i++) {
+    setTimeout(spawnMeteor, i * 600 + Math.random() * 300);
+  }
+}
+
+function spawnMeteor() {
+  const m = document.createElement('div');
+  m.className = 'meteor';
+  m.textContent = '🪨';
+  m.style.left = (5 + Math.random() * 85) + 'vw';
+  m.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
+  m.addEventListener('pointerdown', ev => {
+    ev.preventDefault();
+    const reward = Math.max(50, totalCps() * 15 + clickPower() * 5);
+    earn(reward);
+    if (navigator.vibrate) navigator.vibrate(25);
+    const f = document.createElement('div');
+    f.className = 'floatNum';
+    f.textContent = '+' + fmt(reward);
+    f.style.left = ev.clientX - 20 + 'px';
+    f.style.top = ev.clientY - 30 + 'px';
+    document.body.appendChild(f);
+    setTimeout(() => f.remove(), 1000);
+    m.remove();
+  });
+  document.body.appendChild(m);
+  setTimeout(() => m.remove(), 4500);
 }
 
 // ---------- Okno powitalne (zarobki offline) ----------

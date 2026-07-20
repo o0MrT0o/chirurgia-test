@@ -7,7 +7,9 @@
    ===================================================================== */
 
 const Ads = {
-  showRewarded(onReward) {
+  showRewarded(onRewardRaw) {
+    // każda obejrzana reklama liczy się do misji dziennej "Obejrzyj reklamę"
+    const onReward = () => { missionBump('ads'); onRewardRaw(); };
     // --- WERSJA APK: tutaj AdMob.showRewardVideoAd(), a onReward() w evencie nagrody ---
     showOverlay(`
       <h2>🎬 Reklama</h2>

@@ -23,6 +23,10 @@ const DEFAULT_STATE = () => ({
   dailyClaimed: false,
   boostUntil: 0,        // timestamp końca boostu z reklamy
   frenzyUntil: 0,       // timestamp końca szału komety
+  feverUntil: 0,        // timestamp końca gorączki kryształowej (klik ×5)
+  dailyMissions: { date: '', missions: [] }, // misje dnia
+  missionCounters: {},  // dzienne liczniki postępu misji
+  missionsCompleted: 0, // wykonane misje łącznie (od początku gry)
   totalUpgradesBought: 0, // ulepszenia kupione łącznie (od początku gry)
   playSeconds: 0,       // łączny czas gry (sekundy)
   bestCps: 0,           // rekordowa produkcja na sekundę
