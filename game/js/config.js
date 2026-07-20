@@ -35,7 +35,25 @@ const BALANCE = {
   artifactBonus: 0.02,     // +2% produkcji za każdy artefakt w kolekcji
   duplicateDust: 1,        // pył za wylosowanie duplikatu artefaktu
   rushMinutes: 30,         // reklama skraca wyprawę o tyle minut
+  bossMinDelay: 480,       // boss: min odstęp między pojawieniami (sekundy)
+  bossMaxDelay: 900,       // boss: max odstęp (sekundy)
+  bossTime: 30,            // ile sekund na pokonanie bossa
+  bossHpTaps: 45,          // HP bossa = moc kliku × ta liczba (zawsze wyzwanie)
+  bossRewardCps: 600,      // nagroda = produkcja/sek. × ta liczba
+  bossRewardMin: 5000,     // ...ale nie mniej niż tyle
+  bossDust: 2,             // pył za pokonanie bossa
+  bossArtChance: 0.2,      // szansa na artefakt z bossa
+  bossFailFraction: 0.1,   // nagroda pocieszenia przy porażce (ułamek pełnej)
 };
+
+// ---------- Bossowie ----------
+const BOSSES = [
+  { name: 'Obsydianowy Kolos',   icon: '🌑' },
+  { name: 'Strażnik Pierścieni', icon: '🪐' },
+  { name: 'Piroklast',           icon: '🌋' },
+  { name: 'Lodowy Behemot',      icon: '🧊' },
+  { name: 'Pożeracz Światów',    icon: '🕳️' },
+];
 
 // ---------- Budynki (produkcja pasywna) ----------
 const BUILDINGS = [
@@ -200,4 +218,6 @@ const ACHIEVEMENTS = [
   { id: 'a_exp2',   name: 'Zdobywca układu',     icon: '🚩', desc: 'Ukończ 25 ekspedycji',        check: s => (s.expeditionsDone || 0) >= 25 },
   { id: 'a_art1',   name: 'Archeolog kosmosu',   icon: '🏺', desc: 'Zdobądź 5 artefaktów',        check: s => Object.keys(s.artifacts || {}).length >= 5 },
   { id: 'a_art2',   name: 'Kolekcjoner legend',  icon: '💠', desc: 'Zbierz wszystkie 15 artefaktów', check: s => Object.keys(s.artifacts || {}).length >= 15 },
+  { id: 'a_boss1',  name: 'Pogromca kolosów',    icon: '⚔️', desc: 'Pokonaj 3 bossów',            check: s => (s.bossesKilled || 0) >= 3 },
+  { id: 'a_boss2',  name: 'Postrach galaktyki',  icon: '👑', desc: 'Pokonaj 20 bossów',           check: s => (s.bossesKilled || 0) >= 20 },
 ];

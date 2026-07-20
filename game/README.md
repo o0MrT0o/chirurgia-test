@@ -30,7 +30,7 @@ ekran do `ui.js`.
 - [x] **Etap 5** — ekspedycje na 5 planet (wyprawy czasowe 15 min–24 h, skracanie reklamą) + kolekcja 15 artefaktów
 - [x] **Etap 6** — oprawa: dźwięki WebAudio, ekran startowy, cząsteczki, wstrząs przy krycie, ikona (`icon.svg`)
 - [x] **Etap 8** — tutorial dla nowych graczy + eksport/import zapisu (kopia zapasowa)
-- [ ] **Etap 9** — bossowie-asteroidy (wielka asteroida z paskiem HP, nagrody: pył i artefakty)
+- [x] **Etap 9** — bossowie-asteroidy: 5 bossów, walka na czas z paskiem HP, nagrody: kryształy + pył + szansa na artefakt
 - [ ] **Etap 10** — laboratorium badań (badania czasowe dające trwałe ulepszenia)
 - [ ] **Etap 11** — skórki asteroidy (kosmetyka za osiągnięcia i pył)
 - [ ] **Etap 7 (finał)** — prawdziwy AdMob + podpisany AAB do publikacji

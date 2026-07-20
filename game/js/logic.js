@@ -151,6 +151,9 @@ function doPrestige() {
     expedition: S.expedition,
     expeditionsDone: S.expeditionsDone,
     artifacts: S.artifacts,
+    bossesKilled: S.bossesKilled,
+    soundOn: S.soundOn,
+    tutorialStep: S.tutorialStep,
   };
   S = Object.assign(DEFAULT_STATE(), keep);
   save();
@@ -296,6 +299,49 @@ function claimExpedition() {
   S.expedition = null;
   save();
   return { loot, artifact, duplicate, dust };
+}
+
+// ---------- Bossowie ----------
+function bossMaxHp() {
+  return clickPower() * BALANCE.bossHpTaps;
+}
+
+function bossReward() {
+  return Math.max(BALANCE.bossRewardMin, totalCps() * BALANCE.bossRewardCps);
+}
+
+// Nagrody za pokonanie bossa; zwraca { loot, dust, artifact, duplicate }.
+function grantBossWin() {
+  const loot = bossReward();
+  earn(loot);
+  S.bossesKilled = (S.bossesKilled || 0) + 1;
+  S.stardust += BALANCE.bossDust;
+  S.totalStardustEarned = (S.totalStardustEarned || 0) + BALANCE.bossDust;
+  let artifact = null, duplicate = false;
+  if (Math.random() < BALANCE.bossArtChance) {
+    const unlockedIds = PLANETS.filter(planetUnlocked).map(p => p.id);
+    const pool = ARTIFACTS.filter(a => unlockedIds.includes(a.planet));
+    if (pool.length) {
+      artifact = pool[Math.floor(Math.random() * pool.length)];
+      if (S.artifacts[artifact.id]) {
+        duplicate = true;
+        S.stardust += BALANCE.duplicateDust;
+        S.totalStardustEarned += BALANCE.duplicateDust;
+      } else {
+        S.artifacts[artifact.id] = true;
+      }
+    }
+  }
+  save();
+  return { loot, dust: BALANCE.bossDust, artifact, duplicate };
+}
+
+// Nagroda pocieszenia za nieudaną walkę.
+function grantBossFail() {
+  const loot = bossReward() * BALANCE.bossFailFraction;
+  earn(loot);
+  save();
+  return loot;
 }
 
 // ---------- Osiągnięcia ----------

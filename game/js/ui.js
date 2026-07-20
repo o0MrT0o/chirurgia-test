@@ -324,6 +324,8 @@ function renderBonus(p) {
       <div class="stat"><div class="v">${Object.keys(S.achievements).length}/${ACHIEVEMENTS.length}</div><div class="k">osiągnięcia</div></div>
       <div class="stat"><div class="v">🧭 ${S.expeditionsDone || 0}</div><div class="k">ukończone wyprawy</div></div>
       <div class="stat"><div class="v">🏺 ${artifactCount()}/${ARTIFACTS.length}</div><div class="k">artefakty</div></div>
+      <div class="stat"><div class="v">⚔️ ${S.bossesKilled || 0}</div><div class="k">pokonani bossowie</div></div>
+      <div class="stat"><div class="v">📅 ${S.loginStreak}</div><div class="k">seria logowań (dni)</div></div>
     </div>
     <div class="note">💾 <b>Kopia zapasowa</b> — przenieś postęp na inny telefon</div>
     <div class="saveBtns">
@@ -479,6 +481,99 @@ function spawnMeteor() {
   });
   document.body.appendChild(m);
   setTimeout(() => m.remove(), 4500);
+}
+
+// ---------- Bossowie ----------
+let boss = null; // { def, hp, maxHp, end, timer } — walka jest ulotna (nie zapisujemy)
+
+function scheduleBoss() {
+  const delay = BALANCE.bossMinDelay + Math.random() * (BALANCE.bossMaxDelay - BALANCE.bossMinDelay);
+  setTimeout(spawnBoss, delay * 1000);
+}
+
+function spawnBoss() {
+  if (boss) { scheduleBoss(); return; }
+  const def = BOSSES[Math.floor(Math.random() * BOSSES.length)];
+  boss = { def, maxHp: bossMaxHp(), hp: bossMaxHp(), end: now() + BALANCE.bossTime * 1000 };
+  $('#asteroid').style.display = 'none';
+  const box = document.createElement('div');
+  box.id = 'bossBox';
+  box.innerHTML = `
+    <div class="bossName">⚔️ ${def.name}</div>
+    <div class="bossBar"><div class="bossHp" id="bossHp"></div></div>
+    <div class="bossBar timer"><div class="bossTimer" id="bossTimer"></div></div>
+    <div class="bossFace" id="bossFace">${def.icon}</div>
+    <div class="note">Klikaj, aby zadawać obrażenia!</div>`;
+  $('#tapArea').appendChild(box);
+  const face = $('#bossFace');
+  face.addEventListener('touchstart', e => { e.preventDefault(); hitBoss(e); }, { passive: false });
+  face.addEventListener('mousedown', e => { if (!('ontouchstart' in window)) hitBoss(e); });
+  toast(`⚔️ ${def.name} nadlatuje! Masz ${BALANCE.bossTime} sekund!`);
+  Sound.alarm();
+  if (navigator.vibrate) navigator.vibrate([80, 60, 80]);
+  boss.timer = setInterval(updateBossBars, 100);
+  updateBossBars();
+}
+
+function updateBossBars() {
+  if (!boss) return;
+  const hpEl = $('#bossHp'), tEl = $('#bossTimer');
+  if (hpEl) hpEl.style.width = Math.max(0, boss.hp / boss.maxHp * 100) + '%';
+  if (tEl) tEl.style.width = Math.max(0, (boss.end - now()) / (BALANCE.bossTime * 1000) * 100) + '%';
+  if (now() >= boss.end && boss.hp > 0) endBoss(false);
+}
+
+function hitBoss(e) {
+  if (!boss) return;
+  let dmg = clickPower();
+  const crit = Math.random() < critChance();
+  if (crit) dmg *= 10;
+  boss.hp -= dmg;
+  S.totalClicks++;
+  missionBump('clicks');
+  Sound.hit();
+  if (navigator.vibrate) navigator.vibrate(crit ? 40 : 15);
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) || window.innerWidth / 2;
+  const y = (e.touches ? e.touches[0].clientY : e.clientY) || window.innerHeight / 3;
+  spawnParticles(x, y, crit ? 8 : 2);
+  const f = document.createElement('div');
+  f.className = 'floatNum' + (crit ? ' crit' : '');
+  f.textContent = (crit ? 'KRYT! −' : '−') + fmt(dmg);
+  f.style.left = (x - 20) + 'px';
+  f.style.top = (y - 30) + 'px';
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 1000);
+  const face = $('#bossFace');
+  if (face) { face.classList.remove('hurt'); void face.offsetWidth; face.classList.add('hurt'); }
+  updateBossBars();
+  if (boss.hp <= 0) endBoss(true);
+}
+
+function endBoss(won) {
+  if (!boss) return;
+  clearInterval(boss.timer);
+  const name = boss.def.name;
+  boss = null;
+  const box = $('#bossBox');
+  if (box) box.remove();
+  $('#asteroid').style.display = '';
+  if (won) {
+    const res = grantBossWin();
+    let html = `<h2>⚔️ ${name} pokonany!</h2>
+      <p><b style="font-size:22px;color:#8ff5ff">+${fmt(res.loot)} 💎</b><br>
+      <b style="color:#ffd76e">+${res.dust} ✨ pyłu</b>`;
+    if (res.artifact && res.duplicate) html += `<br><br>${res.artifact.icon} <b>${res.artifact.name}</b> — duplikat! +${BALANCE.duplicateDust} ✨`;
+    else if (res.artifact) html += `<br><br>Boss upuścił artefakt:<br><span style="font-size:34px">${res.artifact.icon}</span><br><b>${res.artifact.name}</b>!`;
+    html += `</p><button class="bigBtn gold" onclick="hideOverlay()">Zwycięstwo! 🎉</button>`;
+    showOverlay(html);
+    Sound.fanfare();
+    if (navigator.vibrate) navigator.vibrate([60, 40, 60, 40, 120]);
+  } else {
+    const loot = grantBossFail();
+    toast(`💨 ${name} odleciał... Nagroda pocieszenia: +${fmt(loot)} 💎`);
+    Sound.lose();
+  }
+  scheduleBoss();
 }
 
 // ---------- Okno powitalne (zarobki offline) ----------

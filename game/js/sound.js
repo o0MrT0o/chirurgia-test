@@ -44,6 +44,9 @@ const Sound = (() => {
     comet()   { beep(1200, 0.15, 'sine', 0.11); beep(1600, 0.2, 'sine', 0.09, 0.08); },
     meteor()  { beep(220, 0.12, 'sawtooth', 0.13); beep(140, 0.14, 'sawtooth', 0.1, 0.05); },
     claim()   { [392, 523, 659].forEach((f, i) => beep(f, 0.1, 'sine', 0.11, i * 0.07)); },
+    alarm()   { [330, 330, 330].forEach((f, i) => beep(f, 0.14, 'square', 0.12, i * 0.2)); },
+    hit()     { beep(180 + Math.random() * 60, 0.07, 'sawtooth', 0.1); },
+    lose()    { beep(220, 0.25, 'sawtooth', 0.12); beep(165, 0.35, 'sawtooth', 0.12, 0.2); },
   };
 })();
 

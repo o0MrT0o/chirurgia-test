@@ -103,6 +103,31 @@ header {
 .crater { position: absolute; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #2a3050, #171b33); box-shadow: inset 2px 3px 6px #0009; }
 .crystalDeco { position: absolute; font-size: 22px; filter: drop-shadow(0 0 6px #6ee7ff); }
 
+/* ===== Boss ===== */
+#bossBox {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; padding: 0 24px;
+  animation: coachIn .3s;
+}
+.bossName { font-size: 17px; font-weight: 900; color: #ff8f8f; text-shadow: 0 0 12px #f004; }
+.bossBar {
+  width: 100%; max-width: 280px; height: 14px; border-radius: 7px;
+  background: #0d1230; border: 1px solid #2a3468; overflow: hidden;
+}
+.bossBar.timer { height: 7px; }
+.bossHp { height: 100%; background: linear-gradient(90deg, #ff5f5f, #ff9f43); transition: width .1s; }
+.bossTimer { height: 100%; background: #6ee7ff; transition: width .1s linear; }
+.bossFace {
+  font-size: min(34vw, 150px); cursor: pointer; user-select: none;
+  filter: drop-shadow(0 0 30px #ff5f5f66);
+  animation: bossFloat 2.2s ease-in-out infinite;
+}
+.bossFace:active { transform: scale(.92); }
+.bossFace.hurt { animation: bossFloat 2.2s ease-in-out infinite, bossHurt .15s; }
+@keyframes bossFloat { 0%,100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+@keyframes bossHurt { 50% { filter: drop-shadow(0 0 40px #fff) brightness(2); } }
+
 /* ===== Latające liczby ===== */
 .floatNum {
   position: fixed; z-index: 50; pointer-events: none;

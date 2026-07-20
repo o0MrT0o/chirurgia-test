@@ -34,6 +34,7 @@ function startGame() {
   renderPanel();
   scheduleComet();
   scheduleRandomEvent();
+  scheduleBoss();
 
   // Ekran startowy: pierwsze dotknięcie odblokowuje audio (wymóg przeglądarek),
   // a okno zarobków offline pokazujemy dopiero po jego zamknięciu.
