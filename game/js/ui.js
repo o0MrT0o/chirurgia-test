@@ -376,7 +376,7 @@ function renderSkins() {
         : sk.cost ? `kup: ✨ ${sk.cost}`
         : `🔒 ${sk.condDesc}`;
       return `<div class="skinTile ${sel ? 'sel' : ''} ${owned || sk.cost ? '' : 'lockedSkin'}" data-skin="${sk.id}">
-        <div class="skinPrev">${generateAsteroidSVG(sk.id)}</div>
+        <div class="skinPrev">${generateAsteroidSVG(sk.id, { lite: true })}</div>
         <div class="sn">${sk.name}</div>
         <div class="ss">${status}</div>
       </div>`;
