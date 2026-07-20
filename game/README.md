@@ -25,7 +25,7 @@ ekran do `ui.js`.
 
 - [x] **Etap 1** — fundament: architektura modułowa + rdzeń gry (klikanie, budynki, ulepszenia, prestiż, osiągnięcia, bonusy, offline, komety)
 - [x] **Etap 2** — rozbudowa sklepu: kupowanie ×1/×10/Max, 50 ulepszeń progowych, ekran statystyk, 4 nowe osiągnięcia
-- [ ] **Etap 3** — duży prestiż: drzewko talentów za gwiezdny pył
+- [x] **Etap 3** — duży prestiż: drzewko talentów (3 gałęzie, 9 talentów z poziomami, kryty, rabaty, dłuższe boosty)
 - [ ] **Etap 4** — misje dzienne + eventy losowe (deszcz meteorytów, gorączka kryształowa)
 - [ ] **Etap 5** — ekspedycje na planety (wyprawy czasowe) + artefakty/kolekcje
 - [ ] **Etap 6** — oprawa: dźwięki, animacje, ikona aplikacji, ekran startowy

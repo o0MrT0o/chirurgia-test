@@ -30,8 +30,8 @@ const Ads = {
 
 function adBoost() {
   Ads.showRewarded(() => {
-    S.boostUntil = now() + BALANCE.adBoostSeconds * 1000;
-    toast(`⚡ Boost ×${BALANCE.adBoostMult} aktywny przez ${BALANCE.adBoostSeconds / 60} min!`);
+    S.boostUntil = now() + boostDuration() * 1000; // czas z talentem Wieczny boost
+    toast(`⚡ Boost ×${BALANCE.adBoostMult} aktywny przez ${Math.round(boostDuration())} s!`);
     save();
   });
 }

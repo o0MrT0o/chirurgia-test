@@ -8,8 +8,8 @@
 function renderHeader() {
   $('#crystalCount').innerHTML = `${fmt(S.crystals)} <span class="unit">💎</span>`;
   $('#cpsLabel').textContent = `${fmt(totalCps())} / sek. • klik: +${fmt(clickPower())}`;
-  $('#stardustLabel').textContent = S.stardust > 0
-    ? `✨ ${fmt(S.stardust)} gwiezdnego pyłu (+${Math.round(S.stardust * BALANCE.stardustBonus * 100)}% produkcji)` : '';
+  $('#stardustLabel').textContent = (S.stardust > 0 || talentLevelsTotal() > 0)
+    ? `✨ ${fmt(S.stardust)} pyłu do wydania • 🌟 talenty: ${talentLevelsTotal()} poz.` : '';
   const chips = [];
   if (now() < S.frenzyUntil) chips.push(`<span class="boostChip gold">☄️ SZAŁ ×${BALANCE.frenzyMult} — ${Math.ceil((S.frenzyUntil - now()) / 1000)}s</span>`);
   if (now() < S.boostUntil) chips.push(`<span class="boostChip">⚡ Boost ×${BALANCE.adBoostMult} — ${Math.ceil((S.boostUntil - now()) / 1000)}s</span>`);
@@ -111,26 +111,62 @@ function renderUpgrades(p) {
   });
 }
 
-// ---------- Zakładka: Prestiż ----------
+// ---------- Zakładka: Prestiż + drzewko talentów ----------
 function renderPrestige(p) {
   const gain = stardustGain();
+
+  const treeHtml = TALENT_BRANCHES.map(br => {
+    const rows = TALENTS.filter(t => t.branch === br.id).map(t => {
+      const lvl = talentLevel(t.id);
+      const maxed = lvl >= t.max;
+      const unlocked = talentUnlocked(t);
+      const cost = talentCost(t);
+      const can = unlocked && !maxed && S.stardust >= cost;
+      const reqTalent = t.req ? TALENTS.find(x => x.id === t.req.talent) : null;
+      const status = maxed ? '' : unlocked
+        ? `koszt: ✨ ${cost}`
+        : `🔒 wymaga: ${reqTalent.name} poz. ${t.req.level}`;
+      return `<div class="item ${maxed ? 'bought' : can ? '' : 'locked'}" data-talent="${t.id}">
+        <div class="icon">${t.icon}</div>
+        <div class="info">
+          <div class="name">${t.name} <span class="qty">${lvl}/${t.max}</span></div>
+          <div class="desc">${t.desc}${lvl > 0 ? ` • teraz: <b>${t.eff(lvl)}</b>` : ''}</div>
+        </div>
+        <div class="right"><div class="cost ${can || maxed ? '' : 'cant'}">${maxed ? 'MAX ✅' : status}</div></div>
+      </div>`;
+    }).join('');
+    return `<div class="note branchHead">${br.name}</div>` + rows;
+  }).join('');
+
   p.innerHTML = `
     <div class="note" style="padding-top:10px">
       ✨ <b>Prestiż</b> resetuje kryształy, maszyny i ulepszenia,<br>
-      ale daje <b>gwiezdny pył</b> — trwałe <b>+${BALANCE.stardustBonus * 100}% produkcji</b> za każdy pyłek, na zawsze.<br><br>
-      Zdobyte w tej rundzie: <b>${fmt(S.totalEarned)} 💎</b><br>
-      Pył do zdobycia teraz: <b style="color:#ffd76e">✨ ${fmt(gain)}</b>
+      ale daje <b>gwiezdny pył</b> — wydasz go w drzewku talentów poniżej.<br>
+      Zdobyte w tej rundzie: <b>${fmt(S.totalEarned)} 💎</b> •
+      pył do zdobycia: <b style="color:#ffd76e">✨ ${fmt(gain)}</b>
     </div>
     <button class="bigBtn gold" id="prestigeBtn" ${gain < 1 ? 'disabled' : ''}>
       ${gain >= 1 ? `✨ Prestiż — odbierz ${fmt(gain)} pyłu` : 'Zdobądź min. 10 mln 💎, aby odblokować'}
     </button>
-    <div class="note">Twój pył: ✨ ${fmt(S.stardust)} • Prestiże: ${S.prestigeCount}</div>`;
+    <div class="note">🌟 <b>Drzewko talentów</b> — do wydania: <b style="color:#ffd76e">✨ ${fmt(S.stardust)}</b>
+    • prestiże: ${S.prestigeCount}</div>
+    ${treeHtml}`;
+
   const b = $('#prestigeBtn');
   if (b && gain >= 1) b.onclick = () => showOverlay(`
     <h2>✨ Na pewno?</h2>
-    <p>Stracisz kryształy, maszyny i ulepszenia,<br>ale zyskasz <b>${fmt(gain)} pyłu</b> (+${fmt(gain * BALANCE.stardustBonus * 100)}% na zawsze).</p>
+    <p>Stracisz kryształy, maszyny i ulepszenia,<br>ale zyskasz <b>${fmt(gain)} pyłu</b> na talenty.<br>Talenty i osiągnięcia zostają!</p>
     <button class="bigBtn gold" onclick="hideOverlay(); uiDoPrestige()">Tak, resetuj!</button>
     <button class="bigBtn" onclick="hideOverlay()">Jeszcze nie</button>`);
+
+  p.querySelectorAll('[data-talent]').forEach(el => el.onclick = () => {
+    const t = TALENTS.find(x => x.id === el.dataset.talent);
+    if (buyTalent(el.dataset.talent)) {
+      toast(`🌟 ${t.name} → poziom ${talentLevel(t.id)} (${t.eff(talentLevel(t.id))})`);
+      if (navigator.vibrate) navigator.vibrate(30);
+      renderPanel();
+    }
+  });
 }
 
 function uiDoPrestige() {
@@ -157,7 +193,7 @@ function renderBonus(p) {
     <button class="bigBtn" id="dailyBtn" ${S.dailyClaimed ? 'disabled' : ''}>
       ${S.dailyClaimed ? '✅ Odebrano — wróć jutro!' : `🎁 Odbierz ${fmt(dailyReward())} 💎`}
     </button>
-    <div class="note">⚡ <b>Boost reklamowy</b> — obejrzyj reklamę, aby podwoić produkcję na ${BALANCE.adBoostSeconds / 60} min</div>
+    <div class="note">⚡ <b>Boost reklamowy</b> — obejrzyj reklamę, aby podwoić produkcję na ${Math.round(boostDuration())} s</div>
     <button class="bigBtn gold" id="adBoostBtn" ${now() < S.boostUntil ? 'disabled' : ''}>
       ${now() < S.boostUntil ? `⚡ Boost aktywny (${Math.ceil((S.boostUntil - now()) / 1000)}s)` : `🎬 Obejrzyj reklamę → Boost ×${BALANCE.adBoostMult}`}
     </button>
@@ -171,8 +207,10 @@ function renderBonus(p) {
       <div class="stat"><div class="v">${totalBuildings(S)}</div><div class="k">budynki</div></div>
       <div class="stat"><div class="v">${S.totalUpgradesBought || 0}</div><div class="k">kupione ulepszenia</div></div>
       <div class="stat"><div class="v">${S.cometsCaught}</div><div class="k">złapane komety</div></div>
-      <div class="stat"><div class="v">✨ ${fmt(S.stardust)}</div><div class="k">gwiezdny pył</div></div>
+      <div class="stat"><div class="v">✨ ${fmt(S.totalStardustEarned || 0)}</div><div class="k">pył zdobyty łącznie</div></div>
+      <div class="stat"><div class="v">🌟 ${talentLevelsTotal()}</div><div class="k">poziomy talentów</div></div>
       <div class="stat"><div class="v">${S.prestigeCount}</div><div class="k">prestiże</div></div>
+      <div class="stat"><div class="v">${Object.keys(S.achievements).length}/${ACHIEVEMENTS.length}</div><div class="k">osiągnięcia</div></div>
     </div>`;
   const d = $('#dailyBtn');
   if (d && !S.dailyClaimed) d.onclick = () => {
@@ -186,16 +224,18 @@ function renderBonus(p) {
 
 // ---------- Klikanie asteroidy ----------
 function onTap(e) {
-  const p = clickPower();
+  let p = clickPower();
+  const crit = Math.random() < critChance(); // talent Złoty dotyk
+  if (crit) p *= 10;
   earn(p);
   S.totalClicks++;
-  if (navigator.vibrate) navigator.vibrate(12);
+  if (navigator.vibrate) navigator.vibrate(crit ? 40 : 12);
   const ast = $('#asteroid');
   ast.classList.remove('pulse'); void ast.offsetWidth;
   ast.classList.add('pulse');
   const f = document.createElement('div');
-  f.className = 'floatNum';
-  f.textContent = '+' + fmt(p);
+  f.className = 'floatNum' + (crit ? ' crit' : '');
+  f.textContent = (crit ? 'KRYT! +' : '+') + fmt(p);
   const x = (e.touches ? e.touches[0].clientX : e.clientX) || window.innerWidth / 2;
   const y = (e.touches ? e.touches[0].clientY : e.clientY) || window.innerHeight / 3;
   f.style.left = (x - 20 + (Math.random() * 40 - 20)) + 'px';
@@ -206,7 +246,8 @@ function onTap(e) {
 
 // ---------- Złota kometa ----------
 function scheduleComet() {
-  const delay = BALANCE.cometMinDelay + Math.random() * (BALANCE.cometMaxDelay - BALANCE.cometMinDelay);
+  const delay = (BALANCE.cometMinDelay + Math.random() * (BALANCE.cometMaxDelay - BALANCE.cometMinDelay))
+    * cometDelayMult(); // talent Magnes komet
   setTimeout(spawnComet, delay * 1000);
 }
 

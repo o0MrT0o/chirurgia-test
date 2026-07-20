@@ -13,7 +13,9 @@ const DEFAULT_STATE = () => ({
   buildings: {},        // id -> ilość
   upgrades: {},         // id -> true
   achievements: {},     // id -> true
-  stardust: 0,          // waluta prestiżu
+  stardust: 0,          // gwiezdny pył do wydania (waluta prestiżu)
+  totalStardustEarned: 0, // pył zdobyty łącznie od początku gry
+  talents: {},          // id talentu -> poziom
   prestigeCount: 0,
   cometsCaught: 0,
   loginStreak: 0,
@@ -64,5 +66,7 @@ function load() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (raw) S = Object.assign(DEFAULT_STATE(), JSON.parse(raw));
+    // migracja starych zapisów: pył sprzed drzewka talentów liczy się jako zdobyty
+    if (!S.totalStardustEarned && S.stardust > 0) S.totalStardustEarned = S.stardust;
   } catch (e) {}
 }

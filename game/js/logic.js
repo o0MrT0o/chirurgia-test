@@ -4,10 +4,35 @@
    Czysta logika — zero dotykania HTML (to robi ui.js).
    ===================================================================== */
 
+// ---------- Talenty ----------
+function talentLevel(id) { return S.talents[id] || 0; }
+
+function talentCost(t) { return t.costBase * (talentLevel(t.id) + 1); }
+
+// Talent odblokowany, gdy spełnione jest jego wymaganie (req).
+function talentUnlocked(t) {
+  return !t.req || talentLevel(t.req.talent) >= t.req.level;
+}
+
+function buyTalent(id) {
+  const t = TALENTS.find(x => x.id === id);
+  if (talentLevel(id) >= t.max || !talentUnlocked(t) || S.stardust < talentCost(t)) return false;
+  S.stardust -= talentCost(t);
+  S.talents[id] = talentLevel(id) + 1;
+  save();
+  return true;
+}
+
+function talentLevelsTotal() {
+  return Object.values(S.talents).reduce((a, b) => a + b, 0);
+}
+
 // ---------- Produkcja ----------
 function globalMult() {
-  let m = 1 + S.stardust * BALANCE.stardustBonus;
-  m *= 1 + Object.keys(S.achievements).length * BALANCE.achievementBonus;
+  let m = 1 + Object.keys(S.achievements).length * BALANCE.achievementBonus;
+  m *= 1 + talentLevel('tp1') * 0.10;                    // Wydajne maszyny
+  const ownedTypes = BUILDINGS.filter(b => (S.buildings[b.id] || 0) > 0).length;
+  m *= 1 + ownedTypes * talentLevel('tp3') * 0.02;       // Synergia
   for (const u of UPGRADES) if (S.upgrades[u.id] && u.type === 'global') m *= u.mult;
   if (now() < S.frenzyUntil) m *= BALANCE.frenzyMult;
   if (now() < S.boostUntil) m *= BALANCE.adBoostMult;
@@ -27,12 +52,19 @@ function totalCps() {
 function clickPower() {
   let p = 1;
   for (const u of UPGRADES) if (S.upgrades[u.id] && u.type === 'click') p *= u.mult;
-  p += totalCps() * BALANCE.clickCpsBonus;
+  p *= 1 + talentLevel('tc1') * 0.25;                             // Silne dłonie
+  p += totalCps() * (BALANCE.clickCpsBonus + talentLevel('tc2') * 0.01); // Echo kliknięcia
   return p * globalMult();
 }
 
+// Szansa na krytyczny klik ×10 (talent Złoty dotyk).
+function critChance() { return talentLevel('tc3') * 0.02; }
+
+// Rabat na budynki (talent Tania siła robocza).
+function costDiscount() { return 1 - talentLevel('tp2') * 0.02; }
+
 function buildingCost(b) {
-  return Math.ceil(b.baseCost * Math.pow(BALANCE.costGrowth, S.buildings[b.id] || 0));
+  return Math.ceil(b.baseCost * costDiscount() * Math.pow(BALANCE.costGrowth, S.buildings[b.id] || 0));
 }
 
 function earn(amount) {
@@ -46,14 +78,14 @@ function earn(amount) {
 function bulkCost(b, n) {
   const g = BALANCE.costGrowth;
   const owned = S.buildings[b.id] || 0;
-  return Math.ceil(b.baseCost * Math.pow(g, owned) * (Math.pow(g, n) - 1) / (g - 1));
+  return Math.ceil(b.baseCost * costDiscount() * Math.pow(g, owned) * (Math.pow(g, n) - 1) / (g - 1));
 }
 
 // Ile sztuk maksymalnie stać gracza.
 function maxAffordable(b) {
   const g = BALANCE.costGrowth;
   const owned = S.buildings[b.id] || 0;
-  const base = b.baseCost * Math.pow(g, owned);
+  const base = b.baseCost * costDiscount() * Math.pow(g, owned);
   let n = Math.floor(Math.log(S.crystals * (g - 1) / base + 1) / Math.log(g));
   while (n > 0 && bulkCost(b, n) > S.crystals) n--; // korekta zaokrągleń
   return Math.max(n, 0);
@@ -95,6 +127,8 @@ function doPrestige() {
   if (gain < 1) return 0;
   const keep = {
     stardust: S.stardust + gain,
+    totalStardustEarned: (S.totalStardustEarned || 0) + gain,
+    talents: S.talents,
     prestigeCount: S.prestigeCount + 1,
     allTimeEarned: S.allTimeEarned,
     totalClicks: S.totalClicks,
@@ -114,11 +148,21 @@ function doPrestige() {
 
 // ---------- Zarobki offline ----------
 // Zwraca kwotę do odebrania (0 = nie pokazuj okna powitalnego).
+function offlineRate() {
+  return Math.min(BALANCE.offlineRate + talentLevel('tt1') * 0.05, 0.95); // Nocna zmiana
+}
+
 function offlineEarnings() {
   const elapsed = Math.min((now() - S.lastSeen) / 1000, BALANCE.offlineMaxHours * 3600);
-  if (elapsed > 60 && totalCps() > 0) return totalCps() * elapsed * BALANCE.offlineRate;
+  if (elapsed > 60 && totalCps() > 0) return totalCps() * elapsed * offlineRate();
   return 0;
 }
+
+// Mnożnik odstępu między kometami (talent Magnes komet).
+function cometDelayMult() { return 1 - talentLevel('tt2') * 0.08; }
+
+// Długość boostu reklamowego w sekundach (talent Wieczny boost).
+function boostDuration() { return BALANCE.adBoostSeconds + talentLevel('tt3') * 15; }
 
 // ---------- Bonus dzienny ----------
 function checkDaily() {

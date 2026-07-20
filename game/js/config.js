@@ -11,7 +11,6 @@ const BALANCE = {
   offlineRate: 0.5,        // zarobki offline liczone na 50%
   offlineMaxHours: 8,      // maksymalnie 8 h zarobków offline
   stardustDivisor: 1e7,    // pył = sqrt(zarobki_rundy / ta_liczba)
-  stardustBonus: 0.05,     // +5% produkcji za każdy pyłek
   achievementBonus: 0.01,  // +1% produkcji za każde osiągnięcie
   adBoostMult: 2,          // boost reklamowy ×2
   adBoostSeconds: 120,     // ...przez 2 minuty
@@ -85,6 +84,40 @@ const UPGRADES = [
   }
 })();
 
+// ---------- Drzewko talentów (kupowane za gwiezdny pył z prestiżu) ----------
+// Koszt poziomu = costBase × (aktualny_poziom + 1).
+// req = wymagany poziom innego talentu, zanim ten się odblokuje.
+// eff(lvl) zwraca opis łącznego efektu na danym poziomie (do UI).
+const TALENT_BRANCHES = [
+  { id: 'click', name: '⛏️ Moc klikania' },
+  { id: 'prod',  name: '🏭 Produkcja' },
+  { id: 'time',  name: '🌙 Czas i bonusy' },
+];
+
+const TALENTS = [
+  // — Moc klikania —
+  { id: 'tc1', branch: 'click', name: 'Silne dłonie',    icon: '💪', max: 10, costBase: 1,
+    desc: '+25% mocy kliku za poziom',                    eff: l => `+${l * 25}% kliku` },
+  { id: 'tc2', branch: 'click', name: 'Echo kliknięcia', icon: '🌊', max: 5,  costBase: 2, req: { talent: 'tc1', level: 5 },
+    desc: 'klik daje dodatkowo +1% produkcji/sek. za poziom', eff: l => `+${2 + l}% produkcji/klik` },
+  { id: 'tc3', branch: 'click', name: 'Złoty dotyk',     icon: '✨', max: 5,  costBase: 5, req: { talent: 'tc2', level: 3 },
+    desc: '+2% szansy na krytyczny klik ×10 za poziom',   eff: l => `${l * 2}% szansy na kryt` },
+  // — Produkcja —
+  { id: 'tp1', branch: 'prod', name: 'Wydajne maszyny',    icon: '⚙️', max: 10, costBase: 1,
+    desc: '+10% całej produkcji za poziom',               eff: l => `+${l * 10}% produkcji` },
+  { id: 'tp2', branch: 'prod', name: 'Tania siła robocza', icon: '🏷️', max: 8, costBase: 2, req: { talent: 'tp1', level: 5 },
+    desc: 'budynki tańsze o 2% za poziom',                eff: l => `-${l * 2}% kosztów` },
+  { id: 'tp3', branch: 'prod', name: 'Synergia',           icon: '🔗', max: 5, costBase: 5, req: { talent: 'tp2', level: 3 },
+    desc: '+2% produkcji za każdy posiadany typ budynku, za poziom', eff: l => `+${l * 2}% za typ budynku` },
+  // — Czas i bonusy —
+  { id: 'tt1', branch: 'time', name: 'Nocna zmiana',  icon: '🌃', max: 8, costBase: 1,
+    desc: 'zarobki offline lepsze o 5 p.p. za poziom',    eff: l => `offline: ${50 + l * 5}% stawki` },
+  { id: 'tt2', branch: 'time', name: 'Magnes komet',  icon: '🧲', max: 5, costBase: 2, req: { talent: 'tt1', level: 4 },
+    desc: 'komety pojawiają się częściej o 8% za poziom', eff: l => `komety −${l * 8}% odstępu` },
+  { id: 'tt3', branch: 'time', name: 'Wieczny boost', icon: '🔥', max: 6, costBase: 3, req: { talent: 'tt2', level: 2 },
+    desc: 'boost reklamowy dłuższy o 15 s za poziom',     eff: l => `boost: ${120 + l * 15} s` },
+];
+
 // ---------- Osiągnięcia (każde daje +1% do produkcji) ----------
 const ACHIEVEMENTS = [
   { id: 'a_click1', name: 'Pierwsze uderzenie',  icon: '👆', desc: 'Kliknij 100 razy',    check: s => s.totalClicks >= 100 },
@@ -104,4 +137,6 @@ const ACHIEVEMENTS = [
   { id: 'a_upg1',   name: 'Modernizator',        icon: '🔧', desc: 'Kup łącznie 15 ulepszeń',  check: s => (s.totalUpgradesBought || 0) >= 15 },
   { id: 'a_upg2',   name: 'Inżynier doskonały',  icon: '⚙️', desc: 'Kup łącznie 40 ulepszeń',  check: s => (s.totalUpgradesBought || 0) >= 40 },
   { id: 'a_time',   name: 'Weteran kosmosu',     icon: '⏳', desc: 'Graj łącznie 24 godziny',  check: s => (s.playSeconds || 0) >= 86400 },
+  { id: 'a_tal1',   name: 'Uczeń gwiazd',        icon: '🌟', desc: 'Kup 10 poziomów talentów', check: s => Object.values(s.talents || {}).reduce((a, b) => a + b, 0) >= 10 },
+  { id: 'a_dust',   name: 'Gwiezdny alchemik',   icon: '🌠', desc: 'Zdobądź łącznie 100 pyłu', check: s => (s.totalStardustEarned || 0) >= 100 },
 ];
