@@ -27,6 +27,9 @@ const DEFAULT_STATE = () => ({
   dailyMissions: { date: '', missions: [] }, // misje dnia
   missionCounters: {},  // dzienne liczniki postępu misji
   missionsCompleted: 0, // wykonane misje łącznie (od początku gry)
+  expedition: null,     // aktywna wyprawa: { planet, end } albo null
+  expeditionsDone: 0,   // ukończone wyprawy łącznie
+  artifacts: {},        // id artefaktu -> true (kolekcja)
   totalUpgradesBought: 0, // ulepszenia kupione łącznie (od początku gry)
   playSeconds: 0,       // łączny czas gry (sekundy)
   bestCps: 0,           // rekordowa produkcja na sekundę

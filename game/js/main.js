@@ -40,7 +40,7 @@ function startGame() {
 
   setInterval(tick, 100);
   setInterval(save, 5000);
-  setInterval(() => { if (activeTab === 'bonus' || activeTab === 'mine') renderPanel(); }, 2000);
+  setInterval(() => { if (['bonus', 'mine', 'exp'].includes(activeTab)) renderPanel(); }, 2000);
   window.addEventListener('beforeunload', save);
   document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
 }

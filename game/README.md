@@ -27,7 +27,7 @@ ekran do `ui.js`.
 - [x] **Etap 2** — rozbudowa sklepu: kupowanie ×1/×10/Max, 50 ulepszeń progowych, ekran statystyk, 4 nowe osiągnięcia
 - [x] **Etap 3** — duży prestiż: drzewko talentów (3 gałęzie, 9 talentów z poziomami, kryty, rabaty, dłuższe boosty)
 - [x] **Etap 4** — misje dzienne (3/dzień, pył za komplet) + eventy losowe (deszcz meteorytów, gorączka kryształowa)
-- [ ] **Etap 5** — ekspedycje na planety (wyprawy czasowe) + artefakty/kolekcje
+- [x] **Etap 5** — ekspedycje na 5 planet (wyprawy czasowe 15 min–24 h, skracanie reklamą) + kolekcja 15 artefaktów
 - [ ] **Etap 6** — oprawa: dźwięki, animacje, ikona aplikacji, ekran startowy
 - [ ] **Etap 7** — prawdziwy AdMob + podpisany AAB do publikacji
 

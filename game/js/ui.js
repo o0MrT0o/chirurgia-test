@@ -34,9 +34,93 @@ function renderPanel() {
   const p = $('#panel');
   if (activeTab === 'mine') renderMine(p);
   else if (activeTab === 'upgrades') renderUpgrades(p);
+  else if (activeTab === 'exp') renderExpeditions(p);
   else if (activeTab === 'prestige') renderPrestige(p);
   else if (activeTab === 'achv') renderAchievements(p);
   else if (activeTab === 'bonus') renderBonus(p);
+}
+
+// ---------- Zakładka: Wyprawy ----------
+function fmtCountdown(ms) {
+  const s = Math.ceil(ms / 1000);
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+               : `${m}:${String(sec).padStart(2, '0')}`;
+}
+
+function renderExpeditions(p) {
+  let topHtml;
+  if (S.expedition) {
+    const pl = PLANETS.find(x => x.id === S.expedition.planet);
+    const remaining = expeditionRemaining();
+    const total = pl.hours * 3600 * 1000;
+    const pct = Math.min(100, Math.round((1 - remaining / total) * 100));
+    if (remaining <= 0) {
+      topHtml = `
+        <div class="note" style="padding-top:8px">${pl.icon} Wyprawa na <b>${pl.name}</b> zakończona!</div>
+        <button class="bigBtn gold" id="claimExpBtn">📦 Odbierz łup: ~${fmt(expeditionLoot(pl))} 💎</button>`;
+    } else {
+      topHtml = `
+        <div class="note" style="padding-top:8px">${pl.icon} Statek w drodze na <b>${pl.name}</b></div>
+        <div class="mbar" style="height:10px"><div class="mfill" style="width:${pct}%"></div></div>
+        <div class="note">Powrót za: <b>${fmtCountdown(remaining)}</b></div>
+        <button class="bigBtn gold" id="rushExpBtn">🎬 Obejrzyj reklamę → skróć o ${BALANCE.rushMinutes} min</button>`;
+    }
+  } else {
+    topHtml = `<div class="note" style="padding-top:8px">🚀 Wyślij statek na wyprawę — wróci z łupem
+      i szansą na <b>artefakt</b> (każdy daje trwałe <b>+${BALANCE.artifactBonus * 100}% produkcji</b>)</div>`
+      + PLANETS.map(pl => {
+        const unlocked = planetUnlocked(pl);
+        const time = pl.hours < 1 ? `${pl.hours * 60} min` : `${pl.hours} h`;
+        return `<div class="item ${unlocked ? '' : 'locked'}" ${unlocked ? `data-planet="${pl.id}"` : ''}>
+          <div class="icon">${pl.icon}</div>
+          <div class="info">
+            <div class="name">${pl.name} <span class="qty">${time}</span></div>
+            <div class="desc">${unlocked
+              ? `łup: ~${fmt(expeditionLoot(pl))} 💎 • artefakt: ${Math.round(pl.artChance * 100)}% szansy`
+              : `🔒 wymaga ${fmt(pl.unlockEarned)} 💎 łącznego wydobycia`}</div>
+          </div>
+          <div class="right"><div class="cost">${unlocked ? '🚀 Wyślij' : ''}</div></div>
+        </div>`;
+      }).join('');
+  }
+
+  const artHtml = `<div class="note">🏺 <b>Kolekcja artefaktów</b> — ${artifactCount()}/${ARTIFACTS.length}
+    (bonus: <b>+${Math.round(artifactCount() * BALANCE.artifactBonus * 100)}% produkcji</b>)
+    • duplikat = +${BALANCE.duplicateDust} ✨</div>
+    <div class="artGrid">${ARTIFACTS.map(a =>
+      `<div class="art ${S.artifacts[a.id] ? 'owned' : ''}" title="${a.name}">
+        <div class="ai">${S.artifacts[a.id] ? a.icon : '❔'}</div>
+        <div class="an">${S.artifacts[a.id] ? a.name : '???'}</div>
+      </div>`).join('')}</div>`;
+
+  p.innerHTML = topHtml + artHtml;
+
+  p.querySelectorAll('[data-planet]').forEach(el => el.onclick = () => {
+    if (startExpedition(el.dataset.planet)) {
+      const pl = PLANETS.find(x => x.id === el.dataset.planet);
+      toast(`🚀 Statek wyruszył na ${pl.name}! Wróci za ${pl.hours < 1 ? pl.hours * 60 + ' min' : pl.hours + ' h'}.`);
+      if (navigator.vibrate) navigator.vibrate(30);
+      renderPanel();
+    }
+  });
+  const claimBtn = $('#claimExpBtn');
+  if (claimBtn) claimBtn.onclick = () => {
+    const res = claimExpedition();
+    if (!res) return;
+    let html = `<h2>📦 Łup z wyprawy!</h2><p><b style="font-size:22px;color:#8ff5ff">+${fmt(res.loot)} 💎</b>`;
+    if (res.artifact && res.duplicate) html += `<br><br>${res.artifact.icon} <b>${res.artifact.name}</b> — duplikat!<br>Zamieniono na <b>+${res.dust} ✨ pyłu</b>`;
+    else if (res.artifact) html += `<br><br>Znaleziono artefakt:<br><span style="font-size:34px">${res.artifact.icon}</span><br><b>${res.artifact.name}</b> (+${BALANCE.artifactBonus * 100}% produkcji na zawsze!)`;
+    html += `</p><button class="bigBtn" onclick="hideOverlay(); renderPanel()">Super!</button>`;
+    showOverlay(html);
+    if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+  };
+  const rushBtn = $('#rushExpBtn');
+  if (rushBtn) rushBtn.onclick = () => Ads.showRewarded(() => {
+    rushExpedition();
+    toast(`⏩ Wyprawa skrócona o ${BALANCE.rushMinutes} min!`);
+    renderPanel();
+  });
 }
 
 // ---------- Zakładka: Kopalnia ----------
@@ -234,6 +318,8 @@ function renderBonus(p) {
       <div class="stat"><div class="v">🌟 ${talentLevelsTotal()}</div><div class="k">poziomy talentów</div></div>
       <div class="stat"><div class="v">${S.prestigeCount}</div><div class="k">prestiże</div></div>
       <div class="stat"><div class="v">${Object.keys(S.achievements).length}/${ACHIEVEMENTS.length}</div><div class="k">osiągnięcia</div></div>
+      <div class="stat"><div class="v">🧭 ${S.expeditionsDone || 0}</div><div class="k">ukończone wyprawy</div></div>
+      <div class="stat"><div class="v">🏺 ${artifactCount()}/${ARTIFACTS.length}</div><div class="k">artefakty</div></div>
     </div>`;
   const d = $('#dailyBtn');
   if (d && !S.dailyClaimed) d.onclick = () => {

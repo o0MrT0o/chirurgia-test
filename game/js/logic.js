@@ -33,6 +33,7 @@ function globalMult() {
   m *= 1 + talentLevel('tp1') * 0.10;                    // Wydajne maszyny
   const ownedTypes = BUILDINGS.filter(b => (S.buildings[b.id] || 0) > 0).length;
   m *= 1 + ownedTypes * talentLevel('tp3') * 0.02;       // Synergia
+  m *= 1 + artifactCount() * BALANCE.artifactBonus;      // kolekcja artefaktów
   for (const u of UPGRADES) if (S.upgrades[u.id] && u.type === 'global') m *= u.mult;
   if (now() < S.frenzyUntil) m *= BALANCE.frenzyMult;
   if (now() < S.boostUntil) m *= BALANCE.adBoostMult;
@@ -147,6 +148,9 @@ function doPrestige() {
     dailyMissions: S.dailyMissions,
     missionCounters: S.missionCounters,
     missionsCompleted: S.missionsCompleted,
+    expedition: S.expedition,
+    expeditionsDone: S.expeditionsDone,
+    artifacts: S.artifacts,
   };
   S = Object.assign(DEFAULT_STATE(), keep);
   save();
@@ -239,6 +243,59 @@ function claimDaily() {
   earn(r);
   save();
   return r;
+}
+
+// ---------- Ekspedycje ----------
+function planetUnlocked(pl) { return S.allTimeEarned >= pl.unlockEarned; }
+
+function artifactCount() { return Object.keys(S.artifacts || {}).length; }
+
+function startExpedition(planetId) {
+  const pl = PLANETS.find(p => p.id === planetId);
+  if (S.expedition || !pl || !planetUnlocked(pl)) return false;
+  S.expedition = { planet: planetId, end: now() + pl.hours * 3600 * 1000 };
+  save();
+  return true;
+}
+
+function expeditionRemaining() {
+  return S.expedition ? Math.max(0, S.expedition.end - now()) : 0;
+}
+
+function expeditionLoot(pl) {
+  return Math.max(pl.lootMin, totalCps() * pl.lootCps);
+}
+
+// Reklama skraca wyprawę o BALANCE.rushMinutes.
+function rushExpedition() {
+  if (!S.expedition) return;
+  S.expedition.end -= BALANCE.rushMinutes * 60 * 1000;
+  save();
+}
+
+// Odbiór ukończonej wyprawy; zwraca { loot, artifact, duplicate, dust } albo null.
+function claimExpedition() {
+  if (!S.expedition || expeditionRemaining() > 0) return null;
+  const pl = PLANETS.find(p => p.id === S.expedition.planet);
+  const loot = expeditionLoot(pl);
+  earn(loot);
+  S.expeditionsDone = (S.expeditionsDone || 0) + 1;
+  let artifact = null, duplicate = false, dust = 0;
+  if (Math.random() < pl.artChance) {
+    const pool = ARTIFACTS.filter(a => a.planet === pl.id);
+    artifact = pool[Math.floor(Math.random() * pool.length)];
+    if (S.artifacts[artifact.id]) {
+      duplicate = true;
+      dust = BALANCE.duplicateDust;
+      S.stardust += dust;
+      S.totalStardustEarned = (S.totalStardustEarned || 0) + dust;
+    } else {
+      S.artifacts[artifact.id] = true;
+    }
+  }
+  S.expedition = null;
+  save();
+  return { loot, artifact, duplicate, dust };
 }
 
 // ---------- Osiągnięcia ----------

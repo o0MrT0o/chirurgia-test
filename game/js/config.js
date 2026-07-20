@@ -32,6 +32,9 @@ const BALANCE = {
   feverMult: 5,            // gorączka kryształowa: klik ×5
   feverSeconds: 20,        // ...przez 20 sekund
   meteorCount: 12,         // deszcz meteorytów: ile meteorów spada
+  artifactBonus: 0.02,     // +2% produkcji za każdy artefakt w kolekcji
+  duplicateDust: 1,        // pył za wylosowanie duplikatu artefaktu
+  rushMinutes: 30,         // reklama skraca wyprawę o tyle minut
 };
 
 // ---------- Budynki (produkcja pasywna) ----------
@@ -92,6 +95,36 @@ const UPGRADES = [
     });
   }
 })();
+
+// ---------- Ekspedycje: planety ----------
+// hours = czas wyprawy, unlockEarned = wymagane łączne wydobycie,
+// łup = max(lootMin, produkcja/sek. × lootCps), artChance = szansa na artefakt.
+const PLANETS = [
+  { id: 'ceres',  name: 'Ceres',  icon: '🌑', hours: 0.25, unlockEarned: 0,    lootCps: 900,    lootMin: 3000, artChance: 0.20 },
+  { id: 'mars',   name: 'Mars',   icon: '🔴', hours: 1,    unlockEarned: 1e6,  lootCps: 4000,   lootMin: 5e4,  artChance: 0.30 },
+  { id: 'tytan',  name: 'Tytan',  icon: '🪐', hours: 3,    unlockEarned: 1e8,  lootCps: 14000,  lootMin: 2e6,  artChance: 0.40 },
+  { id: 'europa', name: 'Europa', icon: '🧊', hours: 8,    unlockEarned: 1e10, lootCps: 40000,  lootMin: 1e8,  artChance: 0.50 },
+  { id: 'io',     name: 'Io',     icon: '🌋', hours: 24,   unlockEarned: 1e12, lootCps: 130000, lootMin: 5e9,  artChance: 0.60 },
+];
+
+// ---------- Artefakty (kolekcja; każdy daje trwały bonus do produkcji) ----------
+const ARTIFACTS = [
+  { id: 'art_c1', planet: 'ceres',  name: 'Odłamek pramaterii',  icon: '🪨' },
+  { id: 'art_c2', planet: 'ceres',  name: 'Pył gwiezdnej burzy', icon: '🌫️' },
+  { id: 'art_c3', planet: 'ceres',  name: 'Krzemowa róża',       icon: '🌹' },
+  { id: 'art_m1', planet: 'mars',   name: 'Rdzawy kryształ',     icon: '🔶' },
+  { id: 'art_m2', planet: 'mars',   name: 'Piaskowy zegar',      icon: '⏳' },
+  { id: 'art_m3', planet: 'mars',   name: 'Spiżowy meteoryt',    icon: '🟤' },
+  { id: 'art_t1', planet: 'tytan',  name: 'Bursztyn metanowy',   icon: '🟠' },
+  { id: 'art_t2', planet: 'tytan',  name: 'Pierścień Tytana',    icon: '💍' },
+  { id: 'art_t3', planet: 'tytan',  name: 'Lodowy monolit',      icon: '🗿' },
+  { id: 'art_e1', planet: 'europa', name: 'Łza oceanu',          icon: '💧' },
+  { id: 'art_e2', planet: 'europa', name: 'Zamarznięta zorza',   icon: '🌈' },
+  { id: 'art_e3', planet: 'europa', name: 'Perła głębin',        icon: '🦪' },
+  { id: 'art_i1', planet: 'io',     name: 'Serce wulkanu',       icon: '❤️‍🔥' },
+  { id: 'art_i2', planet: 'io',     name: 'Siarkowy diament',    icon: '💛' },
+  { id: 'art_i3', planet: 'io',     name: 'Oko Io',              icon: '👁️' },
+];
 
 // ---------- Misje dzienne ----------
 // Codziennie losowane są 3 z poniższych typów. counter = licznik dzienny,
@@ -163,4 +196,8 @@ const ACHIEVEMENTS = [
   { id: 'a_dust',   name: 'Gwiezdny alchemik',   icon: '🌠', desc: 'Zdobądź łącznie 100 pyłu', check: s => (s.totalStardustEarned || 0) >= 100 },
   { id: 'a_mis1',   name: 'Sumienny wykonawca',  icon: '🎯', desc: 'Wykonaj 10 misji dziennych',  check: s => (s.missionsCompleted || 0) >= 10 },
   { id: 'a_mis2',   name: 'Mistrz zleceń',       icon: '🏅', desc: 'Wykonaj 50 misji dziennych',  check: s => (s.missionsCompleted || 0) >= 50 },
+  { id: 'a_exp1',   name: 'Odkrywca',            icon: '🧭', desc: 'Ukończ 5 ekspedycji',         check: s => (s.expeditionsDone || 0) >= 5 },
+  { id: 'a_exp2',   name: 'Zdobywca układu',     icon: '🚩', desc: 'Ukończ 25 ekspedycji',        check: s => (s.expeditionsDone || 0) >= 25 },
+  { id: 'a_art1',   name: 'Archeolog kosmosu',   icon: '🏺', desc: 'Zdobądź 5 artefaktów',        check: s => Object.keys(s.artifacts || {}).length >= 5 },
+  { id: 'a_art2',   name: 'Kolekcjoner legend',  icon: '💠', desc: 'Zbierz wszystkie 15 artefaktów', check: s => Object.keys(s.artifacts || {}).length >= 15 },
 ];
