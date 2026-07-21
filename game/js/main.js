@@ -17,6 +17,9 @@ function tick() {
   if (cps > (S.bestCps || 0)) S.bestCps = cps;
   if (document.hidden) return; // w tle: licz zarobki, ale nie rysuj (oszczędność CPU)
   renderHeader();
+  updateGoal();
+  refreshCombo();
+  checkMilestones();
   updateTutorial();
   for (const a of checkAchievements()) {
     toast(`🏆 Osiągnięcie: ${a.name}! (+${BALANCE.achievementBonus * 100}% produkcji)`);

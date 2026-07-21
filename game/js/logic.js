@@ -151,6 +151,8 @@ function doPrestige() {
     totalUpgradesBought: S.totalUpgradesBought,
     playSeconds: S.playSeconds,
     bestCps: S.bestCps,
+    lastMilestone: S.lastMilestone,
+    bestCombo: S.bestCombo,
     dailyMissions: S.dailyMissions,
     missionCounters: S.missionCounters,
     missionsCompleted: S.missionsCompleted,

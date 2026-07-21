@@ -45,7 +45,13 @@ const BALANCE = {
   bossArtChance: 0.2,      // szansa na artefakt z bossa
   bossFailFraction: 0.1,   // nagroda pocieszenia przy porażce (ułamek pełnej)
   wheelCrystalCps: 400,    // bazowa nagroda kryształowa z koła = produkcja/sek. × ta liczba
+  comboWindowMs: 1300,     // okno na utrzymanie kombosa (ms od ostatniego kliknięcia)
+  comboBonusPer: 0.03,     // +3% mocy kliku za każdy poziom kombosa
+  comboMaxLevel: 50,       // maks. poziom kombosa liczony do bonusu (×2,5 przy 50)
 };
+
+// ---------- Kamienie milowe (łączne wydobycie) — celebracja przekroczenia ----------
+const MILESTONES = [1e6, 1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13, 1e14];
 
 // ---------- Koło Fortuny ----------
 // Codziennie 1 darmowy los + dodatkowe za reklamę. weight = szansa (im

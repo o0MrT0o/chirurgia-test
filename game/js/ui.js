@@ -567,6 +567,7 @@ function renderBonus(p) {
       <div class="stat"><div class="v">${fmt(S.bestCps || 0)}/s</div><div class="k">rekord produkcji</div></div>
       <div class="stat"><div class="v">${fmtTime(S.playSeconds || 0)}</div><div class="k">czas gry</div></div>
       <div class="stat"><div class="v">${fmt(S.totalClicks)}</div><div class="k">kliknięcia</div></div>
+      <div class="stat"><div class="v">×${S.bestCombo || 0}</div><div class="k">rekord kombosa</div></div>
       <div class="stat"><div class="v">${totalBuildings(S)}</div><div class="k">budynki</div></div>
       <div class="stat"><div class="v">${S.totalUpgradesBought || 0}</div><div class="k">kupione ulepszenia</div></div>
       <div class="stat"><div class="v">${S.cometsCaught}</div><div class="k">złapane komety</div></div>
@@ -633,6 +634,58 @@ function renderBonus(p) {
 
 // ---------- Klikanie asteroidy ----------
 let _partN = 0, _floatN = 0; // limity elementów, by szybkie klikanie nie zapychało DOM
+let combo = 0, comboEnd = 0; // stan kombosa klikania (sesyjny)
+
+// Odświeża wskaźnik kombosa (pasek zaniku); wołane z pętli gry.
+function refreshCombo() {
+  const m = $('#comboMeter');
+  if (!m) return;
+  const left = comboEnd - now();
+  if (left <= 0) { if (combo) combo = 0; m.classList.remove('show'); return; }
+  if (combo < 3) { m.classList.remove('show'); return; } // pokazuj dopiero od ×3
+  m.classList.add('show');
+  const bonus = Math.round(Math.min(combo, BALANCE.comboMaxLevel) * BALANCE.comboBonusPer * 100);
+  const el = $('#comboText'); if (el) el.innerHTML = `COMBO ×${combo} <b>+${bonus}%</b>`;
+  const fill = $('#comboFill'); if (fill) fill.style.width = Math.max(0, left / BALANCE.comboWindowMs * 100) + '%';
+}
+
+// Celebracja przekroczenia kamienia milowego łącznego wydobycia.
+function checkMilestones() {
+  for (const m of MILESTONES) {
+    if (S.allTimeEarned >= m && (S.lastMilestone || 0) < m) {
+      S.lastMilestone = m;
+      toast(`🏆 Kamień milowy: ${fmt(m)} 💎 wydobyte łącznie!`);
+      Sound.fanfare();
+      spawnConfetti(30);
+      if (navigator.vibrate) navigator.vibrate([50, 60, 50]);
+    }
+  }
+}
+
+// Wskaźnik „następny cel" — najbliższy budynek do kupna albo odblokowania.
+let _lastGoal = '';
+function updateGoal() {
+  const g = $('#goalBar');
+  if (!g) return;
+  let target = null;
+  for (const b of BUILDINGS) {
+    const visible = (S.buildings[b.id] || 0) > 0 || S.totalEarned >= b.baseCost * 0.5;
+    if (!visible) continue;
+    const cost = buildingCost(b);
+    if (S.crystals < cost) { target = { name: b.name, cost, have: S.crystals, unlock: false }; break; }
+  }
+  if (!target) {
+    for (const b of BUILDINGS) {
+      const visible = (S.buildings[b.id] || 0) > 0 || S.totalEarned >= b.baseCost * 0.5;
+      if (!visible) { target = { name: b.name, cost: b.baseCost * 0.5, have: S.totalEarned, unlock: true }; break; }
+    }
+  }
+  if (!target) { if (_lastGoal) { g.innerHTML = ''; _lastGoal = ''; } return; }
+  const pct = Math.min(100, target.have / target.cost * 100);
+  const html = `🎯 ${target.unlock ? 'Odblokuj' : 'Cel'}: <b>${target.name}</b> · ${Math.floor(pct)}%`
+    + `<span class="goalTrack"><span class="goalFill" style="width:${pct.toFixed(1)}%"></span></span>`;
+  if (html !== _lastGoal) { g.innerHTML = html; _lastGoal = html; }
+}
 
 function spawnParticles(x, y, count) {
   if (_partN > 55) return; // nie mnóż w nieskończoność przy szybkim klikaniu
@@ -655,6 +708,11 @@ function onTap(e) {
   let p = clickPower();
   const crit = Math.random() < critChance(); // talent Złoty dotyk
   if (crit) p *= 10;
+  // Kombos: szybkie klikanie buduje mnożnik (zanika po chwili bez kliknięć).
+  combo = (now() < comboEnd) ? combo + 1 : 1;
+  comboEnd = now() + BALANCE.comboWindowMs;
+  if (combo > (S.bestCombo || 0)) S.bestCombo = combo;
+  p *= 1 + Math.min(combo, BALANCE.comboMaxLevel) * BALANCE.comboBonusPer;
   earn(p);
   S.totalClicks++;
   missionBump('clicks');

@@ -1037,3 +1037,39 @@ nav button.active { box-shadow: inset 0 3px 14px -8px #6ee7ff; }
   pointer-events: none;
 }
 #fxCanvas { z-index: 0; }
+
+/* =====================================================================
+   CELE — wskaźnik następnego celu, kombos klikania, kamienie milowe
+   ===================================================================== */
+#goalBar {
+  position: relative; z-index: 2;
+  min-height: 0; margin: 3px auto 0; max-width: 320px;
+  font-size: 11px; color: #a8b4e0;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  opacity: 0; transition: opacity .3s;
+}
+#goalBar:not(:empty) { opacity: 1; min-height: 15px; }
+#goalBar b { color: #cfe0ff; font-weight: 700; }
+.goalTrack {
+  display: inline-block; width: 90px; height: 5px; border-radius: 999px;
+  background: #10163a; border: 1px solid #2c356e; overflow: hidden; vertical-align: middle;
+}
+.goalFill { display: block; height: 100%; background: linear-gradient(90deg, #6ee7ff, #3ddc84); transition: width .2s; }
+
+/* kombos — nad asteroidą */
+#comboMeter {
+  position: absolute; top: 4%; left: 50%; translate: -50% 0; z-index: 4;
+  text-align: center; pointer-events: none;
+  opacity: 0; scale: .8; transition: opacity .2s, scale .2s;
+}
+#comboMeter.show { opacity: 1; scale: 1; }
+#comboText {
+  display: block; font-weight: 900; font-size: 17px; letter-spacing: .5px;
+  color: #ffd76e; text-shadow: 0 0 12px #ff9f4388, 0 1px 2px #000;
+}
+#comboText b { color: #6ee7ff; font-size: 14px; }
+.comboBar {
+  width: 120px; height: 5px; margin: 3px auto 0; border-radius: 999px;
+  background: #10163a88; overflow: hidden;
+}
+#comboFill { height: 100%; background: linear-gradient(90deg, #ffd76e, #ff9f43); border-radius: 999px; }
