@@ -55,9 +55,9 @@ function wireGame() {
   setInterval(() => { if (!document.hidden && !wheelSpinning && ['bonus', 'mine', 'exp'].includes(activeTab)) renderPanel(); }, 2000);
   window.addEventListener('beforeunload', () => { save(); rescheduleNotifications(); });
   document.addEventListener('visibilitychange', () => {
-    // W tle: zapisz, wygaś animacje tła i zaplanuj powiadomienia przypominające.
-    document.documentElement.classList.toggle('bg-paused', document.hidden);
-    if (document.hidden) { save(); rescheduleNotifications(); }
+    // W tle: zatrzymaj animację tła (oszczędność), zapisz i zaplanuj powiadomienia.
+    if (document.hidden) { Space.stop(); save(); rescheduleNotifications(); }
+    else Space.start();
   });
 }
 
@@ -67,7 +67,7 @@ function startGame() {
   // Każdy etap: [opis, funkcja]. Rozłożenie na klatki wygładza start i pokazuje postęp.
   const steps = [
     ['Wczytywanie zapisu…', () => { load(); checkDaily(); }],
-    ['Rozświetlanie gwiazd…', () => { makeStars(); scheduleShootingStar(); }],
+    ['Rozświetlanie gwiazd…', () => { Space.init(); }],
     ['Kalibracja sterowania…', () => { initTabs(); applySkin(); }],
     ['Uruchamianie kopalni…', () => { renderHeader(); renderPanel(); }],
     ['Wysyłanie sond…', () => { scheduleComet(); scheduleRandomEvent(); scheduleBoss(); }],
