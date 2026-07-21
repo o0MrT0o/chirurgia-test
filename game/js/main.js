@@ -26,20 +26,8 @@ function tick() {
   }
 }
 
-// ---------- Start ----------
-function startGame() {
-  load();
-  checkDaily();
-  makeStars();
-  scheduleShootingStar();
-  initTabs();
-  applySkin();
-  renderHeader();
-  renderPanel();
-  scheduleComet();
-  scheduleRandomEvent();
-  scheduleBoss();
-
+// Podłączenie interakcji i pętli — po zakończeniu ładowania.
+function wireGame() {
   // Ekran startowy: pierwsze dotknięcie odblokowuje audio (wymóg przeglądarek),
   // a okno zarobków offline pokazujemy dopiero po jego zamknięciu.
   const splash = $('#splash');
@@ -66,6 +54,34 @@ function startGame() {
     document.documentElement.classList.toggle('bg-paused', document.hidden);
     if (document.hidden) save();
   });
+}
+
+// ---------- Start z ekranem ładowania (etapy rozłożone na klatki) ----------
+function startGame() {
+  const bar = $('#loaderBar'), tip = $('#loaderTip'), loader = $('#loader');
+  // Każdy etap: [opis, funkcja]. Rozłożenie na klatki wygładza start i pokazuje postęp.
+  const steps = [
+    ['Wczytywanie zapisu…', () => { load(); checkDaily(); }],
+    ['Rozświetlanie gwiazd…', () => { makeStars(); scheduleShootingStar(); }],
+    ['Kalibracja sterowania…', () => { initTabs(); applySkin(); }],
+    ['Uruchamianie kopalni…', () => { renderHeader(); renderPanel(); }],
+    ['Wysyłanie sond…', () => { scheduleComet(); scheduleRandomEvent(); scheduleBoss(); }],
+    ['Gotowe!', () => { wireGame(); }],
+  ];
+  let i = 0;
+  function step() {
+    if (i < steps.length) {
+      if (tip) tip.textContent = steps[i][0];
+      steps[i][1]();
+      i++;
+      if (bar) bar.style.width = Math.round(i / steps.length * 100) + '%';
+      requestAnimationFrame(() => setTimeout(step, 90));
+    } else if (loader) {
+      loader.classList.add('hide');
+      setTimeout(() => loader.remove(), 500);
+    }
+  }
+  step();
 }
 
 startGame();

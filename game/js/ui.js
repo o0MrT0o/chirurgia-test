@@ -5,16 +5,40 @@
    ===================================================================== */
 
 // ---------- Nagłówek ----------
+// Optymalizacja: struktura licznika budowana raz, potem aktualizujemy tylko
+// tekst (tanie textContent zamiast przebudowy innerHTML 10×/s); pozostałe
+// pola i chipy zapisujemy do DOM wyłącznie, gdy realnie się zmieniły.
+let _hdrReady = false, _lastCps = '', _lastDust = '', _lastBoost = '';
 function renderHeader() {
-  $('#crystalCount').innerHTML = `${fmt(S.crystals)} <span class="unit">💎</span>`;
-  $('#cpsLabel').textContent = `${fmt(totalCps())} / sek. • klik: +${fmt(clickPower())}`;
-  $('#stardustLabel').textContent = (S.stardust > 0 || talentLevelsTotal() > 0)
+  if (!_hdrReady) {
+    $('#crystalCount').innerHTML = '<span id="crAmt"></span> <span class="unit">💎</span>';
+    _hdrReady = true;
+  }
+  $('#crAmt').textContent = fmt(S.crystals);
+
+  const cps = `${fmt(totalCps())} / sek. • klik: +${fmt(clickPower())}`;
+  if (cps !== _lastCps) { $('#cpsLabel').textContent = cps; _lastCps = cps; }
+
+  const dust = (S.stardust > 0 || talentLevelsTotal() > 0)
     ? `✨ ${fmt(S.stardust)} pyłu do wydania • 🌟 talenty: ${talentLevelsTotal()} poz.` : '';
+  if (dust !== _lastDust) { $('#stardustLabel').textContent = dust; _lastDust = dust; }
+
   const chips = [];
   if (now() < S.frenzyUntil) chips.push(`<span class="boostChip gold">☄️ SZAŁ ×${BALANCE.frenzyMult} — ${Math.ceil((S.frenzyUntil - now()) / 1000)}s</span>`);
   if (now() < S.feverUntil) chips.push(`<span class="boostChip gold">💥 GORĄCZKA: klik ×${BALANCE.feverMult} — ${Math.ceil((S.feverUntil - now()) / 1000)}s</span>`);
   if (now() < S.boostUntil) chips.push(`<span class="boostChip">⚡ Boost ×${BALANCE.adBoostMult} — ${Math.ceil((S.boostUntil - now()) / 1000)}s</span>`);
-  $('#boostBar').innerHTML = chips.join('');
+  const bhtml = chips.join('');
+  if (bhtml !== _lastBoost) { $('#boostBar').innerHTML = bhtml; _lastBoost = bhtml; }
+}
+
+// Pomija przebudowę panelu, gdy wygenerowana treść jest identyczna jak
+// ostatnio (unika kosztownego parsowania HTML i ponownego podłączania zdarzeń).
+let _panelSig = '';
+function panelUnchanged(content) {
+  const sig = activeTab + '|' + content;
+  if (sig === _panelSig) return true;
+  _panelSig = sig;
+  return false;
 }
 
 // ---------- Zakładki ----------
@@ -36,6 +60,7 @@ let lastPanelTab = null;
 
 function renderPanel() {
   const p = $('#panel');
+  if (lastPanelTab !== activeTab) _panelSig = ''; // zmiana zakładki: wymuś przerysowanie
   if (activeTab === 'mine') renderMine(p);
   else if (activeTab === 'upgrades') renderUpgrades(p);
   else if (activeTab === 'exp') renderExpeditions(p);
@@ -159,7 +184,9 @@ function renderExpeditions(p) {
         <div class="an">${S.artifacts[a.id] ? a.name : '???'}</div>
       </div>`).join('')}</div>`;
 
-  p.innerHTML = topHtml + labHtml + artHtml;
+  const expContent = topHtml + labHtml + artHtml;
+  if (panelUnchanged(expContent)) return;
+  p.innerHTML = expContent;
 
   p.querySelectorAll('[data-research]').forEach(el => el.onclick = () => {
     const r = RESEARCH.find(x => x.id === el.dataset.research);
@@ -249,7 +276,9 @@ function renderMine(p) {
     </div>`;
   }).join('');
 
-  p.innerHTML = toggle + (rows || '<div class="note">Klikaj w asteroidę, aby odblokować pierwsze maszyny! ⛏️</div>');
+  const mineContent = toggle + (rows || '<div class="note">Klikaj w asteroidę, aby odblokować pierwsze maszyny! ⛏️</div>');
+  if (panelUnchanged(mineContent)) return;
+  p.innerHTML = mineContent;
 
   p.querySelectorAll('.buyToggle button').forEach(el => el.onclick = () => {
     buyMode = el.dataset.mode === 'max' ? 'max' : Number(el.dataset.mode);
@@ -511,7 +540,7 @@ function spinWheel(isFree) {
 }
 
 function renderBonus(p) {
-  p.innerHTML = renderMissions() + renderWheel() + `
+  const bonusContent = renderMissions() + renderWheel() + `
     <div class="note" style="padding-top:8px">🎁 <b>Bonus dzienny</b> — seria: ${S.loginStreak} ${S.loginStreak === 1 ? 'dzień' : 'dni'}</div>
     <button class="bigBtn" id="dailyBtn" ${S.dailyClaimed ? 'disabled' : ''}>
       ${S.dailyClaimed ? '✅ Odebrano — wróć jutro!' : `🎁 Odbierz ${fmt(dailyReward())} 💎`}
@@ -546,6 +575,8 @@ function renderBonus(p) {
       <button class="bigBtn" id="exportBtn">📤 Eksportuj</button>
       <button class="bigBtn" id="importBtn">📥 Importuj</button>
     </div>`;
+  if (panelUnchanged(bonusContent)) return;
+  p.innerHTML = bonusContent;
   const d = $('#dailyBtn');
   if (d && !S.dailyClaimed) d.onclick = () => {
     const r = claimDaily();
