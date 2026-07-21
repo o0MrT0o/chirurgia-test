@@ -4,17 +4,20 @@
    Logika gry jest w logic.js — tutaj tylko rysowanie i obsługa dotyku.
    ===================================================================== */
 
+// Ustaw HTML z automatyczną zamianą emoji na ikony SVG (icons.js).
+function setHTML(el, s) { if (el) el.innerHTML = deEmoji(s); }
+
 // ---------- Nagłówek ----------
 function renderHeader() {
-  $('#crystalCount').innerHTML = `${fmt(S.crystals)} <span class="unit">💎</span>`;
-  $('#cpsLabel').textContent = `${fmt(totalCps())} / sek. • klik: +${fmt(clickPower())}`;
-  $('#stardustLabel').textContent = (S.stardust > 0 || talentLevelsTotal() > 0)
-    ? `✨ ${fmt(S.stardust)} pyłu do wydania • 🌟 talenty: ${talentLevelsTotal()} poz.` : '';
+  setHTML($('#crystalCount'), `${fmt(S.crystals)} <span class="unit">💎</span>`);
+  setHTML($('#cpsLabel'), `${fmt(totalCps())} / sek. • klik: +${fmt(clickPower())}`);
+  setHTML($('#stardustLabel'), (S.stardust > 0 || talentLevelsTotal() > 0)
+    ? `✨ ${fmt(S.stardust)} pyłu do wydania • 🌟 talenty: ${talentLevelsTotal()} poz.` : '');
   const chips = [];
   if (now() < S.frenzyUntil) chips.push(`<span class="boostChip gold">☄️ SZAŁ ×${BALANCE.frenzyMult} — ${Math.ceil((S.frenzyUntil - now()) / 1000)}s</span>`);
   if (now() < S.feverUntil) chips.push(`<span class="boostChip gold">💥 GORĄCZKA: klik ×${BALANCE.feverMult} — ${Math.ceil((S.feverUntil - now()) / 1000)}s</span>`);
   if (now() < S.boostUntil) chips.push(`<span class="boostChip">⚡ Boost ×${BALANCE.adBoostMult} — ${Math.ceil((S.boostUntil - now()) / 1000)}s</span>`);
-  $('#boostBar').innerHTML = chips.join('');
+  setHTML($('#boostBar'), chips.join(''));
 }
 
 // ---------- Zakładki ----------
@@ -159,7 +162,7 @@ function renderExpeditions(p) {
         <div class="an">${S.artifacts[a.id] ? a.name : '???'}</div>
       </div>`).join('')}</div>`;
 
-  p.innerHTML = topHtml + labHtml + artHtml;
+  setHTML(p, topHtml + labHtml + artHtml);
 
   p.querySelectorAll('[data-research]').forEach(el => el.onclick = () => {
     const r = RESEARCH.find(x => x.id === el.dataset.research);
@@ -249,7 +252,7 @@ function renderMine(p) {
     </div>`;
   }).join('');
 
-  p.innerHTML = toggle + (rows || '<div class="note">Klikaj w asteroidę, aby odblokować pierwsze maszyny! ⛏️</div>');
+  setHTML(p, toggle + (rows || '<div class="note">Klikaj w asteroidę, aby odblokować pierwsze maszyny! ⛏️</div>'));
 
   p.querySelectorAll('.buyToggle button').forEach(el => el.onclick = () => {
     buyMode = el.dataset.mode === 'max' ? 'max' : Number(el.dataset.mode);
@@ -269,7 +272,7 @@ function renderUpgrades(p) {
   const list = UPGRADES.filter(u => !S.upgrades[u.id] && upgradeVisible(u))
     .sort((a, b) => a.cost - b.cost);
   const bought = UPGRADES.filter(u => S.upgrades[u.id]);
-  p.innerHTML = (list.map(u => {
+  setHTML(p, (list.map(u => {
     const can = S.crystals >= u.cost;
     return `<div class="item ${can ? '' : 'locked'}" data-upg="${u.id}">
       <div class="icon">${u.icon}</div>
@@ -280,7 +283,7 @@ function renderUpgrades(p) {
   + (bought.length ? `<div class="note">— Kupione (${bought.length}) —</div>` + bought.map(u =>
       `<div class="item bought"><div class="icon">${u.icon}</div>
        <div class="info"><div class="name">${u.name}</div><div class="desc">${u.desc}</div></div>
-       <div class="right">✅</div></div>`).join('') : '');
+       <div class="right">✅</div></div>`).join('') : ''));
   p.querySelectorAll('[data-upg]').forEach(el => el.onclick = () => {
     const u = UPGRADES.find(x => x.id === el.dataset.upg);
     if (buyUpgrade(el.dataset.upg)) {
@@ -319,7 +322,7 @@ function renderPrestige(p) {
     return `<div class="note branchHead">${br.name}</div>` + rows;
   }).join('');
 
-  p.innerHTML = `
+  setHTML(p, `
     <div class="note" style="padding-top:10px">
       ✨ <b>Prestiż</b> resetuje kryształy, maszyny i ulepszenia,<br>
       ale daje <b>gwiezdny pył</b> — wydasz go w drzewku talentów poniżej.<br>
@@ -331,7 +334,7 @@ function renderPrestige(p) {
     </button>
     <div class="note">🌟 <b>Drzewko talentów</b> — do wydania: <b style="color:#ffd76e">✨ ${fmt(S.stardust)}</b>
     • prestiże: ${S.prestigeCount}</div>
-    ${treeHtml}`;
+    ${treeHtml}`);
 
   const b = $('#prestigeBtn');
   if (b && gain >= 1) b.onclick = () => showOverlay(`
@@ -387,13 +390,13 @@ function renderSkins() {
 
 function renderAchievements(p) {
   const doneCount = Object.keys(S.achievements).length;
-  p.innerHTML = renderSkins()
+  setHTML(p, renderSkins()
     + `<div class="note">🏆 <b>Osiągnięcia</b> ${doneCount}/${ACHIEVEMENTS.length} — każde daje <b>+${BALANCE.achievementBonus * 100}% produkcji</b></div>`
     + ACHIEVEMENTS.map(a => `
       <div class="achv ${S.achievements[a.id] ? 'done' : ''}">
         <div class="icon">${a.icon}</div>
         <div><div class="t">${a.name}</div><div class="d">${a.desc}</div></div>
-      </div>`).join('');
+      </div>`).join(''));
 
   p.querySelectorAll('[data-skin]').forEach(el => el.onclick = () => {
     const sk = SKINS.find(x => x.id === el.dataset.skin);
@@ -452,9 +455,13 @@ function buildWheelSVG() {
   for (let i = 0; i < N; i++) {
     const a0 = -90 + i * seg, a1 = -90 + (i + 1) * seg, am = -90 + (i + 0.5) * seg;
     const [x0, y0] = pt(a0, R), [x1, y1] = pt(a1, R), [lx, ly] = pt(am, R * 0.66);
+    // ikona segmentu jako grafika wektorowa (nie <text> — nie nakładamy emoji)
+    const iName = EMOJI_MAP[WHEEL[i].icon.replace(/️/g, '')] || 'dot';
+    const inner = ICONS[iName] || ICONS.dot;
     slices += `<path d="M 100 100 L ${x0.toFixed(1)} ${y0.toFixed(1)} A ${R} ${R} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)} Z"
       fill="${WHEEL[i].color}" stroke="#0b1026" stroke-width="1.5"/>
-      <text x="${lx.toFixed(1)}" y="${(ly + 6).toFixed(1)}" font-size="19" text-anchor="middle">${WHEEL[i].icon}</text>`;
+      <g transform="translate(${(lx - 11).toFixed(1)} ${(ly - 11).toFixed(1)}) scale(0.92)" style="color:#fff"
+        fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`;
   }
   return `<div class="wheelWrap">
     <svg class="wheelSvg" id="wheelSvg" viewBox="0 0 200 200" style="transform:rotate(${wheelDeg}deg)">
@@ -511,7 +518,7 @@ function spinWheel(isFree) {
 }
 
 function renderBonus(p) {
-  p.innerHTML = renderMissions() + renderWheel() + `
+  setHTML(p, renderMissions() + renderWheel() + `
     <div class="note" style="padding-top:8px">🎁 <b>Bonus dzienny</b> — seria: ${S.loginStreak} ${S.loginStreak === 1 ? 'dzień' : 'dni'}</div>
     <button class="bigBtn" id="dailyBtn" ${S.dailyClaimed ? 'disabled' : ''}>
       ${S.dailyClaimed ? '✅ Odebrano — wróć jutro!' : `🎁 Odbierz ${fmt(dailyReward())} 💎`}
@@ -545,7 +552,7 @@ function renderBonus(p) {
     <div class="saveBtns">
       <button class="bigBtn" id="exportBtn">📤 Eksportuj</button>
       <button class="bigBtn" id="importBtn">📥 Importuj</button>
-    </div>`;
+    </div>`);
   const d = $('#dailyBtn');
   if (d && !S.dailyClaimed) d.onclick = () => {
     const r = claimDaily();
@@ -579,7 +586,7 @@ function spawnParticles(x, y, count) {
   for (let i = 0; i < count; i++) {
     const s = document.createElement('span');
     s.className = 'particle';
-    s.textContent = Math.random() < 0.3 ? '💎' : '✦';
+    s.innerHTML = ic(Math.random() < 0.3 ? 'crystal' : 'star4');
     const ang = Math.random() * Math.PI * 2;
     const dist = 40 + Math.random() * 60;
     s.style.cssText = `left:${x}px;top:${y}px;`
@@ -679,7 +686,7 @@ function startMeteorShower() {
 function spawnMeteor() {
   const m = document.createElement('div');
   m.className = 'meteor';
-  m.textContent = '🪨';
+  m.innerHTML = ic('meteor');
   m.style.left = (5 + Math.random() * 85) + 'vw';
   m.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
   m.addEventListener('pointerdown', ev => {
@@ -717,12 +724,12 @@ function spawnBoss() {
   $('#asteroid').style.display = 'none';
   const box = document.createElement('div');
   box.id = 'bossBox';
-  box.innerHTML = `
+  box.innerHTML = deEmoji(`
     <div class="bossName">⚔️ ${def.name}</div>
     <div class="bossBar"><div class="bossHp" id="bossHp"></div></div>
     <div class="bossBar timer"><div class="bossTimer" id="bossTimer"></div></div>
     <div class="bossFace" id="bossFace">${def.icon}</div>
-    <div class="note">Klikaj, aby zadawać obrażenia!</div>`;
+    <div class="note">Klikaj, aby zadawać obrażenia!</div>`);
   $('#tapArea').appendChild(box);
   const face = $('#bossFace');
   face.addEventListener('touchstart', e => { e.preventDefault(); hitBoss(e); }, { passive: false });
@@ -848,9 +855,9 @@ function updateTutorial() {
   if (lastCoachStep !== S.tutorialStep) {
     lastCoachStep = S.tutorialStep;
     coach.style.display = 'flex';
-    $('#coachText').textContent = step.text;
+    setHTML($('#coachText'), step.text);
     const isLast = S.tutorialStep === TUTORIAL_STEPS.length - 1;
-    $('#coachBtn').textContent = isLast ? '✅ OK!' : '✖';
+    setHTML($('#coachBtn'), isLast ? '✅ OK!' : '✖');
     $('#coachBtn').onclick = () => { S.tutorialStep = 99; save(); updateTutorial(); };
     document.querySelectorAll('nav button').forEach(b =>
       b.classList.toggle('glow', !!step.glow && b.dataset.tab === step.glow));
@@ -898,13 +905,13 @@ function showImportOverlay() {
 }
 
 // ---------- Overlay / toast ----------
-function showOverlay(html) { $('#overlayBox').innerHTML = html; $('#overlay').style.display = 'flex'; }
+function showOverlay(html) { $('#overlayBox').innerHTML = deEmoji(html); $('#overlay').style.display = 'flex'; }
 function hideOverlay() { $('#overlay').style.display = 'none'; }
 
 let toastTimer;
 function toast(msg) {
   const t = $('#toast');
-  t.textContent = msg;
+  t.innerHTML = deEmoji(msg);
   t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
@@ -939,7 +946,7 @@ function makeStars() {
   for (let i = 0; i < 6; i++) {
     const s = document.createElement('div');
     s.className = 'sparkStar';
-    s.textContent = '✦';
+    s.innerHTML = ic('star4');
     s.style.cssText = `left:${Math.random() * 100}vw;top:${Math.random() * 100}vh;`
       + `font-size:${7 + Math.random() * 6}px;animation-delay:${Math.random() * 5}s;`
       + `color:${colors[Math.floor(Math.random() * colors.length)]}`;
