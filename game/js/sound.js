@@ -52,7 +52,7 @@ const Sound = (() => {
 
 function toggleSound() {
   S.soundOn = !S.soundOn;
-  $('#soundBtn').innerHTML = ic(S.soundOn ? 'soundOn' : 'soundOff');
+  $('#soundBtn').textContent = S.soundOn ? '🔊' : '🔇';
   if (S.soundOn) Sound.buy();
   save();
 }

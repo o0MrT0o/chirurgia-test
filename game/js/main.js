@@ -30,8 +30,6 @@ function tick() {
 function startGame() {
   load();
   checkDaily();
-  // Zamień statyczne emoji w HTML (splash, nawigacja, kometa, orbita) na ikony.
-  document.querySelectorAll('#splash, nav, #comet, #orbitRing').forEach(el => { el.innerHTML = deEmoji(el.innerHTML); });
   makeStars();
   scheduleShootingStar();
   initTabs();
@@ -52,7 +50,7 @@ function startGame() {
     showOfflineWindow();
   }, { once: true });
 
-  $('#soundBtn').innerHTML = ic(S.soundOn ? 'soundOn' : 'soundOff');
+  $('#soundBtn').textContent = S.soundOn ? '🔊' : '🔇';
   $('#soundBtn').onclick = toggleSound;
 
   const ast = $('#asteroid');
