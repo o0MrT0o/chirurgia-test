@@ -59,7 +59,7 @@ function startGame() {
 
   setInterval(tick, 100);
   setInterval(save, 5000);
-  setInterval(() => { if (!document.hidden && ['bonus', 'mine', 'exp'].includes(activeTab)) renderPanel(); }, 2000);
+  setInterval(() => { if (!document.hidden && !wheelSpinning && ['bonus', 'mine', 'exp'].includes(activeTab)) renderPanel(); }, 2000);
   window.addEventListener('beforeunload', save);
   document.addEventListener('visibilitychange', () => {
     // W tle: zapisz i wygaś animacje tła (oszczędność baterii/CPU).

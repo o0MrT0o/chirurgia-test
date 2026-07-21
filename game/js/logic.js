@@ -164,6 +164,9 @@ function doPrestige() {
     researchDone: S.researchDone,
     skin: S.skin,
     skinsBought: S.skinsBought,
+    lastWheelSpinDay: S.lastWheelSpinDay,
+    freeSpins: S.freeSpins,
+    totalSpins: S.totalSpins,
   };
   S = Object.assign(DEFAULT_STATE(), keep);
   save();
@@ -260,6 +263,64 @@ function claimDaily() {
   earn(r);
   save();
   return r;
+}
+
+// ---------- Koło Fortuny ----------
+// Darmowy los, jeśli dziś jeszcze nie kręcono ALBO są bonusowe darmowe losy.
+function wheelFreeAvailable() {
+  return S.lastWheelSpinDay !== todayStr() || (S.freeSpins || 0) > 0;
+}
+
+// Zużyj darmowy los: najpierw bonusowe, potem dzienny.
+function consumeFreeSpin() {
+  if ((S.freeSpins || 0) > 0) S.freeSpins--;
+  else S.lastWheelSpinDay = todayStr();
+}
+
+// Losuj segment ważony (weight). Zwraca indeks w WHEEL.
+function pickWheelIndex() {
+  const total = WHEEL.reduce((a, s) => a + s.weight, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < WHEEL.length; i++) {
+    r -= WHEEL[i].weight;
+    if (r < 0) return i;
+  }
+  return WHEEL.length - 1;
+}
+
+// Przyznaj nagrodę z segmentu. Zwraca { text, big } do pokazania.
+function grantWheelReward(seg) {
+  S.totalSpins = (S.totalSpins || 0) + 1;
+  const crystals = m => Math.max(seg.min || 0, totalCps() * BALANCE.wheelCrystalCps * m);
+  switch (seg.kind) {
+    case 'crystals': {
+      const a = crystals(seg.mult);
+      earn(a);
+      return { text: `+${fmt(a)} 💎`, big: seg.mult >= 15 };
+    }
+    case 'boost':
+      S.boostUntil = now() + boostDuration() * 1000;
+      return { text: `⚡ Boost ×${BALANCE.adBoostMult} na ${Math.round(boostDuration())} s`, big: false };
+    case 'frenzy':
+      S.frenzyUntil = now() + BALANCE.frenzySeconds * 1000;
+      return { text: `☄️ Szał ×${BALANCE.frenzyMult} na ${BALANCE.frenzySeconds} s`, big: true };
+    case 'stardust':
+      S.stardust += seg.amount;
+      S.totalStardustEarned = (S.totalStardustEarned || 0) + seg.amount;
+      return { text: `+${seg.amount} ✨ gwiezdnego pyłu`, big: true };
+    case 'again':
+      S.freeSpins = (S.freeSpins || 0) + 1;
+      return { text: `🔁 Darmowy los — kręć jeszcze raz!`, big: false };
+    case 'jackpot': {
+      const a = crystals(30);
+      earn(a);
+      S.stardust += 2;
+      S.totalStardustEarned = (S.totalStardustEarned || 0) + 2;
+      S.frenzyUntil = now() + BALANCE.frenzySeconds * 1000;
+      return { text: `🏆 JACKPOT! +${fmt(a)} 💎, +2 ✨ i szał ×${BALANCE.frenzyMult}!`, big: true };
+    }
+  }
+  return { text: '', big: false };
 }
 
 // ---------- Ekspedycje ----------

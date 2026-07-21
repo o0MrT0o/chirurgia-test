@@ -40,6 +40,9 @@ const DEFAULT_STATE = () => ({
   totalUpgradesBought: 0, // ulepszenia kupione łącznie (od początku gry)
   playSeconds: 0,       // łączny czas gry (sekundy)
   bestCps: 0,           // rekordowa produkcja na sekundę
+  lastWheelSpinDay: '', // ostatni dzień darmowego zakręcenia kołem
+  freeSpins: 0,         // dodatkowe darmowe zakręcenia (z segmentu „Darmowy los")
+  totalSpins: 0,        // łącznie zakręceń kołem
   lastSeen: Date.now(),
 });
 

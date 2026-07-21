@@ -44,7 +44,23 @@ const BALANCE = {
   bossDust: 2,             // pył za pokonanie bossa
   bossArtChance: 0.2,      // szansa na artefakt z bossa
   bossFailFraction: 0.1,   // nagroda pocieszenia przy porażce (ułamek pełnej)
+  wheelCrystalCps: 400,    // bazowa nagroda kryształowa z koła = produkcja/sek. × ta liczba
 };
+
+// ---------- Koło Fortuny ----------
+// Codziennie 1 darmowy los + dodatkowe za reklamę. weight = szansa (im
+// większa, tym częstszy segment). kind: crystals | boost | frenzy |
+// stardust | again | jackpot. mult = mnożnik nagrody kryształowej.
+const WHEEL = [
+  { id: 'cr1',    name: 'Kryształy',       icon: '💎', color: '#3d9bff', weight: 26, kind: 'crystals', mult: 1,  min: 2000 },
+  { id: 'boost',  name: 'Boost ×2',        icon: '⚡', color: '#8a5fff', weight: 15, kind: 'boost' },
+  { id: 'cr2',    name: 'Kryształy ×4',    icon: '💠', color: '#6ee7ff', weight: 18, kind: 'crystals', mult: 4,  min: 15000 },
+  { id: 'dust',   name: 'Gwiezdny pył',    icon: '✨', color: '#ffd76e', weight: 12, kind: 'stardust', amount: 1 },
+  { id: 'frenzy', name: 'Szał ×7',         icon: '☄️', color: '#ff8fc8', weight: 9,  kind: 'frenzy' },
+  { id: 'again',  name: 'Darmowy los!',    icon: '🔁', color: '#3ddc84', weight: 8,  kind: 'again' },
+  { id: 'cr3',    name: 'Wielka wygrana',  icon: '💰', color: '#ff9f43', weight: 6,  kind: 'crystals', mult: 15, min: 100000 },
+  { id: 'jackpot',name: 'JACKPOT',         icon: '🏆', color: '#ffe08a', weight: 2,  kind: 'jackpot' },
+];
 
 // ---------- Bossowie ----------
 const BOSSES = [

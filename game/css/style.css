@@ -956,3 +956,33 @@ header::before {
 
 /* ---- 8. POLISH: aktywna zakładka z delikatną poświatą u góry ---- */
 nav button.active { box-shadow: inset 0 3px 14px -8px #6ee7ff; }
+
+/* =====================================================================
+   KOŁO FORTUNY v8
+   ===================================================================== */
+.wheelWrap {
+  position: relative; width: min(72vw, 280px); aspect-ratio: 1;
+  margin: 10px auto 6px;
+}
+.wheelSvg {
+  width: 100%; height: 100%; display: block;
+  filter: drop-shadow(0 6px 20px #000a) drop-shadow(0 0 16px #6ee7ff33);
+  transition: transform 4.5s cubic-bezier(.15, .9, .25, 1);
+  transform-origin: 50% 50%;
+}
+.wheelSvg text { paint-order: stroke; }
+.wheelHub {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  width: 20%; height: 20%; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 35% 30%, #1a2250, #0b1026);
+  border: 2px solid #6ee7ff; box-shadow: 0 0 12px #6ee7ff66, inset 0 0 8px #000a;
+  font-size: min(6vw, 24px); z-index: 2; pointer-events: none;
+}
+.wheelPointer {
+  position: absolute; left: 50%; top: -4px; translate: -50% 0; z-index: 3;
+  width: 0; height: 0; pointer-events: none;
+  border-left: 12px solid transparent; border-right: 12px solid transparent;
+  border-top: 22px solid #ffd76e;
+  filter: drop-shadow(0 2px 4px #000a);
+}

@@ -19,6 +19,8 @@ function renderHeader() {
 
 // ---------- Zakładki ----------
 let activeTab = 'mine';
+let wheelDeg = 0;          // skumulowany obrót koła (utrzymuje pozycję między odświeżeniami)
+let wheelSpinning = false; // trwa animacja kręcenia? (blokuje odświeżanie panelu)
 
 function initTabs() {
   document.querySelectorAll('nav button').forEach(btn => {
@@ -442,8 +444,74 @@ function renderMissions() {
     }).join('');
 }
 
+// ---------- Koło Fortuny ----------
+function buildWheelSVG() {
+  const N = WHEEL.length, seg = 360 / N, R = 94;
+  const pt = (ang, r) => [100 + Math.cos(ang * Math.PI / 180) * r, 100 + Math.sin(ang * Math.PI / 180) * r];
+  let slices = '';
+  for (let i = 0; i < N; i++) {
+    const a0 = -90 + i * seg, a1 = -90 + (i + 1) * seg, am = -90 + (i + 0.5) * seg;
+    const [x0, y0] = pt(a0, R), [x1, y1] = pt(a1, R), [lx, ly] = pt(am, R * 0.66);
+    slices += `<path d="M 100 100 L ${x0.toFixed(1)} ${y0.toFixed(1)} A ${R} ${R} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)} Z"
+      fill="${WHEEL[i].color}" stroke="#0b1026" stroke-width="1.5"/>
+      <text x="${lx.toFixed(1)}" y="${(ly + 6).toFixed(1)}" font-size="19" text-anchor="middle">${WHEEL[i].icon}</text>`;
+  }
+  return `<div class="wheelWrap">
+    <svg class="wheelSvg" id="wheelSvg" viewBox="0 0 200 200" style="transform:rotate(${wheelDeg}deg)">
+      <circle cx="100" cy="100" r="97" fill="#0b1026"/>
+      <g>${slices}</g>
+      <circle cx="100" cy="100" r="97" fill="none" stroke="#6ee7ff55" stroke-width="3"/>
+    </svg>
+    <div class="wheelHub">🎰</div>
+    <div class="wheelPointer"></div>
+  </div>`;
+}
+
+function renderWheel() {
+  const free = wheelFreeAvailable();
+  const bonus = (S.freeSpins || 0) > 0 ? ` (masz ${S.freeSpins} bonusowych)` : '';
+  return `<div class="note" style="padding-top:8px">🎡 <b>Koło Fortuny</b> — 1 darmowy los dziennie${bonus}</div>`
+    + buildWheelSVG()
+    + `<button class="bigBtn ${free ? 'gold' : ''}" id="wheelFreeBtn" ${free ? '' : 'disabled'}>
+        ${free ? '🎡 Zakręć za darmo!' : '✅ Darmowy los wykorzystany — wróć jutro'}
+      </button>
+      <button class="bigBtn" id="wheelAdBtn">🎬 Obejrzyj reklamę → dodatkowy los</button>`;
+}
+
+// Uruchom animację kręcenia; isFree = czy zużywamy darmowy los.
+function spinWheel(isFree) {
+  if (wheelSpinning) return;
+  wheelSpinning = true;
+  if (isFree) consumeFreeSpin();
+  const k = pickWheelIndex();
+  const segAngle = 360 / WHEEL.length;
+  const targetMod = ((-(k + 0.5) * segAngle) % 360 + 360) % 360;
+  let final = wheelDeg - (wheelDeg % 360) + targetMod;
+  while (final < wheelDeg + 360 * 4) final += 360;      // min. 4 pełne obroty
+  final += (Math.random() * 2 - 1) * (segAngle * 0.32); // wyląduj wyraźnie w segmencie
+  wheelDeg = final;
+  const svg = $('#wheelSvg');
+  if (svg) svg.style.transform = `rotate(${final}deg)`;
+  // wyłącz przyciski na czas kręcenia
+  document.querySelectorAll('#wheelFreeBtn, #wheelAdBtn').forEach(b => b.disabled = true);
+  if (navigator.vibrate) navigator.vibrate(20);
+  setTimeout(() => {
+    const seg = WHEEL[k];
+    const res = grantWheelReward(seg);
+    wheelSpinning = false;
+    save();
+    if (seg.kind === 'jackpot') spawnConfetti(44);
+    else if (res.big) spawnConfetti(24);
+    Sound.fanfare();
+    if (navigator.vibrate) navigator.vibrate(res.big ? [60, 40, 60, 40, 120] : [40, 60, 40]);
+    showOverlay(`<h2>${seg.icon} ${seg.name}</h2>
+      <p><b style="font-size:20px;color:#8ff5ff">${res.text}</b></p>
+      <button class="bigBtn gold" onclick="hideOverlay(); if (activeTab === 'bonus') renderPanel();">Super! 🎉</button>`);
+  }, 4600);
+}
+
 function renderBonus(p) {
-  p.innerHTML = renderMissions() + `
+  p.innerHTML = renderMissions() + renderWheel() + `
     <div class="note" style="padding-top:8px">🎁 <b>Bonus dzienny</b> — seria: ${S.loginStreak} ${S.loginStreak === 1 ? 'dzień' : 'dni'}</div>
     <button class="bigBtn" id="dailyBtn" ${S.dailyClaimed ? 'disabled' : ''}>
       ${S.dailyClaimed ? '✅ Odebrano — wróć jutro!' : `🎁 Odbierz ${fmt(dailyReward())} 💎`}
@@ -486,6 +554,10 @@ function renderBonus(p) {
   };
   const a = $('#adBoostBtn');
   if (a && now() >= S.boostUntil) a.onclick = adBoost;
+  const wf = $('#wheelFreeBtn');
+  if (wf && wheelFreeAvailable()) wf.onclick = () => spinWheel(true);
+  const wa = $('#wheelAdBtn');
+  if (wa) wa.onclick = () => Ads.showRewarded(() => spinWheel(false));
   p.querySelectorAll('[data-mission]').forEach(el => el.onclick = () => {
     const res = claimMission(Number(el.dataset.mission));
     if (res) {
