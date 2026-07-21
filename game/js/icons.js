@@ -10,8 +10,8 @@
 // Wnętrza ikon (viewBox 0 0 24 24). Domyślnie: obrys currentColor, bez wypełnienia.
 const ICONS = {
   dot: '<circle cx="12" cy="12" r="4" fill="currentColor"/>',
-  crystal: '<path d="M6 3h12l3 6-9 12L3 9z" fill="currentColor" fill-opacity=".22"/><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3l3 18 3-18" stroke-opacity=".5"/>',
-  sparkle: '<path d="M12 2c.6 5 2.4 6.8 7.4 7.4C14.4 10 12.6 11.8 12 16.8 11.4 11.8 9.6 10 4.6 9.4 9.6 8.8 11.4 7 12 2z" fill="currentColor"/><path d="M18 15l.7 2.3L21 18l-2.3.7L18 21l-.7-2.3L15 18l2.3-.7z" fill="currentColor"/>',
+  crystal: '<path d="M12 2l8 6-8 14L4 8z" fill="currentColor" fill-opacity=".9" stroke="none"/><path d="M4 8h16M9 8l3 14 3-14" stroke="#07142e" stroke-opacity=".45"/><path d="M8.4 4.2L10 8M15.6 4.2L14 8" stroke="#ffffff" stroke-opacity=".55"/>',
+  sparkle: '<path d="M12 2c.6 5 2.4 6.8 7.4 7.4C14.4 10 12.6 11.8 12 16.8 11.4 11.8 9.6 10 4.6 9.4 9.6 8.8 11.4 7 12 2z" fill="currentColor" stroke="none"/><path d="M18.5 14l.6 2.1 2.1.6-2.1.6-.6 2.1-.6-2.1-2.1-.6 2.1-.6z" fill="currentColor" stroke="none"/>',
   coin: '<circle cx="12" cy="12" r="8"/><path d="M12 8v8M9.5 10.2c0-1 1-1.7 2.5-1.7s2.5.7 2.5 1.7-1 1.5-2.5 1.5-2.5.6-2.5 1.6 1 1.7 2.5 1.7 2.5-.7 2.5-1.7"/>',
   check: '<path d="M4 12.5l5 5L20 6.5"/>',
   x: '<path d="M6 6l12 12M18 6L6 18"/>',
@@ -118,11 +118,12 @@ const EMOJI_MAP = {
   '🔶':'relic','🟤':'relic','🟠':'relic','🏺':'relic','💨':'fog','❤‍🔥':'fireheart','❤':'fireheart',
 };
 
-// Zwraca <svg> danej ikony. cls = dodatkowe klasy CSS.
+// Zwraca <svg> danej ikony. Dodaje klasę ic-<name> (kolor tematyczny w CSS).
 function ic(name, cls) {
-  const inner = ICONS[name] || ICONS.dot;
-  return `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor"`
-    + ` stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+  const key = ICONS[name] ? name : 'dot';
+  const inner = ICONS[key];
+  return `<svg class="ic ic-${key}${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor"`
+    + ` stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
 }
 
 // Mapuje pojedynczy znak/sekwencję emoji na ikonę.
