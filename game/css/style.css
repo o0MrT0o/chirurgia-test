@@ -711,13 +711,13 @@ nav button.active::after {
   overflow: visible;
 }
 #asteroid::before, #asteroid::after { display: none; } /* stary połysk/cień — teraz w SVG */
-#asteroid svg {
+#asteroid svg, #asteroid img {
   width: 100%; height: 100%; display: block;
   filter: drop-shadow(0 0 28px var(--glow, #6ee7ff44));
   pointer-events: none;
 }
 #asteroid.pulse { animation: float 5s ease-in-out infinite; } /* bez starego hitPulse */
-#asteroid.pulse svg { animation: svgHit .16s; }
+#asteroid.pulse svg, #asteroid.pulse img { animation: svgHit .16s; }
 @keyframes svgHit {
   40% { filter: drop-shadow(0 0 55px var(--glow, #6ee7ffaa)); scale: 1.02; }
 }

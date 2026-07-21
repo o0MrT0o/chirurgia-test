@@ -392,7 +392,16 @@ function applySkin() {
   const sk = SKINS.find(x => x.id === S.skin) || SKINS[0];
   SKINS.forEach(s => ast.classList.remove(s.css));
   if (sk.id !== 'classic') ast.classList.add(sk.css); // klasa daje kolor poświaty (--glow)
-  ast.innerHTML = generateAsteroidSVG(sk.id);          // proceduralny kształt SVG
+  // Rasteryzacja: kosztowny filtr SVG (feTurbulence + feDiffuseLighting)
+  // liczony JEDEN RAZ do bitmapy. Usuwamy animacje SMIL — w <img> nadal by
+  // działały i zmuszały do ponownego renderu filtra co klatkę. Wszystkie
+  // detale (kratery, kryształy, tekstura) zostają; znika tylko pulsowanie.
+  const svg = generateAsteroidSVG(sk.id).replace(/<animate[^>]*>/g, '').replace(/<\/animate>/g, '');
+  const img = new Image();
+  img.decoding = 'async';
+  img.alt = '';
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  ast.replaceChildren(img);
   document.body.dataset.skin = sk.id; // tło (poświata) dopasowuje się do skórki
 }
 
@@ -623,7 +632,10 @@ function renderBonus(p) {
 }
 
 // ---------- Klikanie asteroidy ----------
+let _partN = 0, _floatN = 0; // limity elementów, by szybkie klikanie nie zapychało DOM
+
 function spawnParticles(x, y, count) {
+  if (_partN > 55) return; // nie mnóż w nieskończoność przy szybkim klikaniu
   for (let i = 0; i < count; i++) {
     const s = document.createElement('span');
     s.className = 'particle';
@@ -634,7 +646,8 @@ function spawnParticles(x, y, count) {
       + `--dx:${Math.cos(ang) * dist}px;--dy:${Math.sin(ang) * dist - 30}px;`
       + `--rot:${Math.random() * 360 - 180}deg`;
     document.body.appendChild(s);
-    setTimeout(() => s.remove(), 700);
+    _partN++;
+    setTimeout(() => { s.remove(); _partN--; }, 700);
   }
 }
 
@@ -647,23 +660,32 @@ function onTap(e) {
   missionBump('clicks');
   if (navigator.vibrate) navigator.vibrate(crit ? 40 : 12);
   if (crit) Sound.crit(); else Sound.click();
-  const ast = $('#asteroid');
-  ast.classList.remove('pulse'); void ast.offsetWidth;
-  ast.classList.add('pulse');
+  // Impuls kliknięcia przez Web Animations API (bez wymuszania reflow
+  // przez void offsetWidth) — skala + błysk, tanio i płynnie.
+  const img = $('#asteroid').firstElementChild;
+  if (img && img.animate) {
+    img.animate(
+      [{ transform: 'scale(1)' }, { transform: `scale(${crit ? 1.07 : 1.04})`, offset: 0.35 }, { transform: 'scale(1)' }],
+      { duration: crit ? 220 : 150, easing: 'ease-out' });
+  }
   const x = (e.touches ? e.touches[0].clientX : e.clientX) || window.innerWidth / 2;
   const y = (e.touches ? e.touches[0].clientY : e.clientY) || window.innerHeight / 3;
   spawnParticles(x, y, crit ? 10 : 3);
-  if (crit) {
-    document.body.classList.remove('shake'); void document.body.offsetWidth;
-    document.body.classList.add('shake');
+  if (crit && document.body.animate) {
+    document.body.animate(
+      [{ transform: 'translate(0,0)' }, { transform: 'translate(-5px,3px)' }, { transform: 'translate(4px,-3px)' }, { transform: 'translate(-3px,2px)' }, { transform: 'translate(0,0)' }],
+      { duration: 300, easing: 'ease-in-out' });
   }
-  const f = document.createElement('div');
-  f.className = 'floatNum' + (crit ? ' crit' : '');
-  f.textContent = (crit ? 'KRYT! +' : '+') + fmt(p);
-  f.style.left = (x - 20 + (Math.random() * 40 - 20)) + 'px';
-  f.style.top = (y - 30) + 'px';
-  document.body.appendChild(f);
-  setTimeout(() => f.remove(), 1000);
+  if (_floatN < 24) {
+    const f = document.createElement('div');
+    f.className = 'floatNum' + (crit ? ' crit' : '');
+    f.textContent = (crit ? 'KRYT! +' : '+') + fmt(p);
+    f.style.left = (x - 20 + (Math.random() * 40 - 20)) + 'px';
+    f.style.top = (y - 30) + 'px';
+    document.body.appendChild(f);
+    _floatN++;
+    setTimeout(() => { f.remove(); _floatN--; }, 1000);
+  }
 }
 
 // ---------- Złota kometa ----------
@@ -803,15 +825,20 @@ function hitBoss(e) {
   const x = (e.touches ? e.touches[0].clientX : e.clientX) || window.innerWidth / 2;
   const y = (e.touches ? e.touches[0].clientY : e.clientY) || window.innerHeight / 3;
   spawnParticles(x, y, crit ? 8 : 2);
-  const f = document.createElement('div');
-  f.className = 'floatNum' + (crit ? ' crit' : '');
-  f.textContent = (crit ? 'KRYT! −' : '−') + fmt(dmg);
-  f.style.left = (x - 20) + 'px';
-  f.style.top = (y - 30) + 'px';
-  document.body.appendChild(f);
-  setTimeout(() => f.remove(), 1000);
+  if (_floatN < 24) {
+    const f = document.createElement('div');
+    f.className = 'floatNum' + (crit ? ' crit' : '');
+    f.textContent = (crit ? 'KRYT! −' : '−') + fmt(dmg);
+    f.style.left = (x - 20) + 'px';
+    f.style.top = (y - 30) + 'px';
+    document.body.appendChild(f);
+    _floatN++;
+    setTimeout(() => { f.remove(); _floatN--; }, 1000);
+  }
   const face = $('#bossFace');
-  if (face) { face.classList.remove('hurt'); void face.offsetWidth; face.classList.add('hurt'); }
+  if (face && face.animate) {
+    face.animate([{ filter: 'brightness(1)' }, { filter: 'brightness(2)', offset: 0.5 }, { filter: 'brightness(1)' }], { duration: 150 });
+  }
   updateBossBars();
   if (boss.hp <= 0) endBoss(true);
 }

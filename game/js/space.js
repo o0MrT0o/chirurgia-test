@@ -16,6 +16,23 @@ const Space = (() => {
   const rnd = (a, b) => a + Math.random() * (b - a);
   const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
+  // Gotowe sprite'y poświaty (rysowane raz) — zamiast tworzenia gradientu
+  // na każdą klatkę dla każdej gwiazdy (to był główny koszt animacji).
+  const glowCache = {};
+  function glowSprite(rgb) {
+    if (glowCache[rgb]) return glowCache[rgb];
+    const S = 32, c = document.createElement('canvas');
+    c.width = c.height = S;
+    const cx = c.getContext('2d');
+    const g = cx.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
+    g.addColorStop(0, `rgba(${rgb},1)`);
+    g.addColorStop(0.35, `rgba(${rgb},0.5)`);
+    g.addColorStop(1, `rgba(${rgb},0)`);
+    cx.fillStyle = g; cx.fillRect(0, 0, S, S);
+    glowCache[rgb] = c;
+    return c;
+  }
+
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     W = window.innerWidth; H = window.innerHeight;
@@ -162,10 +179,11 @@ const Space = (() => {
     // przygotuj elementy animowane (fx)
     twinkle = [];
     for (let i = 0; i < 42; i++) {
+      const c = pick(['255,255,255', '190,220,255', '255,235,200', '255,205,230']);
       twinkle.push({
         x: Math.random() * W, y: Math.random() * H,
         r: rnd(0.7, 1.7), sp: rnd(0.6, 2), ph: rnd(0, 7),
-        c: pick(['255,255,255', '190,220,255', '255,235,200', '255,205,230']),
+        c, sprite: glowSprite(c),
       });
     }
     motes = [];
@@ -186,15 +204,15 @@ const Space = (() => {
 
   function drawFx(t) {
     fctx.clearRect(0, 0, W, H);
-    // migotanie jasnych gwiazd
+    // migotanie jasnych gwiazd — tanie drawImage z gotowego sprite'a
     for (const s of twinkle) {
       const a = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * 0.001 * s.sp + s.ph));
-      const g = fctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 4);
-      g.addColorStop(0, `rgba(${s.c},${a})`);
-      g.addColorStop(1, `rgba(${s.c},0)`);
-      fctx.fillStyle = g;
-      fctx.fillRect(s.x - s.r * 4, s.y - s.r * 4, s.r * 8, s.r * 8);
-      star(fctx, s.x, s.y, s.r, '#ffffff', a);
+      const sz = s.r * 8;
+      fctx.globalAlpha = a;
+      fctx.drawImage(s.sprite, s.x - sz / 2, s.y - sz / 2, sz, sz);
+      fctx.fillStyle = '#ffffff';
+      fctx.beginPath(); fctx.arc(s.x, s.y, s.r * 0.7, 0, 7); fctx.fill();
+      fctx.globalAlpha = 1;
     }
     // dryfujący pył
     for (const m of motes) {
