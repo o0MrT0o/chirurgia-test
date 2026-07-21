@@ -844,9 +844,9 @@ function makeStars() {
   wrap.innerHTML = '';
   const colors = ['#ffffff', '#ffffff', '#ffffff', '#9adcff', '#ffe9a8', '#ffc8e0'];
   const layers = [
-    { n: 55, min: 1.0, max: 1.6, cls: 'l1' }, // dalekie, drobne
-    { n: 26, min: 1.8, max: 2.6, cls: 'l2' }, // średnie
-    { n: 9,  min: 2.8, max: 3.6, cls: 'l3' }, // bliskie, z poświatą
+    { n: 42, min: 1.0, max: 1.6, cls: 'l1' }, // dalekie, drobne
+    { n: 22, min: 1.8, max: 2.6, cls: 'l2' }, // średnie
+    { n: 8,  min: 2.8, max: 3.6, cls: 'l3' }, // bliskie, z poświatą
   ];
   for (const L of layers) {
     const layer = document.createElement('div');
@@ -874,7 +874,7 @@ function makeStars() {
     wrap.appendChild(s);
   }
   // pyłki unoszące się ku górze
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 8; i++) {
     const d = document.createElement('div');
     d.className = 'dust';
     d.style.cssText = `left:${Math.random() * 100}vw;`

@@ -885,3 +885,74 @@ nav button.active { color: #fff; border-top-color: var(--accent); }
 .item:active, .skinTile:active, .art:active, .stat:active {
   filter: brightness(1.12);
 }
+
+/* =====================================================================
+   OPTYMALIZACJA + POLISH v7
+   Cel: płynność na telefonie (mniej kosztownych repaintów) + dopieszczenie.
+   ===================================================================== */
+
+/* ---- 1. Animowane filtry (hue-rotate) były kosztowne: repaint rozmycia
+   co klatkę. Zostawiamy tani ruch (transform), rozmycie statyczne. ---- */
+.nebula.n1 { animation: drift1 30s ease-in-out infinite alternate; filter: blur(55px); }
+.nebula.n2 { animation: drift2 36s ease-in-out infinite alternate; filter: blur(55px); }
+.nebula.n3 { animation: drift3 42s ease-in-out infinite alternate; filter: blur(55px); }
+
+/* ---- 2. backdrop-filter na PRZEWIJANYM panelu i zawsze widocznej nawigacji
+   to jeden z najdroższych efektów na mobile (rekompozycja rozmycia tła przy
+   każdej klatce scrolla). Zastępujemy niemal nieprzezroczystym tłem. ---- */
+#panel {
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  background: linear-gradient(180deg, #0d1230f8, #0a0e28fd);
+  overscroll-behavior: contain;
+}
+nav {
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  background: #0b0f2af5;
+}
+#toast, #coach { backdrop-filter: none; -webkit-backdrop-filter: none; }
+
+/* ---- 3. Wygaszanie animacji tła, gdy gra jest w tle (oszczędza baterię).
+   Klasę 'bg-paused' na <html> ustawia main.js przy visibilitychange. ---- */
+html.bg-paused .star,
+html.bg-paused .sparkStar,
+html.bg-paused .dust,
+html.bg-paused .nebula,
+html.bg-paused .milkyway,
+html.bg-paused .bgPlanet,
+html.bg-paused #orbitRing,
+html.bg-paused #astGlow,
+html.bg-paused #asteroid,
+html.bg-paused #crystalCount,
+html.bg-paused .bigBtn.gold::after { animation-play-state: paused; }
+
+/* ---- 4. Szacunek dla ustawienia „ogranicz ruch" w systemie ---- */
+@media (prefers-reduced-motion: reduce) {
+  .star, .sparkStar, .dust, .nebula, .milkyway, .bgPlanet,
+  #orbitRing, #astGlow, #crystalCount, #asteroid,
+  .bigBtn.gold::after, .mfill::after, .bossHp::after,
+  #panel > .enter { animation: none !important; }
+  #crystalCount { background-position: 0 0; }
+}
+
+/* ---- 5. POLISH: reflektor za asteroidą (statyczny, tani) — dodaje głębi ---- */
+#tapArea::before {
+  content: ''; position: absolute; z-index: -1; pointer-events: none;
+  width: min(82vw, 380px); height: min(82vw, 380px); border-radius: 50%;
+  background: radial-gradient(circle, var(--glow, #6ee7ff1f) 0%, transparent 62%);
+  opacity: 0.7;
+}
+
+/* ---- 6. POLISH: miękka poświata za licznikiem kryształów ---- */
+header { position: relative; z-index: 2; }
+header::before {
+  content: ''; position: absolute; z-index: -1; pointer-events: none;
+  left: 50%; top: 2px; translate: -50% 0;
+  width: 230px; height: 78px;
+  background: radial-gradient(ellipse, #6ee7ff1c 0%, transparent 68%);
+}
+
+/* ---- 7. POLISH: subtelna świetlna linia na górze panelu (szklana krawędź) --- */
+#panel { box-shadow: inset 0 1px 0 #6ee7ff22; }
+
+/* ---- 8. POLISH: aktywna zakładka z delikatną poświatą u góry ---- */
+nav button.active { box-shadow: inset 0 3px 14px -8px #6ee7ff; }

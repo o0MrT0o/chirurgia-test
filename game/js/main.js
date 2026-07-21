@@ -11,10 +11,11 @@ let lastTick = now();
 function tick() {
   const dt = (now() - lastTick) / 1000;
   lastTick = now();
-  earn(totalCps() * dt);
-  S.playSeconds = (S.playSeconds || 0) + dt;
   const cps = totalCps();
+  earn(cps * dt);
+  S.playSeconds = (S.playSeconds || 0) + dt;
   if (cps > (S.bestCps || 0)) S.bestCps = cps;
+  if (document.hidden) return; // w tle: licz zarobki, ale nie rysuj (oszczędność CPU)
   renderHeader();
   updateTutorial();
   for (const a of checkAchievements()) {
@@ -58,9 +59,13 @@ function startGame() {
 
   setInterval(tick, 100);
   setInterval(save, 5000);
-  setInterval(() => { if (['bonus', 'mine', 'exp'].includes(activeTab)) renderPanel(); }, 2000);
+  setInterval(() => { if (!document.hidden && ['bonus', 'mine', 'exp'].includes(activeTab)) renderPanel(); }, 2000);
   window.addEventListener('beforeunload', save);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
+  document.addEventListener('visibilitychange', () => {
+    // W tle: zapisz i wygaś animacje tła (oszczędność baterii/CPU).
+    document.documentElement.classList.toggle('bg-paused', document.hidden);
+    if (document.hidden) save();
+  });
 }
 
 startGame();
