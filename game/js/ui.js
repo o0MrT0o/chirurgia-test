@@ -549,6 +549,8 @@ function renderBonus(p) {
     <button class="bigBtn gold" id="adBoostBtn" ${now() < S.boostUntil ? 'disabled' : ''}>
       ${now() < S.boostUntil ? `⚡ Boost aktywny (${Math.ceil((S.boostUntil - now()) / 1000)}s)` : `🎬 Obejrzyj reklamę → Boost ×${BALANCE.adBoostMult}`}
     </button>
+    <div class="note">🔔 <b>Powiadomienia</b> — przypomnimy o powrocie wyprawy, ukończonym badaniu, pełnej kopalni i dziennym bonusie</div>
+    <button class="bigBtn" id="notifBtn">${S.notifOn ? '🔔 Powiadomienia: WŁĄCZONE' : '🔕 Powiadomienia: wyłączone'}</button>
     <div class="note">📊 <b>Statystyki</b></div>
     <div class="statGrid">
       <div class="stat"><div class="v">${fmt(S.allTimeEarned)} 💎</div><div class="k">wydobyto od początku</div></div>
@@ -585,6 +587,21 @@ function renderBonus(p) {
   };
   const a = $('#adBoostBtn');
   if (a && now() >= S.boostUntil) a.onclick = adBoost;
+  const nb = $('#notifBtn');
+  if (nb) nb.onclick = () => {
+    if (!S.notifOn) {
+      S.notifAsked = true;
+      Notify.requestPermission().then(ok => {
+        S.notifOn = ok; save(); rescheduleNotifications();
+        toast(ok ? '🔔 Powiadomienia włączone!' : '🔕 Odmówiono zgody — sprawdź ustawienia telefonu');
+        renderPanel();
+      });
+    } else {
+      S.notifOn = false; save(); rescheduleNotifications();
+      toast('🔕 Powiadomienia wyłączone');
+      renderPanel();
+    }
+  };
   const wf = $('#wheelFreeBtn');
   if (wf && wheelFreeAvailable()) wf.onclick = () => spinWheel(true);
   const wa = $('#wheelAdBtn');

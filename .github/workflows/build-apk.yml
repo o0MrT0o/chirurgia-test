@@ -34,9 +34,10 @@ jobs:
           cp -r game/* apk-build/www/
           cd apk-build
           npm init -y
-          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/local-notifications@6
           npx cap init "Kosmiczny Gornik" "com.mrt.kosmicznygornik" --web-dir=www
           npx cap add android
+          npx cap sync android
 
       - name: Zbuduj APK (debug)
         run: |

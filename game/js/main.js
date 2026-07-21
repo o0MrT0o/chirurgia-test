@@ -33,6 +33,11 @@ function wireGame() {
   const splash = $('#splash');
   splash.addEventListener('pointerdown', () => {
     Sound.unlock();
+    // Pierwsze dotknięcie to gest użytkownika — moment na prośbę o zgodę na powiadomienia.
+    if (S.notifOn && !S.notifAsked) {
+      S.notifAsked = true;
+      Notify.requestPermission().then(ok => { S.notifOn = ok; save(); rescheduleNotifications(); });
+    }
     splash.classList.add('hide');
     setTimeout(() => splash.remove(), 500);
     showOfflineWindow();
@@ -48,11 +53,11 @@ function wireGame() {
   setInterval(tick, 100);
   setInterval(save, 5000);
   setInterval(() => { if (!document.hidden && !wheelSpinning && ['bonus', 'mine', 'exp'].includes(activeTab)) renderPanel(); }, 2000);
-  window.addEventListener('beforeunload', save);
+  window.addEventListener('beforeunload', () => { save(); rescheduleNotifications(); });
   document.addEventListener('visibilitychange', () => {
-    // W tle: zapisz i wygaś animacje tła (oszczędność baterii/CPU).
+    // W tle: zapisz, wygaś animacje tła i zaplanuj powiadomienia przypominające.
     document.documentElement.classList.toggle('bg-paused', document.hidden);
-    if (document.hidden) save();
+    if (document.hidden) { save(); rescheduleNotifications(); }
   });
 }
 

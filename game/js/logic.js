@@ -159,6 +159,8 @@ function doPrestige() {
     artifacts: S.artifacts,
     bossesKilled: S.bossesKilled,
     soundOn: S.soundOn,
+    notifOn: S.notifOn,
+    notifAsked: S.notifAsked,
     tutorialStep: S.tutorialStep,
     research: S.research,
     researchDone: S.researchDone,
@@ -263,6 +265,33 @@ function claimDaily() {
   earn(r);
   save();
   return r;
+}
+
+// ---------- Powiadomienia: planowanie na podstawie stanu ----------
+// Buduje listę przyszłych powiadomień przypominających o powrocie do gry.
+function buildNotifications() {
+  const list = [];
+  const T = 'Kosmiczny Górnik';
+  if (S.expedition && S.expedition.end > now()) {
+    const pl = PLANETS.find(p => p.id === S.expedition.planet);
+    list.push({ id: 1, title: T, body: `☄️ Wyprawa${pl ? ' na ' + pl.name : ''} wróciła! Odbierz łup.`, at: S.expedition.end });
+  }
+  if (S.research && S.research.end > now()) {
+    const r = RESEARCH.find(x => x.id === S.research.id);
+    list.push({ id: 2, title: T, body: `🧪 Badanie${r ? ' „' + r.name + '"' : ''} ukończone! Odbierz nagrodę.`, at: S.research.end });
+  }
+  if (totalCps() > 0) {
+    list.push({ id: 3, title: T, body: '💎 Twoja kopalnia jest pełna! Zbierz zarobki offline.', at: now() + BALANCE.offlineMaxHours * 3600 * 1000 });
+  }
+  list.push({ id: 4, title: T, body: '🎁 Bonus dzienny i darmowy los czekają — wróć po nagrody!', at: now() + 24 * 3600 * 1000 });
+  return list;
+}
+
+// (Prze)planuj powiadomienia zgodnie z ustawieniem gracza.
+function rescheduleNotifications() {
+  if (typeof Notify === 'undefined') return;
+  if (S.notifOn) Notify.scheduleAll(buildNotifications());
+  else Notify.cancelAll();
 }
 
 // ---------- Koło Fortuny ----------

@@ -47,7 +47,13 @@ ekran do `ui.js`.
 | 🎁 Bonus dzienny z serią logowań | powód, by wracać codziennie |
 | ☄️ Złota kometa (co 1–3 min) | losowe eventy — gracz nie odkłada telefonu |
 | 🌙 Zarobki offline (50%, max 8 h) | gra "pracuje" gdy gracz śpi |
+| 🔔 Powiadomienia push | przypominają o wyprawie, badaniu, pełnej kopalni i bonusie — **sprowadzają graczy z powrotem** |
 | 🎬 Reklamy z nagrodą | ×2 zarobki offline, boost ×2 na 2 min — **tu zarabiasz** |
+
+> Powiadomienia: w przeglądarce działają przez Web Notifications (póki karta
+> żyje), a w APK przez wtyczkę `@capacitor/local-notifications` (dodaną w
+> workflow) — wtedy przychodzą nawet przy zamkniętej aplikacji. Kod w
+> `js/notify.js` wykrywa środowisko i sam wybiera właściwy sposób.
 
 ## 📱 Jak pracować nad grą z telefonu
 
