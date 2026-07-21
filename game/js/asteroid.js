@@ -74,6 +74,12 @@ function generateAsteroidSVG(skinId, opts) {
   }
   body += ' Z';
 
+  // ---------- archetyp bryły: różnicuje charakter każdej asteroidy ----------
+  // 'cratered' = gęsto kraterowana, 'crystalline' = dużo kryształów,
+  // 'rugged' = górzysta (grzbiety, głazy). Daje realną różnorodność.
+  const arch = rnd();
+  const cratered = arch < 0.38, crystalline = arch >= 0.38 && arch < 0.7, rugged = arch >= 0.7;
+
   // ---------- rozmieszczanie cech BEZ nakładania (odrzucanie kolizji) ----------
   const placed = [];  // wszystkie bryłowe cechy — blokują kolejne
   const major = [];   // kratery/kryształy/duże głazy — omijane przez linie
@@ -103,26 +109,29 @@ function generateAsteroidSVG(skinId, opts) {
   // ---------- KRYSZTAŁY: klastry wielofasetkowych świecących shardów ----------
   // Rozmieszczane JAKO PIERWSZE — mają najwyższy priorytet, żeby zawsze
   // znalazły miejsce; kolejne cechy (kratery, głazy) je omijają.
-  const shard = (cx, cy, s, rot) => {
-    const p = k => f1(k * s);
+  // shard: pojedyncza fasetka kryształu; str = wysmuklenie (iglica > 1)
+  const shard = (cx, cy, s, rot, str) => {
+    str = str || 1;
+    const px = k => f1(k * s);
+    const py = k => f1(k * s * str);
     return `<g transform="translate(${f1(cx)} ${f1(cy)}) rotate(${rot})">
-      <polygon points="0,${p(-1)} ${p(0.72)},${p(-0.28)} ${p(0.46)},${p(0.82)} 0,${p(0.62)}" fill="${st.crystal}" opacity="0.72"/>
-      <polygon points="0,${p(-1)} 0,${p(0.62)} ${p(-0.46)},${p(0.82)} ${p(-0.72)},${p(-0.28)}" fill="#ffffff" opacity="0.9"/>
-      <polygon points="0,${p(-1)} ${p(0.72)},${p(-0.28)} ${p(0.46)},${p(0.82)} 0,${p(0.62)} ${p(-0.46)},${p(0.82)} ${p(-0.72)},${p(-0.28)}" fill="none" stroke="#ffffff" stroke-width="0.7" opacity="0.85"/>
-      <line x1="0" y1="${p(-1)}" x2="0" y2="${p(0.62)}" stroke="#ffffff" stroke-width="0.5" opacity="0.6"/>
-      <circle cx="${p(-0.28)}" cy="${p(-0.34)}" r="${f1(s * 0.12)}" fill="#ffffff" opacity="0.95"/>
+      <polygon points="0,${py(-1)} ${px(0.72)},${py(-0.28)} ${px(0.46)},${py(0.82)} 0,${py(0.62)}" fill="${st.crystal}" opacity="0.72"/>
+      <polygon points="0,${py(-1)} 0,${py(0.62)} ${px(-0.46)},${py(0.82)} ${px(-0.72)},${py(-0.28)}" fill="#ffffff" opacity="0.9"/>
+      <polygon points="0,${py(-1)} ${px(0.72)},${py(-0.28)} ${px(0.46)},${py(0.82)} 0,${py(0.62)} ${px(-0.46)},${py(0.82)} ${px(-0.72)},${py(-0.28)}" fill="none" stroke="#ffffff" stroke-width="0.7" opacity="0.85"/>
+      <line x1="0" y1="${py(-1)}" x2="0" y2="${py(0.62)}" stroke="#ffffff" stroke-width="0.5" opacity="0.6"/>
+      <circle cx="${px(-0.28)}" cy="${py(-0.34)}" r="${f1(s * 0.12)}" fill="#ffffff" opacity="0.95"/>
     </g>`;
   };
   let gems = '';
-  const gemCount = 2 + Math.floor(rnd() * 3);
+  const gemCount = (crystalline ? 3 : 2) + Math.floor(rnd() * (crystalline ? 3 : 2));
   for (let i = 0; i < gemCount; i++) {
-    const s = 6 + rnd() * 5;
+    const s = 5.5 + rnd() * (crystalline ? 7 : 5);
     const f = place(s * 1.1, 52, 4);
     if (!f) continue;
     major.push({ x: f.x, y: f.y, r: s });
     const gx = f.x, gy = f.y, rot = Math.round(rnd() * 360);
     const pulse = (2 + rnd() * 2.5).toFixed(1);
-    gems += `<ellipse cx="${f1(gx)}" cy="${f1(gy)}" rx="${f1(s * 1.3)}" ry="${f1(s * 1.3)}" fill="${st.crystal}" opacity="0.26" filter="url(#${uid}-blur)">
+    gems += `<ellipse cx="${f1(gx)}" cy="${f1(gy)}" rx="${f1(s * 1.35)}" ry="${f1(s * 1.35)}" fill="${st.crystal}" opacity="0.26" filter="url(#${uid}-blur)">
       <animate attributeName="opacity" values="0.14;0.34;0.14" dur="${pulse}s" repeatCount="indefinite"/></ellipse>`;
     if (st.hearts && i === 0) {
       gems += `<g transform="translate(${f1(gx)} ${f1(gy)}) scale(${(s / 6.5).toFixed(2)})">
@@ -130,43 +139,65 @@ function generateAsteroidSVG(skinId, opts) {
         <path d="M -2 0.5 C -3 -1.2, -5.4 0.4, -2.4 3.4 Z" fill="#ffffff" opacity="0.55"/></g>`;
       continue;
     }
-    // klaster: główny shard + 1-2 mniejsze obok
-    gems += shard(gx, gy, s, rot);
-    gems += shard(gx + s * 0.7, gy + s * 0.55, s * 0.55, rot + 42);
-    if (rnd() < 0.6) gems += shard(gx - s * 0.6, gy + s * 0.5, s * 0.42, rot - 55);
+    // klaster: różne warianty (iglica smukła / klaster szeroki)
+    const spike = rnd() < 0.4;
+    gems += shard(gx, gy, s, rot, spike ? 1.6 : 1);
+    gems += shard(gx + s * 0.7, gy + s * 0.55, s * 0.55, rot + 42, spike ? 1.4 : 1);
+    if (rnd() < 0.6) gems += shard(gx - s * 0.6, gy + s * 0.5, s * 0.42, rot - 55, 1);
+    if (rnd() < 0.4) gems += shard(gx + s * 0.15, gy - s * 0.75, s * 0.32, rot + 15, spike ? 1.7 : 1.1);
+  }
+  // rozsiane okruchy kryształu (małe błyski poza klastrami)
+  const chipCount = crystalline ? 4 + Math.floor(rnd() * 4) : Math.floor(rnd() * 3);
+  for (let i = 0; i < chipCount; i++) {
+    const cs = 2 + rnd() * 2;
+    const f = place(cs, 56, 2);
+    if (!f) continue;
+    gems += shard(f.x, f.y, cs, Math.round(rnd() * 360), 1);
   }
 
-  // ---------- KRATERY: taras + centralny szczyt (jasna krawędź góra-lewo) ----------
+  // ---------- KRATERY: taras + centralny szczyt + świeże z ejektą ----------
   let craters = '';
-  const craterCount = st.holes ? 7 : 5 + Math.floor(rnd() * 3);
+  const craterCount = st.holes ? 7 : (cratered ? 7 : 4) + Math.floor(rnd() * 3);
   for (let i = 0; i < craterCount; i++) {
     const R = (st.holes ? 8 : 7) + rnd() * 11;
     const f = place(R, 60 - R, 5);
     if (!f) continue;
     major.push({ x: f.x, y: f.y, r: R });
     const cx = f.x, cy = f.y, deep = st.holes;
-    let g = `<g>
-      <ellipse cx="${f1(cx + 1.6)}" cy="${f1(cy + 2)}" rx="${f1(R + 1.6)}" ry="${f1(R + 1.3)}" fill="${st.c4}" opacity="${deep ? 0.9 : 0.5}"/>
-      <ellipse cx="${f1(cx - 1.3)}" cy="${f1(cy - 1.6)}" rx="${f1(R + 1.1)}" ry="${f1(R + 1)}" fill="${st.c0}" opacity="0.34"/>
-      <ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(R)}" ry="${f1(R * 0.94)}" fill="url(#${uid}-bowl)" opacity="${deep ? 0.96 : 0.84}"/>
-      <ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(R)}" ry="${f1(R * 0.94)}" fill="none" stroke="${st.c4}" stroke-width="0.6" opacity="0.35"/>`;
+    const ex = 0.86 + rnd() * 0.28;            // wydłużenie osi X (owalne kratery)
+    const rx = R, ry = R * (0.94 / ex);
+    const fresh = !deep && R > 6.5 && R < 12 && rnd() < 0.4; // świeży krater z ejektą
+    let g = `<g>`;
+    if (fresh) { // jasna aureola i promienie wyrzutu wokół świeżego krateru
+      g += `<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(R * 1.5)}" ry="${f1(R * 1.45)}" fill="${st.c0}" opacity="0.07" filter="url(#${uid}-soft)"/>`;
+      const rays = 7 + Math.floor(rnd() * 4);
+      for (let k = 0; k < rays; k++) {
+        const a = (k / rays) * TAU + rnd() * 0.3;
+        const r0 = R * 1.05, r1 = R * (1.25 + rnd() * 0.5);
+        g += `<line x1="${f1(cx + Math.cos(a) * r0)}" y1="${f1(cy + Math.sin(a) * r0)}" x2="${f1(cx + Math.cos(a) * r1)}" y2="${f1(cy + Math.sin(a) * r1)}" stroke="${st.c0}" stroke-width="${(0.6 + rnd() * 0.7).toFixed(1)}" opacity="0.14" stroke-linecap="round"/>`;
+      }
+    }
+    g += `<ellipse cx="${f1(cx + 1.6)}" cy="${f1(cy + 2)}" rx="${f1(rx + 1.6)}" ry="${f1(ry + 1.3)}" fill="${st.c4}" opacity="${deep ? 0.9 : 0.5}"/>
+      <ellipse cx="${f1(cx - 1.3)}" cy="${f1(cy - 1.6)}" rx="${f1(rx + 1.1)}" ry="${f1(ry + 1)}" fill="${st.c0}" opacity="0.34"/>
+      <ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(rx)}" ry="${f1(ry)}" fill="url(#${uid}-bowl)" opacity="${deep ? 0.96 : 0.84}"/>
+      <ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(rx)}" ry="${f1(ry)}" fill="none" stroke="${st.c4}" stroke-width="0.6" opacity="0.35"/>`;
     if (!deep && R > 9.5) { // tarasowana ściana
-      g += `<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(R * 0.62)}" ry="${f1(R * 0.58)}" fill="none" stroke="${st.c4}" stroke-width="0.8" opacity="0.4"/>
-        <ellipse cx="${f1(cx - 0.6)}" cy="${f1(cy - 0.7)}" rx="${f1(R * 0.62)}" ry="${f1(R * 0.58)}" fill="none" stroke="${st.c0}" stroke-width="0.6" opacity="0.22"/>`;
+      g += `<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(rx * 0.62)}" ry="${f1(ry * 0.62)}" fill="none" stroke="${st.c4}" stroke-width="0.8" opacity="0.4"/>
+        <ellipse cx="${f1(cx - 0.6)}" cy="${f1(cy - 0.7)}" rx="${f1(rx * 0.62)}" ry="${f1(ry * 0.62)}" fill="none" stroke="${st.c0}" stroke-width="0.6" opacity="0.22"/>`;
     }
     if (!deep && R > 12.5) { // centralny szczyt (jak w prawdziwych dużych kraterach)
       g += `<ellipse cx="${f1(cx + 0.7)}" cy="${f1(cy + 0.8)}" rx="${f1(R * 0.2)}" ry="${f1(R * 0.16)}" fill="${st.c4}" opacity="0.45"/>
         <ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(R * 0.2)}" ry="${f1(R * 0.17)}" fill="url(#${uid}-boulder)"/>
         <ellipse cx="${f1(cx - R * 0.06)}" cy="${f1(cy - R * 0.06)}" rx="${f1(R * 0.09)}" ry="${f1(R * 0.07)}" fill="${st.c0}" opacity="0.5"/>`;
     } else { // rozświetlenie dna od strony przeciwnej do światła
-      g += `<ellipse cx="${f1(cx + R * 0.34)}" cy="${f1(cy + R * 0.36)}" rx="${f1(R * 0.34)}" ry="${f1(R * 0.26)}" fill="${st.c1}" opacity="${deep ? 0.12 : 0.42}"/>`;
+      g += `<ellipse cx="${f1(cx + rx * 0.34)}" cy="${f1(cy + ry * 0.36)}" rx="${f1(rx * 0.34)}" ry="${f1(ry * 0.26)}" fill="${st.c1}" opacity="${deep ? 0.12 : 0.42}"/>`;
     }
     craters += g + '</g>';
   }
 
   // ---------- GŁAZY: wypukłe skały (jasno góra-lewo, cień dół-prawo) ----------
   let boulders = '';
-  const boulderCount = 5 + Math.floor(rnd() * 4);
+  const boulderCount = (rugged ? 7 : 4) + Math.floor(rnd() * 4);
   for (let i = 0; i < boulderCount; i++) {
     const R = 2.5 + rnd() * 4.5;
     const f = place(R, 58, 3);
@@ -178,6 +209,33 @@ function generateAsteroidSVG(skinId, opts) {
       <ellipse cx="${f1(bx)}" cy="${f1(by)}" rx="${f1(R)}" ry="${f1(R * 0.8)}" fill="url(#${uid}-boulder)"/>
       <ellipse cx="${f1(bx - R * 0.3)}" cy="${f1(by - R * 0.35)}" rx="${f1(R * 0.35)}" ry="${f1(R * 0.28)}" fill="${st.c0}" opacity="0.55"/>
     </g>`;
+  }
+
+  // ---------- GRZBIETY: wypukłe pasma górskie (tylko bryły górzyste) ----------
+  let ridges = '';
+  const ridgeCount = rugged ? 1 + Math.floor(rnd() * 2) : (rnd() < 0.3 ? 1 : 0);
+  for (let i = 0; i < ridgeCount; i++) {
+    // start w wolnym miejscu, potem łagodny łuk omijający kratery/kryształy
+    let sx, sy, found = false;
+    for (let t = 0; t < 30; t++) {
+      const a = rnd() * TAU, d = rnd() * 48;
+      const x = 100 + Math.cos(a) * d, y = 100 + Math.sin(a) * d;
+      if (!inMajor(x, y, 5) && Math.hypot(x - 100, y - 100) < 55) { sx = x; sy = y; found = true; break; }
+    }
+    if (!found) continue;
+    let x = sx, y = sy, ang = rnd() * TAU;
+    const seg = [[x, y]];
+    for (let j = 0; j < 3 + Math.floor(rnd() * 3); j++) {
+      ang += (rnd() - 0.5) * 1.1;
+      const nx = x + Math.cos(ang) * (9 + rnd() * 6), ny = y + Math.sin(ang) * (9 + rnd() * 6);
+      if (inMajor(nx, ny, 4) || Math.hypot(nx - 100, ny - 100) > 58) break;
+      x = nx; y = ny; seg.push([x, y]);
+    }
+    if (seg.length < 3) continue;
+    const path = o => seg.map(p => `${f1(p[0] + (o ? o[0] : 0))},${f1(p[1] + (o ? o[1] : 0))}`).join(' ');
+    ridges += `<polyline points="${path([1, 1.4])}" fill="none" stroke="${st.c4}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+      <polyline points="${path()}" fill="none" stroke="${st.c2}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+      <polyline points="${path([-1, -1.3])}" fill="none" stroke="${st.c0}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>`;
   }
 
   // ---------- KAMYKI: drobne kamienie rozsiane po powierzchni (wypełniają luki) ----------
@@ -224,9 +282,19 @@ function generateAsteroidSVG(skinId, opts) {
     }
   }
 
+  // ---------- PLAMY TERENU: wielkoskalowe regiony jaśniejsze/ciemniejsze ----------
+  let patches = '';
+  const patchCount = 2 + Math.floor(rnd() * 3);
+  for (let i = 0; i < patchCount; i++) {
+    const a = rnd() * TAU, d = rnd() * 42;
+    const px = 100 + Math.cos(a) * d, py = 100 + Math.sin(a) * d;
+    const pr = 16 + rnd() * 18;
+    patches += `<ellipse cx="${f1(px)}" cy="${f1(py)}" rx="${f1(pr)}" ry="${f1(pr * (0.7 + rnd() * 0.3))}" fill="${rnd() < 0.5 ? st.c0 : st.c4}" opacity="${(0.05 + rnd() * 0.06).toFixed(2)}" filter="url(#${uid}-soft)"/>`;
+  }
+
   // ---------- tekstura: drobinki pyłu (poza kraterami) ----------
   let speckles = '';
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 24; i++) {
     const a = rnd() * TAU, d = rnd() * 60;
     const sx = 100 + Math.cos(a) * d, sy = 100 + Math.sin(a) * d;
     if (inMajor(sx, sy, 1)) continue;
@@ -297,12 +365,15 @@ function generateAsteroidSVG(skinId, opts) {
       </linearGradient>
       <clipPath id="${uid}-clip"><path d="${body}"/></clipPath>
       <filter id="${uid}-blur" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.4"/></filter>
+      <filter id="${uid}-soft" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5.5"/></filter>
     </defs>
 
     <path d="${body}" fill="url(#${uid}-body)"${rockAttr}/>
     <g clip-path="url(#${uid}-clip)">
+      ${patches}
       ${speckles}
       ${pebbles}
+      ${ridges}
       ${craters}
       ${boulders}
       ${cracks}
