@@ -35,9 +35,19 @@ const Sound = (() => {
     } catch (e) {}
   }
 
+  // Szybkie klikanie potrafi zasypać WebAudio setkami węzłów na sekundę,
+  // co powoduje mikroprzycięcia. Ograniczamy dźwięk kliknięcia do ~18/s —
+  // ucho i tak nie rozróżni gęstszych, a CPU oddycha.
+  let _lastClick = 0;
+
   return {
     unlock() { ensure(); },
-    click()   { beep(550 + Math.random() * 250, 0.05, 'triangle', 0.07); },
+    click()   {
+      const t = now();
+      if (t - _lastClick < 55) return;
+      _lastClick = t;
+      beep(550 + Math.random() * 250, 0.05, 'triangle', 0.07);
+    },
     crit()    { beep(880, 0.09, 'square', 0.1); beep(1320, 0.12, 'square', 0.09, 0.05); },
     buy()     { beep(440, 0.06, 'sine', 0.11); beep(660, 0.08, 'sine', 0.11, 0.06); },
     fanfare() { [523, 659, 784, 1047].forEach((f, i) => beep(f, 0.12, 'triangle', 0.11, i * 0.09)); },

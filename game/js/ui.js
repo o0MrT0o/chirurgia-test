@@ -9,6 +9,7 @@
 // tekst (tanie textContent zamiast przebudowy innerHTML 10×/s); pozostałe
 // pola i chipy zapisujemy do DOM wyłącznie, gdy realnie się zmieniły.
 let _hdrReady = false, _lastCps = '', _lastDust = '', _lastBoost = '';
+let cachedClick = 1; // buforowana moc kliku (odświeżana w renderHeader ~10×/s)
 function renderHeader() {
   if (!_hdrReady) {
     $('#crystalCount').innerHTML = '<span id="crAmt"></span> <span class="unit">💎</span>';
@@ -16,7 +17,8 @@ function renderHeader() {
   }
   $('#crAmt').textContent = fmt(S.crystals);
 
-  const cps = `${fmt(totalCps())} / sek. • klik: +${fmt(clickPower())}`;
+  cachedClick = clickPower();       // bufor: onTap/hitBoss nie przeliczają tego per klik
+  const cps = `${fmt(totalCps())} / sek. • klik: +${fmt(cachedClick)}`;
   if (cps !== _lastCps) { $('#cpsLabel').textContent = cps; _lastCps = cps; }
 
   const dust = (S.stardust > 0 || talentLevelsTotal() > 0)
@@ -664,28 +666,30 @@ function checkMilestones() {
   if (navigator.vibrate) navigator.vibrate([50, 60, 50]);
 }
 
-// Wskaźnik „następny cel" — najbliższy budynek do kupna albo odblokowania.
+// Wskaźnik „następny cel" — aspiracyjny i stabilny (nie powtarza tego samego
+// budynku): pierwszy typ budynku, którego jeszcze NIE masz; gdy masz wszystkie
+// — następny kamień milowy.
 let _lastGoal = '';
 function updateGoal() {
   const g = $('#goalBar');
   if (!g) return;
-  let target = null;
-  for (const b of BUILDINGS) {
-    const visible = (S.buildings[b.id] || 0) > 0 || S.totalEarned >= b.baseCost * 0.5;
-    if (!visible) continue;
-    const cost = buildingCost(b);
-    if (S.crystals < cost) { target = { name: b.name, cost, have: S.crystals, unlock: false }; break; }
-  }
-  if (!target) {
-    for (const b of BUILDINGS) {
-      const visible = (S.buildings[b.id] || 0) > 0 || S.totalEarned >= b.baseCost * 0.5;
-      if (!visible) { target = { name: b.name, cost: b.baseCost * 0.5, have: S.totalEarned, unlock: true }; break; }
+  let html = '';
+  const nb = BUILDINGS.find(b => (S.buildings[b.id] || 0) === 0);
+  if (nb) {
+    const visible = S.totalEarned >= nb.baseCost * 0.5;
+    const cost = visible ? buildingCost(nb) : nb.baseCost * 0.5;
+    const have = visible ? S.crystals : S.totalEarned;
+    const pct = Math.min(100, have / cost * 100);
+    html = `🎯 ${visible ? 'Zdobądź' : 'Odblokuj'}: <b>${nb.name}</b> · ${Math.floor(pct)}%`
+      + `<span class="goalTrack"><span class="goalFill" style="width:${pct.toFixed(1)}%"></span></span>`;
+  } else {
+    const next = MILESTONES.find(m => (S.lastMilestone || 0) < m);
+    if (next) {
+      const pct = Math.min(100, S.allTimeEarned / next * 100);
+      html = `🎯 Kamień milowy: <b>${fmt(next)} 💎</b> · ${Math.floor(pct)}%`
+        + `<span class="goalTrack"><span class="goalFill" style="width:${pct.toFixed(1)}%"></span></span>`;
     }
   }
-  if (!target) { if (_lastGoal) { g.innerHTML = ''; _lastGoal = ''; } return; }
-  const pct = Math.min(100, target.have / target.cost * 100);
-  const html = `🎯 ${target.unlock ? 'Odblokuj' : 'Cel'}: <b>${target.name}</b> · ${Math.floor(pct)}%`
-    + `<span class="goalTrack"><span class="goalFill" style="width:${pct.toFixed(1)}%"></span></span>`;
   if (html !== _lastGoal) { g.innerHTML = html; _lastGoal = html; }
 }
 
@@ -707,7 +711,7 @@ function spawnParticles(x, y, count) {
 }
 
 function onTap(e) {
-  let p = clickPower();
+  let p = cachedClick;               // z bufora — bez kosztownego przeliczania per klik
   const crit = Math.random() < critChance(); // talent Złoty dotyk
   if (crit) p *= 10;
   // Kombos: szybkie klikanie buduje mnożnik (zanika po chwili bez kliknięć).
@@ -874,7 +878,7 @@ function updateBossBars() {
 
 function hitBoss(e) {
   if (!boss) return;
-  let dmg = clickPower();
+  let dmg = cachedClick;
   const crit = Math.random() < critChance();
   if (crit) dmg *= 10;
   boss.hp -= dmg;
