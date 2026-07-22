@@ -195,7 +195,7 @@ function renderExpeditions(p) {
     if (startResearch(el.dataset.research)) {
       toast(`🧪 Rozpoczęto badanie: ${r.name}! Potrwa ${r.hours < 1 ? r.hours * 60 + ' min' : r.hours + ' h'}.`);
       Sound.buy();
-      if (navigator.vibrate) navigator.vibrate(30);
+      if (navigator.vibrate) buzz(30);
       renderPanel();
     }
   });
@@ -208,7 +208,7 @@ function renderExpeditions(p) {
       Trwały efekt: <b style="color:#8ff5ff">${r.desc}</b></p>
       <button class="bigBtn gold" onclick="hideOverlay(); renderPanel()">Eureka! 🎉</button>`);
     Sound.fanfare();
-    if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+    if (navigator.vibrate) buzz([40, 60, 40]);
   };
   const rushRes = $('#rushResBtn');
   if (rushRes) rushRes.onclick = () => Ads.showRewarded(() => {
@@ -221,7 +221,7 @@ function renderExpeditions(p) {
     if (startExpedition(el.dataset.planet)) {
       const pl = PLANETS.find(x => x.id === el.dataset.planet);
       toast(`🚀 Statek wyruszył na ${pl.name}! Wróci za ${pl.hours < 1 ? pl.hours * 60 + ' min' : pl.hours + ' h'}.`);
-      if (navigator.vibrate) navigator.vibrate(30);
+      if (navigator.vibrate) buzz(30);
       renderPanel();
     }
   });
@@ -235,7 +235,7 @@ function renderExpeditions(p) {
     html += `</p><button class="bigBtn" onclick="hideOverlay(); renderPanel()">Super!</button>`;
     showOverlay(html);
     if (res.artifact && !res.duplicate) spawnConfetti(22);
-    if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+    if (navigator.vibrate) buzz([40, 60, 40]);
     Sound.fanfare();
   };
   const rushBtn = $('#rushExpBtn');
@@ -288,7 +288,7 @@ function renderMine(p) {
   });
   p.querySelectorAll('[data-buy]').forEach(el => el.onclick = () => {
     if (buyBuilding(el.dataset.buy, Number(el.dataset.qty))) {
-      if (navigator.vibrate) navigator.vibrate(20);
+      if (navigator.vibrate) buzz(20);
       Sound.buy();
       renderPanel();
     }
@@ -316,7 +316,7 @@ function renderUpgrades(p) {
     const u = UPGRADES.find(x => x.id === el.dataset.upg);
     if (buyUpgrade(el.dataset.upg)) {
       toast(`🚀 Kupiono: ${u.name}!`);
-      if (navigator.vibrate) navigator.vibrate(30);
+      if (navigator.vibrate) buzz(30);
       Sound.buy();
       renderPanel();
     }
@@ -375,7 +375,7 @@ function renderPrestige(p) {
     const t = TALENTS.find(x => x.id === el.dataset.talent);
     if (buyTalent(el.dataset.talent)) {
       toast(`🌟 ${t.name} → poziom ${talentLevel(t.id)} (${t.eff(talentLevel(t.id))})`);
-      if (navigator.vibrate) navigator.vibrate(30);
+      if (navigator.vibrate) buzz(30);
       Sound.buy();
       renderPanel();
     }
@@ -450,7 +450,7 @@ function renderAchievements(p) {
         applySkin();
         toast(`🎨 Kupiono skórkę ${sk.name} za ✨ ${sk.cost}!`);
         Sound.fanfare();
-        if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+        if (navigator.vibrate) buzz([40, 60, 40]);
         renderPanel();
       } else {
         toast(`✨ Potrzebujesz ${sk.cost} pyłu (masz ${fmt(S.stardust)})`);
@@ -534,7 +534,7 @@ function spinWheel(isFree) {
   if (svg) svg.style.transform = `rotate(${final}deg)`;
   // wyłącz przyciski na czas kręcenia
   document.querySelectorAll('#wheelFreeBtn, #wheelAdBtn').forEach(b => b.disabled = true);
-  if (navigator.vibrate) navigator.vibrate(20);
+  if (navigator.vibrate) buzz(20);
   setTimeout(() => {
     const seg = WHEEL[k];
     const res = grantWheelReward(seg);
@@ -543,7 +543,7 @@ function spinWheel(isFree) {
     if (seg.kind === 'jackpot') spawnConfetti(44);
     else if (res.big) spawnConfetti(24);
     Sound.fanfare();
-    if (navigator.vibrate) navigator.vibrate(res.big ? [60, 40, 60, 40, 120] : [40, 60, 40]);
+    if (navigator.vibrate) buzz(res.big ? [60, 40, 60, 40, 120] : [40, 60, 40]);
     showOverlay(`<h2>${seg.icon} ${seg.name}</h2>
       <p><b style="font-size:20px;color:#8ff5ff">${res.text}</b></p>
       <button class="bigBtn gold" onclick="hideOverlay(); if (activeTab === 'bonus') renderPanel();">Super! 🎉</button>`);
@@ -560,8 +560,6 @@ function renderBonus(p) {
     <button class="bigBtn gold" id="adBoostBtn" ${now() < S.boostUntil ? 'disabled' : ''}>
       ${now() < S.boostUntil ? `⚡ Boost aktywny (${Math.ceil((S.boostUntil - now()) / 1000)}s)` : `🎬 Obejrzyj reklamę → Boost ×${BALANCE.adBoostMult}`}
     </button>
-    <div class="note">🔔 <b>Powiadomienia</b> — przypomnimy o powrocie wyprawy, ukończonym badaniu, pełnej kopalni i dziennym bonusie</div>
-    <button class="bigBtn" id="notifBtn">${S.notifOn ? '🔔 Powiadomienia: WŁĄCZONE' : '🔕 Powiadomienia: wyłączone'}</button>
     <div class="note">📊 <b>Statystyki</b></div>
     <div class="statGrid">
       <div class="stat"><div class="v">${fmt(S.allTimeEarned)} 💎</div><div class="k">wydobyto od początku</div></div>
@@ -584,11 +582,7 @@ function renderBonus(p) {
       <div class="stat"><div class="v">🧪 ${researchDoneCount()}/${RESEARCH.length}</div><div class="k">ukończone badania</div></div>
       <div class="stat"><div class="v">🎯 ${S.missionsCompleted || 0}</div><div class="k">wykonane misje</div></div>
     </div>
-    <div class="note">💾 <b>Kopia zapasowa</b> — przenieś postęp na inny telefon</div>
-    <div class="saveBtns">
-      <button class="bigBtn" id="exportBtn">📤 Eksportuj</button>
-      <button class="bigBtn" id="importBtn">📥 Importuj</button>
-    </div>`;
+    <div class="note">⚙️ Dźwięk, muzyka, powiadomienia i kopia zapasowa są teraz w <b>Ustawieniach</b> (ikona ⚙️ w rogu).</div>`;
   if (panelUnchanged(bonusContent)) return;
   p.innerHTML = bonusContent;
   const d = $('#dailyBtn');
@@ -599,21 +593,6 @@ function renderBonus(p) {
   };
   const a = $('#adBoostBtn');
   if (a && now() >= S.boostUntil) a.onclick = adBoost;
-  const nb = $('#notifBtn');
-  if (nb) nb.onclick = () => {
-    if (!S.notifOn) {
-      S.notifAsked = true;
-      Notify.requestPermission().then(ok => {
-        S.notifOn = ok; save(); rescheduleNotifications();
-        toast(ok ? '🔔 Powiadomienia włączone!' : '🔕 Odmówiono zgody — sprawdź ustawienia telefonu');
-        renderPanel();
-      });
-    } else {
-      S.notifOn = false; save(); rescheduleNotifications();
-      toast('🔕 Powiadomienia wyłączone');
-      renderPanel();
-    }
-  };
   const wf = $('#wheelFreeBtn');
   if (wf && wheelFreeAvailable()) wf.onclick = () => spinWheel(true);
   const wa = $('#wheelAdBtn');
@@ -625,13 +604,11 @@ function renderBonus(p) {
         ? `🎯 Komplet misji dnia! +${fmt(res.reward)} 💎 i +${BALANCE.missionSetBonus} ✨ pyłu!`
         : `🎯 Misja wykonana! +${fmt(res.reward)} 💎`);
       if (res.setDone) spawnConfetti(24);
-      if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+      if (navigator.vibrate) buzz([40, 60, 40]);
       Sound.claim();
       renderPanel();
     }
   });
-  const ex = $('#exportBtn'); if (ex) ex.onclick = showExportOverlay;
-  const im = $('#importBtn'); if (im) im.onclick = showImportOverlay;
 }
 
 // ---------- Klikanie asteroidy ----------
@@ -663,7 +640,7 @@ function checkMilestones() {
   toast(`🏆 Kamień milowy: ${fmt(hit)} 💎 wydobyte łącznie!`);
   Sound.fanfare();
   spawnConfetti(30);
-  if (navigator.vibrate) navigator.vibrate([50, 60, 50]);
+  if (navigator.vibrate) buzz([50, 60, 50]);
 }
 
 // Wskaźnik „następny cel" — aspiracyjny i stabilny (nie powtarza tego samego
@@ -722,7 +699,7 @@ function onTap(e) {
   earn(p);
   S.totalClicks++;
   missionBump('clicks');
-  if (navigator.vibrate) navigator.vibrate(crit ? 40 : 12);
+  if (navigator.vibrate) buzz(crit ? 40 : 12);
   if (crit) Sound.crit(); else Sound.click();
   // Impuls kliknięcia przez Web Animations API (bez wymuszania reflow
   // przez void offsetWidth) — skala + błysk, tanio i płynnie.
@@ -779,7 +756,7 @@ function spawnComet() {
       S.frenzyUntil = now() + BALANCE.frenzySeconds * 1000;
       toast(`☄️ SZAŁ WYDOBYCIA! Produkcja ×${BALANCE.frenzyMult} przez ${BALANCE.frenzySeconds} sekund!`);
     }
-    if (navigator.vibrate) navigator.vibrate(60);
+    if (navigator.vibrate) buzz(60);
     Sound.comet();
     save();
     scheduleComet();
@@ -798,13 +775,13 @@ function scheduleRandomEvent() {
 function startCrystalFever() {
   S.feverUntil = now() + BALANCE.feverSeconds * 1000;
   toast(`💥 GORĄCZKA KRYSZTAŁOWA! Klikanie ×${BALANCE.feverMult} przez ${BALANCE.feverSeconds} sekund!`);
-  if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+  if (navigator.vibrate) buzz([50, 50, 50]);
   save();
 }
 
 function startMeteorShower() {
   toast('🌠 DESZCZ METEORYTÓW! Łap spadające meteory!');
-  if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+  if (navigator.vibrate) buzz([50, 50, 50]);
   for (let i = 0; i < BALANCE.meteorCount; i++) {
     setTimeout(spawnMeteor, i * 600 + Math.random() * 300);
   }
@@ -820,7 +797,7 @@ function spawnMeteor() {
     ev.preventDefault();
     const reward = Math.max(50, totalCps() * 15 + clickPower() * 5);
     earn(reward);
-    if (navigator.vibrate) navigator.vibrate(25);
+    if (navigator.vibrate) buzz(25);
     Sound.meteor();
     spawnParticles(ev.clientX, ev.clientY, 5);
     const f = document.createElement('div');
@@ -863,7 +840,7 @@ function spawnBoss() {
   face.addEventListener('mousedown', e => { if (!('ontouchstart' in window)) hitBoss(e); });
   toast(`⚔️ ${def.name} nadlatuje! Masz ${BALANCE.bossTime} sekund!`);
   Sound.alarm();
-  if (navigator.vibrate) navigator.vibrate([80, 60, 80]);
+  if (navigator.vibrate) buzz([80, 60, 80]);
   boss.timer = setInterval(updateBossBars, 100);
   updateBossBars();
 }
@@ -885,7 +862,7 @@ function hitBoss(e) {
   S.totalClicks++;
   missionBump('clicks');
   Sound.hit();
-  if (navigator.vibrate) navigator.vibrate(crit ? 40 : 15);
+  if (navigator.vibrate) buzz(crit ? 40 : 15);
   const x = (e.touches ? e.touches[0].clientX : e.clientX) || window.innerWidth / 2;
   const y = (e.touches ? e.touches[0].clientY : e.clientY) || window.innerHeight / 3;
   spawnParticles(x, y, crit ? 8 : 2);
@@ -926,7 +903,7 @@ function endBoss(won) {
     showOverlay(html);
     Sound.fanfare();
     spawnConfetti(26);
-    if (navigator.vibrate) navigator.vibrate([60, 40, 60, 40, 120]);
+    if (navigator.vibrate) buzz([60, 40, 60, 40, 120]);
   } else {
     const loot = grantBossFail();
     toast(`💨 ${name} odleciał... Nagroda pocieszenia: +${fmt(loot)} 💎`);
@@ -997,6 +974,76 @@ function updateTutorial() {
 }
 
 // ---------- Kopia zapasowa (eksport/import) ----------
+// ---------- Ekran ustawień ----------
+// Jedno miejsce na wszystkie przełączniki i kopię zapasową.
+function showSettings() {
+  const row = (id, icon, label, on, desc) => `
+    <div class="setRow">
+      <div class="setInfo"><span class="setLbl">${icon} ${label}</span>${desc ? `<span class="setDesc">${desc}</span>` : ''}</div>
+      <button class="toggle${on ? ' on' : ''}" id="${id}" role="switch" aria-checked="${on}"><span class="knob"></span></button>
+    </div>`;
+  showOverlay(`
+    <h2>⚙️ Ustawienia</h2>
+    <div class="setList">
+      ${row('setSound', '🔊', 'Dźwięki', S.soundOn, 'Efekty klikania, zakupów i sukcesów')}
+      ${row('setMusic', '🎵', 'Muzyka', S.musicOn, 'Spokojna ścieżka w tle')}
+      ${row('setVibro', '📳', 'Wibracje', S.vibrateOn, 'Odzew dotykowy przy akcjach')}
+      ${row('setNotif', '🔔', 'Powiadomienia', S.notifOn, 'Przypomnienia o wyprawie, badaniu, bonusie')}
+    </div>
+    <div class="note">💾 <b>Kopia zapasowa</b> — przenieś postęp na inny telefon</div>
+    <div class="saveBtns">
+      <button class="bigBtn" id="setExport">📤 Eksportuj</button>
+      <button class="bigBtn" id="setImport">📥 Importuj</button>
+    </div>
+    <div class="note danger-note">⚠️ <b>Reset</b> — usuwa cały postęp, bez możliwości cofnięcia</div>
+    <button class="bigBtn danger" id="setReset">🗑️ Zresetuj grę</button>
+    <button class="bigBtn" onclick="hideOverlay()">Zamknij</button>`);
+
+  const setUI = (id, on) => {
+    const b = $('#' + id);
+    if (b) { b.classList.toggle('on', on); b.setAttribute('aria-checked', on); }
+  };
+  $('#setSound').onclick = () => setUI('setSound', toggleSound());
+  $('#setMusic').onclick = () => setUI('setMusic', Music.toggle());
+  $('#setVibro').onclick = () => {
+    S.vibrateOn = !S.vibrateOn; save();
+    if (S.vibrateOn) buzz(30);
+    setUI('setVibro', S.vibrateOn);
+  };
+  $('#setNotif').onclick = () => {
+    if (!S.notifOn) {
+      S.notifAsked = true;
+      Notify.requestPermission().then(ok => {
+        S.notifOn = ok; save(); rescheduleNotifications();
+        setUI('setNotif', ok);
+        toast(ok ? '🔔 Powiadomienia włączone!' : '🔕 Odmówiono zgody — sprawdź ustawienia telefonu');
+      });
+    } else {
+      S.notifOn = false; save(); rescheduleNotifications();
+      setUI('setNotif', false);
+      toast('🔕 Powiadomienia wyłączone');
+    }
+  };
+  $('#setExport').onclick = showExportOverlay;
+  $('#setImport').onclick = showImportOverlay;
+  $('#setReset').onclick = confirmReset;
+}
+
+// Reset z podwójnym potwierdzeniem — usuwa zapis i przeładowuje grę.
+function confirmReset() {
+  showOverlay(`
+    <h2>🗑️ Zresetować grę?</h2>
+    <p>Utracisz <b>cały postęp</b>: kryształy, budynki, prestiż, talenty, artefakty — wszystko.
+    Tej operacji <b>nie da się cofnąć</b>.</p>
+    <p style="opacity:.8">Wskazówka: najpierw możesz zrobić eksport zapisu.</p>
+    <button class="bigBtn danger" id="resetYes">Tak, usuń wszystko</button>
+    <button class="bigBtn" onclick="showSettings()">Anuluj</button>`);
+  $('#resetYes').onclick = () => {
+    try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+    location.reload();
+  };
+}
+
 function showExportOverlay() {
   const code = exportSave();
   showOverlay(`
@@ -1004,7 +1051,7 @@ function showExportOverlay() {
     <p>Skopiuj poniższy kod i schowaj w bezpiecznym miejscu<br>(np. w notatkach):</p>
     <textarea class="saveArea" id="exportArea" readonly>${code}</textarea>
     <button class="bigBtn" id="copySaveBtn">📋 Skopiuj do schowka</button>
-    <button class="bigBtn" onclick="hideOverlay()">Zamknij</button>`);
+    <button class="bigBtn" onclick="showSettings()">Wróć</button>`);
   $('#copySaveBtn').onclick = () => {
     const area = $('#exportArea');
     area.select();
@@ -1021,7 +1068,7 @@ function showImportOverlay() {
     <p>Wklej kod zapisu. <b>Uwaga:</b> obecny postęp zostanie nadpisany!</p>
     <textarea class="saveArea" id="importArea" placeholder="Wklej kod tutaj..."></textarea>
     <button class="bigBtn gold" id="doImportBtn">📥 Wczytaj zapis</button>
-    <button class="bigBtn" onclick="hideOverlay()">Anuluj</button>`);
+    <button class="bigBtn" onclick="showSettings()">Anuluj</button>`);
   $('#doImportBtn').onclick = () => {
     if (importSave($('#importArea').value)) {
       hideOverlay();

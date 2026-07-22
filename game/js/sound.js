@@ -63,7 +63,7 @@ const Sound = (() => {
 
 function toggleSound() {
   S.soundOn = !S.soundOn;
-  $('#soundBtn').textContent = S.soundOn ? '🔊' : '🔇';
   if (S.soundOn) Sound.buy();
   save();
+  return S.soundOn;
 }

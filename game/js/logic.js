@@ -162,6 +162,7 @@ function doPrestige() {
     bossesKilled: S.bossesKilled,
     soundOn: S.soundOn,
     musicOn: S.musicOn,
+    vibrateOn: S.vibrateOn,
     notifOn: S.notifOn,
     notifAsked: S.notifAsked,
     tutorialStep: S.tutorialStep,

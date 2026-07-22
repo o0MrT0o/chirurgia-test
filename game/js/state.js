@@ -29,6 +29,7 @@ const DEFAULT_STATE = () => ({
   missionsCompleted: 0, // wykonane misje łącznie (od początku gry)
   soundOn: true,        // dźwięki włączone?
   musicOn: true,        // muzyka w tle włączona?
+  vibrateOn: true,      // wibracje włączone?
   notifOn: true,        // powiadomienia przypominające włączone?
   notifAsked: false,    // czy pytaliśmy już o zgodę na powiadomienia?
   tutorialStep: 0,      // krok samouczka (99 = ukończony/pominięty)
@@ -57,6 +58,8 @@ let S = DEFAULT_STATE();
 const $ = sel => document.querySelector(sel);
 const now = () => Date.now();
 const todayStr = () => new Date().toISOString().slice(0, 10);
+// Wibracja z poszanowaniem ustawienia gracza (jedno miejsce zamiast rozsianych warunków).
+const buzz = pattern => { if (S.vibrateOn && navigator.vibrate) navigator.vibrate(pattern); };
 
 function totalBuildings(s) {
   return Object.values(s.buildings).reduce((a, b) => a + b, 0);

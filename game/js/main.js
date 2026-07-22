@@ -23,7 +23,7 @@ function tick() {
   updateTutorial();
   for (const a of checkAchievements()) {
     toast(`🏆 Osiągnięcie: ${a.name}! (+${BALANCE.achievementBonus * 100}% produkcji)`);
-    if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+    if (navigator.vibrate) buzz([40, 60, 40]);
     Sound.fanfare();
     spawnConfetti(18);
   }
@@ -47,17 +47,7 @@ function wireGame() {
     showOfflineWindow();
   }, { once: true });
 
-  $('#soundBtn').textContent = S.soundOn ? '🔊' : '🔇';
-  $('#soundBtn').onclick = toggleSound;
-
-  const musicBtn = $('#musicBtn');
-  musicBtn.classList.toggle('off', !S.musicOn);
-  musicBtn.onclick = () => {
-    const on = Music.toggle();
-    musicBtn.classList.toggle('off', !on);
-    musicBtn.textContent = on ? '🎵' : '🔈';
-  };
-  musicBtn.textContent = S.musicOn ? '🎵' : '🔈';
+  $('#settingsBtn').onclick = showSettings;
 
   const ast = $('#asteroid');
   ast.addEventListener('touchstart', e => { e.preventDefault(); onTap(e); }, { passive: false });
