@@ -161,6 +161,7 @@ function doPrestige() {
     artifacts: S.artifacts,
     bossesKilled: S.bossesKilled,
     soundOn: S.soundOn,
+    musicOn: S.musicOn,
     notifOn: S.notifOn,
     notifAsked: S.notifAsked,
     tutorialStep: S.tutorialStep,

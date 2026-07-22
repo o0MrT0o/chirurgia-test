@@ -27,6 +27,7 @@
   <p class="tapHint">▶ Dotknij, aby grać</p>
 </div>
 
+<button id="musicBtn" title="Muzyka wł./wył.">🎵</button>
 <button id="soundBtn" title="Dźwięk wł./wył.">🔊</button>
 
 <header>
@@ -64,11 +65,12 @@
 <div id="overlay"><div class="box" id="overlayBox"></div></div>
 <div id="toast"></div>
 
-<!-- Kolejność ma znaczenie: config -> state -> logic -> sound -> asteroid -> ads -> ui -> main -->
+<!-- Kolejność ma znaczenie: config -> state -> logic -> sound -> music -> asteroid -> ads -> ui -> main -->
 <script src="js/config.js"></script>
 <script src="js/state.js"></script>
 <script src="js/logic.js"></script>
 <script src="js/sound.js"></script>
+<script src="js/music.js"></script>
 <script src="js/asteroid.js"></script>
 <script src="js/space.js"></script>
 <script src="js/notify.js"></script>

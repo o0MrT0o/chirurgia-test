@@ -28,6 +28,7 @@ const DEFAULT_STATE = () => ({
   missionCounters: {},  // dzienne liczniki postępu misji
   missionsCompleted: 0, // wykonane misje łącznie (od początku gry)
   soundOn: true,        // dźwięki włączone?
+  musicOn: true,        // muzyka w tle włączona?
   notifOn: true,        // powiadomienia przypominające włączone?
   notifAsked: false,    // czy pytaliśmy już o zgodę na powiadomienia?
   tutorialStep: 0,      // krok samouczka (99 = ukończony/pominięty)

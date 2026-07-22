@@ -36,6 +36,7 @@ function wireGame() {
   const splash = $('#splash');
   splash.addEventListener('pointerdown', () => {
     Sound.unlock();
+    Music.start(); // muzyka rusza po pierwszym geście (wymóg przeglądarek)
     // Pierwsze dotknięcie to gest użytkownika — moment na prośbę o zgodę na powiadomienia.
     if (S.notifOn && !S.notifAsked) {
       S.notifAsked = true;
@@ -49,6 +50,15 @@ function wireGame() {
   $('#soundBtn').textContent = S.soundOn ? '🔊' : '🔇';
   $('#soundBtn').onclick = toggleSound;
 
+  const musicBtn = $('#musicBtn');
+  musicBtn.classList.toggle('off', !S.musicOn);
+  musicBtn.onclick = () => {
+    const on = Music.toggle();
+    musicBtn.classList.toggle('off', !on);
+    musicBtn.textContent = on ? '🎵' : '🔈';
+  };
+  musicBtn.textContent = S.musicOn ? '🎵' : '🔈';
+
   const ast = $('#asteroid');
   ast.addEventListener('touchstart', e => { e.preventDefault(); onTap(e); }, { passive: false });
   ast.addEventListener('mousedown', e => { if (!('ontouchstart' in window)) onTap(e); });
@@ -59,8 +69,8 @@ function wireGame() {
   window.addEventListener('beforeunload', () => { save(); rescheduleNotifications(); });
   document.addEventListener('visibilitychange', () => {
     // W tle: zatrzymaj animację tła (oszczędność), zapisz i zaplanuj powiadomienia.
-    if (document.hidden) { Space.stop(); save(); rescheduleNotifications(); }
-    else Space.start();
+    if (document.hidden) { Space.stop(); Music.stop(); save(); rescheduleNotifications(); }
+    else { Space.start(); Music.start(); }
   });
 }
 

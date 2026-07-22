@@ -42,6 +42,7 @@ const Sound = (() => {
 
   return {
     unlock() { ensure(); },
+    ctx() { return ensure(); },   // współdzielony kontekst dla muzyki (music.js)
     click()   {
       const t = now();
       if (t - _lastClick < 55) return;
