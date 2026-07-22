@@ -482,8 +482,9 @@ nav button.badge::after {
 /* ===== Osiągnięcia ===== */
 .achv { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; margin-bottom: 6px; background: #161c44; border: 1px solid #2a3468; }
 .achv.done { border-color: #ffd76e; }
-.achv .icon { font-size: 22px; filter: grayscale(1); opacity: .4; }
+.achv .icon { font-size: 22px; filter: grayscale(1); opacity: .4; display: flex; align-items: center; }
 .achv.done .icon { filter: none; opacity: 1; }
+.achv .icon .medalSprite { height: 40px; width: auto; object-fit: contain; display: block; filter: drop-shadow(0 2px 3px #0007); }
 .achv .t { font-size: 13px; font-weight: 700; }
 .achv .d { font-size: 11px; color: #9aa7d9; }
 

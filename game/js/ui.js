@@ -504,7 +504,7 @@ function renderAchievements(p) {
     + `<div class="note">${t('achHead', doneCount, ACHIEVEMENTS.length, BALANCE.achievementBonus * 100)}</div>`
     + ACHIEVEMENTS.map(a => `
       <div class="achv ${S.achievements[a.id] ? 'done' : ''}">
-        <div class="icon">${a.icon}</div>
+        <div class="icon">${iconHtml(a, 'medalSprite')}</div>
         <div><div class="t">${nm(a)}</div><div class="d">${ds(a)}</div></div>
       </div>`).join('');
 

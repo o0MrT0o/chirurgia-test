@@ -333,3 +333,15 @@ const ACHIEVEMENTS = [
   { id: 'a_lab1',   name: 'Młody naukowiec',     icon: '🧪', desc: 'Ukończ 3 badania',            check: s => Object.keys(s.researchDone || {}).length >= 3 },
   { id: 'a_lab2',   name: 'Geniusz galaktyki',   icon: '🎓', desc: 'Ukończ wszystkie 10 badań',   check: s => Object.keys(s.researchDone || {}).length >= 10 },
 ];
+
+// Grafiki osiągnięć: medale CC0 (Kenney). Numer medalu rośnie z prestiżem
+// osiągnięcia (brąz → srebro → złoto, z gwiazdką/krzyżem/rozetą).
+(function assignMedals() {
+  const M = {
+    a_click1: 1, a_click2: 6, a_click3: 7, a_cr1: 1, a_cr2: 2, a_cr3: 3,
+    a_b1: 1, a_b2: 4, a_b3: 5, a_b4: 9, a_p1: 6, a_p2: 7, a_comet: 8, a_streak: 3,
+    a_upg1: 2, a_upg2: 5, a_time: 9, a_tal1: 6, a_dust: 7, a_mis1: 4, a_mis2: 5,
+    a_exp1: 8, a_exp2: 9, a_art1: 2, a_art2: 3, a_boss1: 4, a_boss2: 7, a_lab1: 8, a_lab2: 9,
+  };
+  for (const a of ACHIEVEMENTS) if (M[a.id]) a.sprite = `assets/achievements/medal${M[a.id]}.png`;
+})();
