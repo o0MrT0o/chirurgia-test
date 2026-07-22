@@ -160,6 +160,7 @@ function doPrestige() {
     expeditionsDone: S.expeditionsDone,
     artifacts: S.artifacts,
     bossesKilled: S.bossesKilled,
+    lang: S.lang,
     soundOn: S.soundOn,
     musicOn: S.musicOn,
     vibrateOn: S.vibrateOn,
@@ -275,19 +276,19 @@ function claimDaily() {
 // Buduje listę przyszłych powiadomień przypominających o powrocie do gry.
 function buildNotifications() {
   const list = [];
-  const T = 'Kosmiczny Górnik';
+  const T = (LANG === 'en') ? 'Cosmic Miner' : 'Kosmiczny Górnik';
   if (S.expedition && S.expedition.end > now()) {
     const pl = PLANETS.find(p => p.id === S.expedition.planet);
-    list.push({ id: 1, title: T, body: `☄️ Wyprawa${pl ? ' na ' + pl.name : ''} wróciła! Odbierz łup.`, at: S.expedition.end });
+    list.push({ id: 1, title: T, body: t('notifExp', pl ? t('notifExpTo', nm(pl)) : ''), at: S.expedition.end });
   }
   if (S.research && S.research.end > now()) {
     const r = RESEARCH.find(x => x.id === S.research.id);
-    list.push({ id: 2, title: T, body: `🧪 Badanie${r ? ' „' + r.name + '"' : ''} ukończone! Odbierz nagrodę.`, at: S.research.end });
+    list.push({ id: 2, title: T, body: t('notifRes', r ? t('notifResName', nm(r)) : ''), at: S.research.end });
   }
   if (totalCps() > 0) {
-    list.push({ id: 3, title: T, body: '💎 Twoja kopalnia jest pełna! Zbierz zarobki offline.', at: now() + BALANCE.offlineMaxHours * 3600 * 1000 });
+    list.push({ id: 3, title: T, body: t('notifFull'), at: now() + BALANCE.offlineMaxHours * 3600 * 1000 });
   }
-  list.push({ id: 4, title: T, body: '🎁 Bonus dzienny i darmowy los czekają — wróć po nagrody!', at: now() + 24 * 3600 * 1000 });
+  list.push({ id: 4, title: T, body: t('notifDaily'), at: now() + 24 * 3600 * 1000 });
   return list;
 }
 
@@ -329,28 +330,28 @@ function grantWheelReward(seg) {
     case 'crystals': {
       const a = crystals(seg.mult);
       earn(a);
-      return { text: `+${fmt(a)} 💎`, big: seg.mult >= 15 };
+      return { text: t('wheelCrystals', fmt(a)), big: seg.mult >= 15 };
     }
     case 'boost':
       S.boostUntil = now() + boostDuration() * 1000;
-      return { text: `⚡ Boost ×${BALANCE.adBoostMult} na ${Math.round(boostDuration())} s`, big: false };
+      return { text: t('wheelBoost', BALANCE.adBoostMult, Math.round(boostDuration())), big: false };
     case 'frenzy':
       S.frenzyUntil = now() + BALANCE.frenzySeconds * 1000;
-      return { text: `☄️ Szał ×${BALANCE.frenzyMult} na ${BALANCE.frenzySeconds} s`, big: true };
+      return { text: t('wheelFrenzy', BALANCE.frenzyMult, BALANCE.frenzySeconds), big: true };
     case 'stardust':
       S.stardust += seg.amount;
       S.totalStardustEarned = (S.totalStardustEarned || 0) + seg.amount;
-      return { text: `+${seg.amount} ✨ gwiezdnego pyłu`, big: true };
+      return { text: t('wheelDust', seg.amount), big: true };
     case 'again':
       S.freeSpins = (S.freeSpins || 0) + 1;
-      return { text: `🔁 Darmowy los — kręć jeszcze raz!`, big: false };
+      return { text: t('wheelAgain'), big: false };
     case 'jackpot': {
       const a = crystals(30);
       earn(a);
       S.stardust += 2;
       S.totalStardustEarned = (S.totalStardustEarned || 0) + 2;
       S.frenzyUntil = now() + BALANCE.frenzySeconds * 1000;
-      return { text: `🏆 JACKPOT! +${fmt(a)} 💎, +2 ✨ i szał ×${BALANCE.frenzyMult}!`, big: true };
+      return { text: t('wheelJackpot', fmt(a), BALANCE.frenzyMult), big: true };
     }
   }
   return { text: '', big: false };

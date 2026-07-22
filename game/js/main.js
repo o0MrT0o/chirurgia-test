@@ -22,8 +22,8 @@ function tick() {
   checkMilestones();
   updateTutorial();
   for (const a of checkAchievements()) {
-    toast(`🏆 Osiągnięcie: ${a.name}! (+${BALANCE.achievementBonus * 100}% produkcji)`);
-    if (navigator.vibrate) buzz([40, 60, 40]);
+    toast(t('achToast', nm(a), BALANCE.achievementBonus * 100));
+    buzz([40, 60, 40]);
     Sound.fanfare();
     spawnConfetti(18);
   }
@@ -69,17 +69,17 @@ function startGame() {
   const bar = $('#loaderBar'), tip = $('#loaderTip'), loader = $('#loader');
   // Każdy etap: [opis, funkcja]. Rozłożenie na klatki wygładza start i pokazuje postęp.
   const steps = [
-    ['Wczytywanie zapisu…', () => { load(); checkDaily(); }],
-    ['Rozświetlanie gwiazd…', () => { Space.init(); }],
-    ['Kalibracja sterowania…', () => { initTabs(); applySkin(); }],
-    ['Uruchamianie kopalni…', () => { renderHeader(); renderPanel(); }],
-    ['Wysyłanie sond…', () => { scheduleComet(); scheduleRandomEvent(); scheduleBoss(); }],
-    ['Gotowe!', () => { wireGame(); }],
+    ['load1', () => { load(); checkDaily(); }],
+    ['load2', () => { Space.init(); }],
+    ['load3', () => { initTabs(); applyStaticI18n(); applySkin(); }],
+    ['load4', () => { renderHeader(); renderPanel(); }],
+    ['load5', () => { scheduleComet(); scheduleRandomEvent(); scheduleBoss(); }],
+    ['load6', () => { wireGame(); }],
   ];
   let i = 0;
   function step() {
     if (i < steps.length) {
-      if (tip) tip.textContent = steps[i][0];
+      if (tip) tip.textContent = t(steps[i][0]);
       steps[i][1]();
       i++;
       if (bar) bar.style.width = Math.round(i / steps.length * 100) + '%';

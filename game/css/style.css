@@ -64,6 +64,12 @@ body {
 .bigBtn.danger { background: #3a1420; border-color: #7a2438; color: #ff9db0; }
 .bigBtn.danger:active { background: #4d1a2a; }
 .note.danger-note { color: #ffb3c0; }
+.langBtns { display: flex; gap: 6px; flex: 0 0 auto; }
+.langBtn {
+  padding: 7px 12px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 700;
+  border: 1px solid #2a3468; background: #2a2f52; color: #cfd6f5; transition: background .15s, color .15s;
+}
+.langBtn.on { background: linear-gradient(90deg, #2e7dff, #35e0c9); border-color: #46e0d0; color: #06263a; }
 
 /* ===== Cząsteczki przy klikaniu ===== */
 .particle {

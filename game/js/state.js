@@ -27,6 +27,7 @@ const DEFAULT_STATE = () => ({
   dailyMissions: { date: '', missions: [] }, // misje dnia
   missionCounters: {},  // dzienne liczniki postępu misji
   missionsCompleted: 0, // wykonane misje łącznie (od początku gry)
+  lang: '',             // '' = wykryj z urządzenia; 'pl' | 'en' = wybór gracza
   soundOn: true,        // dźwięki włączone?
   musicOn: true,        // muzyka w tle włączona?
   vibrateOn: true,      // wibracje włączone?
@@ -73,12 +74,16 @@ function fmtTime(seconds) {
   return `${m} min`;
 }
 
-const SUFFIXES = ['', ' tys.', ' mln', ' mld', ' bln', ' bld', ' tryl.'];
+const SUFFIXES_PL = ['', ' tys.', ' mln', ' mld', ' bln', ' bld', ' tryl.'];
+const SUFFIXES_EN = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi'];
 function fmt(n) {
-  if (n < 1000) return (Math.floor(n * 10) / 10).toString().replace('.', ',');
-  const tier = Math.min(Math.floor(Math.log10(n) / 3), SUFFIXES.length - 1);
+  const en = (typeof LANG !== 'undefined' && LANG === 'en');
+  const dec = s => en ? s : s.replace('.', ',');
+  if (n < 1000) return dec((Math.floor(n * 10) / 10).toString());
+  const suf = en ? SUFFIXES_EN : SUFFIXES_PL;
+  const tier = Math.min(Math.floor(Math.log10(n) / 3), suf.length - 1);
   const scaled = n / Math.pow(1000, tier);
-  return (Math.floor(scaled * 100) / 100).toString().replace('.', ',') + SUFFIXES[tier];
+  return dec((Math.floor(scaled * 100) / 100).toString()) + suf[tier];
 }
 
 // ---------- Zapis / odczyt ----------
@@ -96,6 +101,8 @@ function load() {
     // migracja: doświadczeni gracze nie dostają samouczka
     if (S.tutorialStep === 0 && S.allTimeEarned > 1000) S.tutorialStep = 99;
   } catch (e) {}
+  // Język: wybór gracza, a przy pierwszym uruchomieniu — wykryty z urządzenia.
+  setLang(S.lang || detectLang());
 }
 
 // ---------- Kopia zapasowa (eksport/import zapisu) ----------

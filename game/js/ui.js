@@ -18,17 +18,17 @@ function renderHeader() {
   $('#crAmt').textContent = fmt(S.crystals);
 
   cachedClick = clickPower();       // bufor: onTap/hitBoss nie przeliczają tego per klik
-  const cps = `${fmt(totalCps())} / sek. • klik: +${fmt(cachedClick)}`;
+  const cps = t('cpsLabel', fmt(totalCps()), fmt(cachedClick));
   if (cps !== _lastCps) { $('#cpsLabel').textContent = cps; _lastCps = cps; }
 
   const dust = (S.stardust > 0 || talentLevelsTotal() > 0)
-    ? `✨ ${fmt(S.stardust)} pyłu do wydania • 🌟 talenty: ${talentLevelsTotal()} poz.` : '';
+    ? t('dustLabel', fmt(S.stardust), talentLevelsTotal()) : '';
   if (dust !== _lastDust) { $('#stardustLabel').textContent = dust; _lastDust = dust; }
 
   const chips = [];
-  if (now() < S.frenzyUntil) chips.push(`<span class="boostChip gold">☄️ SZAŁ ×${BALANCE.frenzyMult} — ${Math.ceil((S.frenzyUntil - now()) / 1000)}s</span>`);
-  if (now() < S.feverUntil) chips.push(`<span class="boostChip gold">💥 GORĄCZKA: klik ×${BALANCE.feverMult} — ${Math.ceil((S.feverUntil - now()) / 1000)}s</span>`);
-  if (now() < S.boostUntil) chips.push(`<span class="boostChip">⚡ Boost ×${BALANCE.adBoostMult} — ${Math.ceil((S.boostUntil - now()) / 1000)}s</span>`);
+  if (now() < S.frenzyUntil) chips.push(`<span class="boostChip gold">${t('chipFrenzy', BALANCE.frenzyMult, Math.ceil((S.frenzyUntil - now()) / 1000))}</span>`);
+  if (now() < S.feverUntil) chips.push(`<span class="boostChip gold">${t('chipFever', BALANCE.feverMult, Math.ceil((S.feverUntil - now()) / 1000))}</span>`);
+  if (now() < S.boostUntil) chips.push(`<span class="boostChip">${t('chipBoost', BALANCE.adBoostMult, Math.ceil((S.boostUntil - now()) / 1000))}</span>`);
   const bhtml = chips.join('');
   if (bhtml !== _lastBoost) { $('#boostBar').innerHTML = bhtml; _lastBoost = bhtml; }
 }
@@ -112,30 +112,29 @@ function renderExpeditions(p) {
     const pct = Math.min(100, Math.round((1 - remaining / total) * 100));
     if (remaining <= 0) {
       topHtml = `
-        <div class="note" style="padding-top:8px">${pl.icon} Wyprawa na <b>${pl.name}</b> zakończona!</div>
-        <button class="bigBtn gold" id="claimExpBtn">📦 Odbierz łup: ~${fmt(expeditionLoot(pl))} 💎</button>`;
+        <div class="note" style="padding-top:8px">${t('expDone', pl.icon, nm(pl))}</div>
+        <button class="bigBtn gold" id="claimExpBtn">${t('expClaim', fmt(expeditionLoot(pl)))}</button>`;
     } else {
       topHtml = `
-        <div class="note" style="padding-top:8px">${pl.icon} Statek w drodze na <b>${pl.name}</b></div>
+        <div class="note" style="padding-top:8px">${t('expEnRoute', pl.icon, nm(pl))}</div>
         <div class="mbar" style="height:10px"><div class="mfill" style="width:${pct}%"></div></div>
-        <div class="note">Powrót za: <b>${fmtCountdown(remaining)}</b></div>
-        <button class="bigBtn gold" id="rushExpBtn">🎬 Obejrzyj reklamę → skróć o ${BALANCE.rushMinutes} min</button>`;
+        <div class="note">${t('expReturn', fmtCountdown(remaining))}</div>
+        <button class="bigBtn gold" id="rushExpBtn">${t('watchRush', BALANCE.rushMinutes)}</button>`;
     }
   } else {
-    topHtml = `<div class="note" style="padding-top:8px">🚀 Wyślij statek na wyprawę — wróci z łupem
-      i szansą na <b>artefakt</b> (każdy daje trwałe <b>+${BALANCE.artifactBonus * 100}% produkcji</b>)</div>`
+    topHtml = `<div class="note" style="padding-top:8px">${t('expIntro', BALANCE.artifactBonus * 100)}</div>`
       + PLANETS.map(pl => {
         const unlocked = planetUnlocked(pl);
-        const time = pl.hours < 1 ? `${pl.hours * 60} min` : `${pl.hours} h`;
+        const time = durStr(pl.hours);
         return `<div class="item ${unlocked ? '' : 'locked'}" ${unlocked ? `data-planet="${pl.id}"` : ''}>
           <div class="icon">${pl.icon}</div>
           <div class="info">
-            <div class="name">${pl.name} <span class="qty">${time}</span></div>
+            <div class="name">${nm(pl)} <span class="qty">${time}</span></div>
             <div class="desc">${unlocked
-              ? `łup: ~${fmt(expeditionLoot(pl))} 💎 • artefakt: ${Math.round(pl.artChance * 100)}% szansy`
-              : `🔒 wymaga ${fmt(pl.unlockEarned)} 💎 łącznego wydobycia`}</div>
+              ? t('expLoot', fmt(expeditionLoot(pl)), Math.round(pl.artChance * 100))
+              : t('expNeed', fmt(pl.unlockEarned))}</div>
           </div>
-          <div class="right"><div class="cost">${unlocked ? '🚀 Wyślij' : ''}</div></div>
+          <div class="right"><div class="cost">${unlocked ? t('send') : ''}</div></div>
         </div>`;
       }).join('');
   }
@@ -148,42 +147,40 @@ function renderExpeditions(p) {
     const total = r.hours * 3600 * 1000;
     const pct = Math.min(100, Math.round((1 - remaining / total) * 100));
     labHtml = remaining <= 0
-      ? `<div class="note branchHead">🧪 Laboratorium</div>
-         <div class="note">${r.icon} Badanie <b>${r.name}</b> ukończone!</div>
-         <button class="bigBtn gold" id="claimResBtn">🎓 Odbierz: ${r.desc}</button>`
-      : `<div class="note branchHead">🧪 Laboratorium</div>
-         <div class="note">${r.icon} Trwa badanie: <b>${r.name}</b> (${r.desc})</div>
+      ? `<div class="note branchHead">${t('labHead')}</div>
+         <div class="note">${t('labResearchDone', r.icon, nm(r))}</div>
+         <button class="bigBtn gold" id="claimResBtn">${t('labClaim', ds(r))}</button>`
+      : `<div class="note branchHead">${t('labHead')}</div>
+         <div class="note">${t('labInProgress', r.icon, nm(r), ds(r))}</div>
          <div class="mbar" style="height:10px"><div class="mfill" style="width:${pct}%"></div></div>
-         <div class="note">Koniec za: <b>${fmtCountdown(remaining)}</b></div>
-         <button class="bigBtn gold" id="rushResBtn">🎬 Obejrzyj reklamę → skróć o ${BALANCE.rushMinutes} min</button>`;
+         <div class="note">${t('labEnd', fmtCountdown(remaining))}</div>
+         <button class="bigBtn gold" id="rushResBtn">${t('watchRush', BALANCE.rushMinutes)}</button>`;
   } else {
     const next = RESEARCH.filter(r => !isResearchDone(r.id) && researchUnlocked(r));
     const locked = RESEARCH.filter(r => !isResearchDone(r.id) && !researchUnlocked(r));
-    labHtml = `<div class="note branchHead">🧪 Laboratorium — ukończone: ${researchDoneCount()}/${RESEARCH.length}</div>`
+    labHtml = `<div class="note branchHead">${t('labHeadCount', researchDoneCount(), RESEARCH.length)}</div>`
       + (next.length === 0 && locked.length === 0
-        ? '<div class="note">🎓 Wszystkie badania ukończone!</div>'
+        ? `<div class="note">${t('labAllDone')}</div>`
         : next.map(r => {
             const can = S.crystals >= r.cost;
-            const time = r.hours < 1 ? `${r.hours * 60} min` : `${r.hours} h`;
+            const time = durStr(r.hours);
             return `<div class="item ${can ? '' : 'locked'}" data-research="${r.id}">
               <div class="icon">${r.icon}</div>
               <div class="info">
-                <div class="name">${r.name} <span class="qty">${time}</span></div>
-                <div class="desc">${r.desc}</div>
+                <div class="name">${nm(r)} <span class="qty">${time}</span></div>
+                <div class="desc">${ds(r)}</div>
               </div>
               <div class="right"><div class="cost ${can ? '' : 'cant'}">${fmt(r.cost)} 💎</div></div>
             </div>`;
           }).join('')
-          + (locked.length ? `<div class="note">🔒 Kolejne badania odblokują się po ukończeniu poprzednich (${locked.length} w kolejce)</div>` : ''));
+          + (locked.length ? `<div class="note">${t('labQueue', locked.length)}</div>` : ''));
   }
 
-  const artHtml = `<div class="note">🏺 <b>Kolekcja artefaktów</b> — ${artifactCount()}/${ARTIFACTS.length}
-    (bonus: <b>+${Math.round(artifactCount() * BALANCE.artifactBonus * 100)}% produkcji</b>)
-    • duplikat = +${BALANCE.duplicateDust} ✨</div>
+  const artHtml = `<div class="note">${t('artHead', artifactCount(), ARTIFACTS.length, Math.round(artifactCount() * BALANCE.artifactBonus * 100), BALANCE.duplicateDust)}</div>
     <div class="artGrid">${ARTIFACTS.map(a =>
-      `<div class="art ${S.artifacts[a.id] ? 'owned' : ''}" title="${a.name}">
+      `<div class="art ${S.artifacts[a.id] ? 'owned' : ''}" title="${nm(a)}">
         <div class="ai">${S.artifacts[a.id] ? a.icon : '❔'}</div>
-        <div class="an">${S.artifacts[a.id] ? a.name : '???'}</div>
+        <div class="an">${S.artifacts[a.id] ? nm(a) : '???'}</div>
       </div>`).join('')}</div>`;
 
   const expContent = topHtml + labHtml + artHtml;
@@ -193,9 +190,9 @@ function renderExpeditions(p) {
   p.querySelectorAll('[data-research]').forEach(el => el.onclick = () => {
     const r = RESEARCH.find(x => x.id === el.dataset.research);
     if (startResearch(el.dataset.research)) {
-      toast(`🧪 Rozpoczęto badanie: ${r.name}! Potrwa ${r.hours < 1 ? r.hours * 60 + ' min' : r.hours + ' h'}.`);
+      toast(t('resStarted', nm(r), durStr(r.hours)));
       Sound.buy();
-      if (navigator.vibrate) buzz(30);
+      buzz(30);
       renderPanel();
     }
   });
@@ -203,25 +200,25 @@ function renderExpeditions(p) {
   if (claimRes) claimRes.onclick = () => {
     const r = claimResearch();
     if (!r) return;
-    showOverlay(`<h2>🎓 Badanie ukończone!</h2>
-      <p><span style="font-size:34px">${r.icon}</span><br><b>${r.name}</b><br>
-      Trwały efekt: <b style="color:#8ff5ff">${r.desc}</b></p>
-      <button class="bigBtn gold" onclick="hideOverlay(); renderPanel()">Eureka! 🎉</button>`);
+    showOverlay(`<h2>${t('resDoneTitle')}</h2>
+      <p><span style="font-size:34px">${r.icon}</span><br><b>${nm(r)}</b><br>
+      ${t('resPermaEff')} <b style="color:#8ff5ff">${ds(r)}</b></p>
+      <button class="bigBtn gold" onclick="hideOverlay(); renderPanel()">${t('eureka')}</button>`);
     Sound.fanfare();
-    if (navigator.vibrate) buzz([40, 60, 40]);
+    buzz([40, 60, 40]);
   };
   const rushRes = $('#rushResBtn');
   if (rushRes) rushRes.onclick = () => Ads.showRewarded(() => {
     rushResearch();
-    toast(`⏩ Badanie skrócone o ${BALANCE.rushMinutes} min!`);
+    toast(t('resShortened', BALANCE.rushMinutes));
     renderPanel();
   });
 
   p.querySelectorAll('[data-planet]').forEach(el => el.onclick = () => {
     if (startExpedition(el.dataset.planet)) {
       const pl = PLANETS.find(x => x.id === el.dataset.planet);
-      toast(`🚀 Statek wyruszył na ${pl.name}! Wróci za ${pl.hours < 1 ? pl.hours * 60 + ' min' : pl.hours + ' h'}.`);
-      if (navigator.vibrate) buzz(30);
+      toast(t('expShip', nm(pl), durStr(pl.hours)));
+      buzz(30);
       renderPanel();
     }
   });
@@ -229,19 +226,19 @@ function renderExpeditions(p) {
   if (claimBtn) claimBtn.onclick = () => {
     const res = claimExpedition();
     if (!res) return;
-    let html = `<h2>📦 Łup z wyprawy!</h2><p><b style="font-size:22px;color:#8ff5ff">+${fmt(res.loot)} 💎</b>`;
-    if (res.artifact && res.duplicate) html += `<br><br>${res.artifact.icon} <b>${res.artifact.name}</b> — duplikat!<br>Zamieniono na <b>+${res.dust} ✨ pyłu</b>`;
-    else if (res.artifact) html += `<br><br>Znaleziono artefakt:<br><span style="font-size:34px">${res.artifact.icon}</span><br><b>${res.artifact.name}</b> (+${BALANCE.artifactBonus * 100}% produkcji na zawsze!)`;
-    html += `</p><button class="bigBtn" onclick="hideOverlay(); renderPanel()">Super!</button>`;
+    let html = `<h2>${t('lootTitle')}</h2><p><b style="font-size:22px;color:#8ff5ff">+${fmt(res.loot)} 💎</b>`;
+    if (res.artifact && res.duplicate) html += `<br><br>${t('lootDup', res.artifact.icon, nm(res.artifact), res.dust)}`;
+    else if (res.artifact) html += `<br><br>${t('lootArt')}<br><span style="font-size:34px">${res.artifact.icon}</span><br><b>${nm(res.artifact)}</b> ${t('lootArtBonus', BALANCE.artifactBonus * 100)}`;
+    html += `</p><button class="bigBtn" onclick="hideOverlay(); renderPanel()">${t('awesome')}</button>`;
     showOverlay(html);
     if (res.artifact && !res.duplicate) spawnConfetti(22);
-    if (navigator.vibrate) buzz([40, 60, 40]);
+    buzz([40, 60, 40]);
     Sound.fanfare();
   };
   const rushBtn = $('#rushExpBtn');
   if (rushBtn) rushBtn.onclick = () => Ads.showRewarded(() => {
     rushExpedition();
-    toast(`⏩ Wyprawa skrócona o ${BALANCE.rushMinutes} min!`);
+    toast(t('expShortened', BALANCE.rushMinutes));
     renderPanel();
   });
 }
@@ -268,8 +265,8 @@ function renderMine(p) {
     return `<div class="item ${can ? '' : 'locked'}" data-buy="${b.id}" data-qty="${shownQty}">
       <div class="icon">${b.icon}</div>
       <div class="info">
-        <div class="name">${b.name}${shownQty > 1 ? ` <span class="qty">+${shownQty}</span>` : ''}</div>
-        <div class="desc">${fmt(buildingCps(b) * globalMult())} 💎/sek. ${count ? '(razem)' : `• daje ${fmt(b.cps)}/sek.`}</div>
+        <div class="name">${nm(b)}${shownQty > 1 ? ` <span class="qty">+${shownQty}</span>` : ''}</div>
+        <div class="desc">${t('perSec', fmt(buildingCps(b) * globalMult()), count ? t('together') : t('gives', fmt(b.cps)))}</div>
       </div>
       <div class="right">
         <div class="cost ${can ? '' : 'cant'}">${fmt(cost)} 💎</div>
@@ -278,7 +275,7 @@ function renderMine(p) {
     </div>`;
   }).join('');
 
-  const mineContent = toggle + (rows || '<div class="note">Klikaj w asteroidę, aby odblokować pierwsze maszyny! ⛏️</div>');
+  const mineContent = toggle + (rows || `<div class="note">${t('mineEmpty')}</div>`);
   if (panelUnchanged(mineContent)) return;
   p.innerHTML = mineContent;
 
@@ -288,7 +285,7 @@ function renderMine(p) {
   });
   p.querySelectorAll('[data-buy]').forEach(el => el.onclick = () => {
     if (buyBuilding(el.dataset.buy, Number(el.dataset.qty))) {
-      if (navigator.vibrate) buzz(20);
+      buzz(20);
       Sound.buy();
       renderPanel();
     }
@@ -304,19 +301,19 @@ function renderUpgrades(p) {
     const can = S.crystals >= u.cost;
     return `<div class="item ${can ? '' : 'locked'}" data-upg="${u.id}">
       <div class="icon">${u.icon}</div>
-      <div class="info"><div class="name">${u.name}</div><div class="desc">${u.desc}</div></div>
+      <div class="info"><div class="name">${nm(u)}</div><div class="desc">${ds(u)}</div></div>
       <div class="right"><div class="cost ${can ? '' : 'cant'}">${fmt(u.cost)} 💎</div></div>
     </div>`;
-  }).join('') || '<div class="note">Zdobywaj kryształy i rozbudowuj kopalnię, aby odkryć nowe ulepszenia! 🚀</div>')
-  + (bought.length ? `<div class="note">— Kupione (${bought.length}) —</div>` + bought.map(u =>
+  }).join('') || `<div class="note">${t('upgEmpty')}</div>`)
+  + (bought.length ? `<div class="note">${t('upgBought', bought.length)}</div>` + bought.map(u =>
       `<div class="item bought"><div class="icon">${u.icon}</div>
-       <div class="info"><div class="name">${u.name}</div><div class="desc">${u.desc}</div></div>
+       <div class="info"><div class="name">${nm(u)}</div><div class="desc">${ds(u)}</div></div>
        <div class="right">✅</div></div>`).join('') : '');
   p.querySelectorAll('[data-upg]').forEach(el => el.onclick = () => {
     const u = UPGRADES.find(x => x.id === el.dataset.upg);
     if (buyUpgrade(el.dataset.upg)) {
-      toast(`🚀 Kupiono: ${u.name}!`);
-      if (navigator.vibrate) buzz(30);
+      toast(t('upgToast', nm(u)));
+      buzz(30);
       Sound.buy();
       renderPanel();
     }
@@ -336,46 +333,42 @@ function renderPrestige(p) {
       const can = unlocked && !maxed && S.stardust >= cost;
       const reqTalent = t.req ? TALENTS.find(x => x.id === t.req.talent) : null;
       const status = maxed ? '' : unlocked
-        ? `koszt: ✨ ${cost}`
-        : `🔒 wymaga: ${reqTalent.name} poz. ${t.req.level}`;
+        ? tr('talentCost', cost)
+        : tr('talentReq', nm(reqTalent), t.req.level);
       return `<div class="item ${maxed ? 'bought' : can ? '' : 'locked'}" data-talent="${t.id}">
         <div class="icon">${t.icon}</div>
         <div class="info">
-          <div class="name">${t.name} <span class="qty">${lvl}/${t.max}</span></div>
-          <div class="desc">${t.desc}${lvl > 0 ? ` • teraz: <b>${t.eff(lvl)}</b>` : ''}</div>
+          <div class="name">${nm(t)} <span class="qty">${lvl}/${t.max}</span></div>
+          <div class="desc">${ds(t)}${lvl > 0 ? ` • ${tr('nowEff')}: <b>${effOf(t, lvl)}</b>` : ''}</div>
         </div>
-        <div class="right"><div class="cost ${can || maxed ? '' : 'cant'}">${maxed ? 'MAX ✅' : status}</div></div>
+        <div class="right"><div class="cost ${can || maxed ? '' : 'cant'}">${maxed ? tr('maxed') : status}</div></div>
       </div>`;
     }).join('');
-    return `<div class="note branchHead">${br.name}</div>` + rows;
+    return `<div class="note branchHead">${branchName(br)}</div>` + rows;
   }).join('');
 
   p.innerHTML = `
     <div class="note" style="padding-top:10px">
-      ✨ <b>Prestiż</b> resetuje kryształy, maszyny i ulepszenia,<br>
-      ale daje <b>gwiezdny pył</b> — wydasz go w drzewku talentów poniżej.<br>
-      Zdobyte w tej rundzie: <b>${fmt(S.totalEarned)} 💎</b> •
-      pył do zdobycia: <b style="color:#ffd76e">✨ ${fmt(gain)}</b>
+      ${tr('prestigeIntro', fmt(S.totalEarned), fmt(gain))}
     </div>
     <button class="bigBtn gold" id="prestigeBtn" ${gain < 1 ? 'disabled' : ''}>
-      ${gain >= 1 ? `✨ Prestiż — odbierz ${fmt(gain)} pyłu` : 'Zdobądź min. 10 mln 💎, aby odblokować'}
+      ${gain >= 1 ? tr('prestigeBtn', fmt(gain)) : tr('prestigeLocked')}
     </button>
-    <div class="note">🌟 <b>Drzewko talentów</b> — do wydania: <b style="color:#ffd76e">✨ ${fmt(S.stardust)}</b>
-    • prestiże: ${S.prestigeCount}</div>
+    <div class="note">${tr('talentTree', fmt(S.stardust), S.prestigeCount)}</div>
     ${treeHtml}`;
 
   const b = $('#prestigeBtn');
   if (b && gain >= 1) b.onclick = () => showOverlay(`
-    <h2>✨ Na pewno?</h2>
-    <p>Stracisz kryształy, maszyny i ulepszenia,<br>ale zyskasz <b>${fmt(gain)} pyłu</b> na talenty.<br>Talenty i osiągnięcia zostają!</p>
-    <button class="bigBtn gold" onclick="hideOverlay(); uiDoPrestige()">Tak, resetuj!</button>
-    <button class="bigBtn" onclick="hideOverlay()">Jeszcze nie</button>`);
+    <h2>${tr('prestigeSure')}</h2>
+    <p>${tr('prestigeSureBody', fmt(gain))}</p>
+    <button class="bigBtn gold" onclick="hideOverlay(); uiDoPrestige()">${tr('yesReset')}</button>
+    <button class="bigBtn" onclick="hideOverlay()">${tr('notYet')}</button>`);
 
   p.querySelectorAll('[data-talent]').forEach(el => el.onclick = () => {
-    const t = TALENTS.find(x => x.id === el.dataset.talent);
+    const talent = TALENTS.find(x => x.id === el.dataset.talent);
     if (buyTalent(el.dataset.talent)) {
-      toast(`🌟 ${t.name} → poziom ${talentLevel(t.id)} (${t.eff(talentLevel(t.id))})`);
-      if (navigator.vibrate) buzz(30);
+      toast(tr('talentToast', nm(talent), talentLevel(talent.id), effOf(talent, talentLevel(talent.id))));
+      buzz(30);
       Sound.buy();
       renderPanel();
     }
@@ -384,7 +377,7 @@ function renderPrestige(p) {
 
 function uiDoPrestige() {
   const gain = doPrestige();
-  if (gain > 0) { toast(`✨ Prestiż! Zdobyto ${fmt(gain)} gwiezdnego pyłu!`); spawnConfetti(32); }
+  if (gain > 0) { toast(t('prestigeDone', fmt(gain))); spawnConfetti(32); }
   renderPanel();
 }
 
@@ -408,18 +401,17 @@ function applySkin() {
 }
 
 function renderSkins() {
-  return `<div class="note" style="padding-top:8px">🎨 <b>Skórki asteroidy</b> — ${skinsOwnedCount()}/${SKINS.length}
-    • masz ✨ ${fmt(S.stardust)}</div>
+  return `<div class="note" style="padding-top:8px">${t('skinsHead', skinsOwnedCount(), SKINS.length, fmt(S.stardust))}</div>
     <div class="skinGrid">${SKINS.map(sk => {
       const owned = skinOwned(sk);
       const sel = S.skin === sk.id;
-      const status = sel ? '✅ wybrana'
-        : owned ? 'dotknij, aby wybrać'
-        : sk.cost ? `kup: ✨ ${sk.cost}`
-        : `🔒 ${sk.condDesc}`;
+      const status = sel ? t('skinSelected')
+        : owned ? t('skinTapSelect')
+        : sk.cost ? t('skinBuy', sk.cost)
+        : `🔒 ${skinCond(sk)}`;
       return `<div class="skinTile ${sel ? 'sel' : ''} ${owned || sk.cost ? '' : 'lockedSkin'}" data-skin="${sk.id}">
         <div class="skinPrev">${generateAsteroidSVG(sk.id, { lite: true })}</div>
-        <div class="sn">${sk.name}</div>
+        <div class="sn">${nm(sk)}</div>
         <div class="ss">${status}</div>
       </div>`;
     }).join('')}</div>`;
@@ -428,11 +420,11 @@ function renderSkins() {
 function renderAchievements(p) {
   const doneCount = Object.keys(S.achievements).length;
   p.innerHTML = renderSkins()
-    + `<div class="note">🏆 <b>Osiągnięcia</b> ${doneCount}/${ACHIEVEMENTS.length} — każde daje <b>+${BALANCE.achievementBonus * 100}% produkcji</b></div>`
+    + `<div class="note">${t('achHead', doneCount, ACHIEVEMENTS.length, BALANCE.achievementBonus * 100)}</div>`
     + ACHIEVEMENTS.map(a => `
       <div class="achv ${S.achievements[a.id] ? 'done' : ''}">
         <div class="icon">${a.icon}</div>
-        <div><div class="t">${a.name}</div><div class="d">${a.desc}</div></div>
+        <div><div class="t">${nm(a)}</div><div class="d">${ds(a)}</div></div>
       </div>`).join('');
 
   p.querySelectorAll('[data-skin]').forEach(el => el.onclick = () => {
@@ -440,7 +432,7 @@ function renderAchievements(p) {
     if (skinOwned(sk)) {
       if (selectSkin(sk.id)) {
         applySkin();
-        toast(`🎨 Skórka: ${sk.name}!`);
+        toast(t('skinToast', nm(sk)));
         Sound.buy();
         renderPanel();
       }
@@ -448,15 +440,15 @@ function renderAchievements(p) {
       if (buySkin(sk.id)) {
         selectSkin(sk.id);
         applySkin();
-        toast(`🎨 Kupiono skórkę ${sk.name} za ✨ ${sk.cost}!`);
+        toast(t('skinBuyToast', nm(sk), sk.cost));
         Sound.fanfare();
-        if (navigator.vibrate) buzz([40, 60, 40]);
+        buzz([40, 60, 40]);
         renderPanel();
       } else {
-        toast(`✨ Potrzebujesz ${sk.cost} pyłu (masz ${fmt(S.stardust)})`);
+        toast(t('skinNeed', sk.cost, fmt(S.stardust)));
       }
     } else {
-      toast(`🔒 Warunek: ${sk.condDesc}`);
+      toast(t('skinCond', skinCond(sk)));
     }
   });
 }
@@ -466,9 +458,9 @@ function renderMissions() {
   const missions = S.dailyMissions.missions || [];
   if (!missions.length) return '';
   const allDone = missions.every(m => m.claimed);
-  return `<div class="note" style="padding-top:8px">🎯 <b>Misje dzienne</b> — komplet: <b>+${BALANCE.missionSetBonus} ✨ pyłu</b>${allDone ? ' ✅' : ''}</div>`
+  return `<div class="note" style="padding-top:8px">${t('misHead', BALANCE.missionSetBonus, allDone ? ' ✅' : '')}</div>`
     + missions.map((m, i) => {
-      const mt = MISSION_TYPES.find(t => t.id === m.type);
+      const mt = MISSION_TYPES.find(x => x.id === m.type);
       const prog = missionProgress(m);
       const done = prog >= m.target;
       const pct = Math.round(prog / m.target * 100);
@@ -479,7 +471,7 @@ function renderMissions() {
           <div class="mbar"><div class="mfill" style="width:${pct}%"></div></div>
           <div class="desc">${fmt(prog)} / ${fmt(m.target)}</div>
         </div>
-        <div class="right"><div class="cost">${m.claimed ? '✅' : done ? '🎁 Odbierz!' : fmt(missionReward()) + ' 💎'}</div></div>
+        <div class="right"><div class="cost">${m.claimed ? '✅' : done ? t('misClaim') : fmt(missionReward()) + ' 💎'}</div></div>
       </div>`;
     }).join('');
 }
@@ -509,13 +501,13 @@ function buildWheelSVG() {
 
 function renderWheel() {
   const free = wheelFreeAvailable();
-  const bonus = (S.freeSpins || 0) > 0 ? ` (masz ${S.freeSpins} bonusowych)` : '';
-  return `<div class="note" style="padding-top:8px">🎡 <b>Koło Fortuny</b> — 1 darmowy los dziennie${bonus}</div>`
+  const bonus = (S.freeSpins || 0) > 0 ? t('wheelBonusSpins', S.freeSpins) : '';
+  return `<div class="note" style="padding-top:8px">${t('wheelHead', bonus)}</div>`
     + buildWheelSVG()
     + `<button class="bigBtn ${free ? 'gold' : ''}" id="wheelFreeBtn" ${free ? '' : 'disabled'}>
-        ${free ? '🎡 Zakręć za darmo!' : '✅ Darmowy los wykorzystany — wróć jutro'}
+        ${free ? t('wheelSpinFree') : t('wheelUsed')}
       </button>
-      <button class="bigBtn" id="wheelAdBtn">🎬 Obejrzyj reklamę → dodatkowy los</button>`;
+      <button class="bigBtn" id="wheelAdBtn">${t('wheelAd')}</button>`;
 }
 
 // Uruchom animację kręcenia; isFree = czy zużywamy darmowy los.
@@ -534,7 +526,7 @@ function spinWheel(isFree) {
   if (svg) svg.style.transform = `rotate(${final}deg)`;
   // wyłącz przyciski na czas kręcenia
   document.querySelectorAll('#wheelFreeBtn, #wheelAdBtn').forEach(b => b.disabled = true);
-  if (navigator.vibrate) buzz(20);
+  buzz(20);
   setTimeout(() => {
     const seg = WHEEL[k];
     const res = grantWheelReward(seg);
@@ -543,52 +535,52 @@ function spinWheel(isFree) {
     if (seg.kind === 'jackpot') spawnConfetti(44);
     else if (res.big) spawnConfetti(24);
     Sound.fanfare();
-    if (navigator.vibrate) buzz(res.big ? [60, 40, 60, 40, 120] : [40, 60, 40]);
-    showOverlay(`<h2>${seg.icon} ${seg.name}</h2>
+    buzz(res.big ? [60, 40, 60, 40, 120] : [40, 60, 40]);
+    showOverlay(`<h2>${seg.icon} ${nm(seg)}</h2>
       <p><b style="font-size:20px;color:#8ff5ff">${res.text}</b></p>
-      <button class="bigBtn gold" onclick="hideOverlay(); if (activeTab === 'bonus') renderPanel();">Super! 🎉</button>`);
+      <button class="bigBtn gold" onclick="hideOverlay(); if (activeTab === 'bonus') renderPanel();">${t('awesome')} 🎉</button>`);
   }, 4600);
 }
 
 function renderBonus(p) {
   const bonusContent = renderMissions() + renderWheel() + `
-    <div class="note" style="padding-top:8px">🎁 <b>Bonus dzienny</b> — seria: ${S.loginStreak} ${S.loginStreak === 1 ? 'dzień' : 'dni'}</div>
+    <div class="note" style="padding-top:8px">${t('dailyHead', S.loginStreak, S.loginStreak === 1 ? t('dayS') : t('dayP'))}</div>
     <button class="bigBtn" id="dailyBtn" ${S.dailyClaimed ? 'disabled' : ''}>
-      ${S.dailyClaimed ? '✅ Odebrano — wróć jutro!' : `🎁 Odbierz ${fmt(dailyReward())} 💎`}
+      ${S.dailyClaimed ? t('dailyClaimed') : t('dailyClaim', fmt(dailyReward()))}
     </button>
-    <div class="note">⚡ <b>Boost reklamowy</b> — obejrzyj reklamę, aby podwoić produkcję na ${Math.round(boostDuration())} s</div>
+    <div class="note">${t('boostHead', Math.round(boostDuration()))}</div>
     <button class="bigBtn gold" id="adBoostBtn" ${now() < S.boostUntil ? 'disabled' : ''}>
-      ${now() < S.boostUntil ? `⚡ Boost aktywny (${Math.ceil((S.boostUntil - now()) / 1000)}s)` : `🎬 Obejrzyj reklamę → Boost ×${BALANCE.adBoostMult}`}
+      ${now() < S.boostUntil ? t('boostActive', Math.ceil((S.boostUntil - now()) / 1000)) : t('boostWatch', BALANCE.adBoostMult)}
     </button>
-    <div class="note">📊 <b>Statystyki</b></div>
+    <div class="note">${t('statsHead')}</div>
     <div class="statGrid">
-      <div class="stat"><div class="v">${fmt(S.allTimeEarned)} 💎</div><div class="k">wydobyto od początku</div></div>
-      <div class="stat"><div class="v">${fmt(S.totalEarned)} 💎</div><div class="k">w tej rundzie</div></div>
-      <div class="stat"><div class="v">${fmt(S.bestCps || 0)}/s</div><div class="k">rekord produkcji</div></div>
-      <div class="stat"><div class="v">${fmtTime(S.playSeconds || 0)}</div><div class="k">czas gry</div></div>
-      <div class="stat"><div class="v">${fmt(S.totalClicks)}</div><div class="k">kliknięcia</div></div>
-      <div class="stat"><div class="v">×${S.bestCombo || 0}</div><div class="k">rekord kombosa</div></div>
-      <div class="stat"><div class="v">${totalBuildings(S)}</div><div class="k">budynki</div></div>
-      <div class="stat"><div class="v">${S.totalUpgradesBought || 0}</div><div class="k">kupione ulepszenia</div></div>
-      <div class="stat"><div class="v">${S.cometsCaught}</div><div class="k">złapane komety</div></div>
-      <div class="stat"><div class="v">✨ ${fmt(S.totalStardustEarned || 0)}</div><div class="k">pył zdobyty łącznie</div></div>
-      <div class="stat"><div class="v">🌟 ${talentLevelsTotal()}</div><div class="k">poziomy talentów</div></div>
-      <div class="stat"><div class="v">${S.prestigeCount}</div><div class="k">prestiże</div></div>
-      <div class="stat"><div class="v">${Object.keys(S.achievements).length}/${ACHIEVEMENTS.length}</div><div class="k">osiągnięcia</div></div>
-      <div class="stat"><div class="v">🧭 ${S.expeditionsDone || 0}</div><div class="k">ukończone wyprawy</div></div>
-      <div class="stat"><div class="v">🏺 ${artifactCount()}/${ARTIFACTS.length}</div><div class="k">artefakty</div></div>
-      <div class="stat"><div class="v">⚔️ ${S.bossesKilled || 0}</div><div class="k">pokonani bossowie</div></div>
-      <div class="stat"><div class="v">📅 ${S.loginStreak}</div><div class="k">seria logowań (dni)</div></div>
-      <div class="stat"><div class="v">🧪 ${researchDoneCount()}/${RESEARCH.length}</div><div class="k">ukończone badania</div></div>
-      <div class="stat"><div class="v">🎯 ${S.missionsCompleted || 0}</div><div class="k">wykonane misje</div></div>
+      <div class="stat"><div class="v">${fmt(S.allTimeEarned)} 💎</div><div class="k">${t('stAllTime')}</div></div>
+      <div class="stat"><div class="v">${fmt(S.totalEarned)} 💎</div><div class="k">${t('stRound')}</div></div>
+      <div class="stat"><div class="v">${fmt(S.bestCps || 0)}/s</div><div class="k">${t('stBestCps')}</div></div>
+      <div class="stat"><div class="v">${fmtTime(S.playSeconds || 0)}</div><div class="k">${t('stPlaytime')}</div></div>
+      <div class="stat"><div class="v">${fmt(S.totalClicks)}</div><div class="k">${t('stClicks')}</div></div>
+      <div class="stat"><div class="v">×${S.bestCombo || 0}</div><div class="k">${t('stBestCombo')}</div></div>
+      <div class="stat"><div class="v">${totalBuildings(S)}</div><div class="k">${t('stBuildings')}</div></div>
+      <div class="stat"><div class="v">${S.totalUpgradesBought || 0}</div><div class="k">${t('stUpgrades')}</div></div>
+      <div class="stat"><div class="v">${S.cometsCaught}</div><div class="k">${t('stComets')}</div></div>
+      <div class="stat"><div class="v">✨ ${fmt(S.totalStardustEarned || 0)}</div><div class="k">${t('stDust')}</div></div>
+      <div class="stat"><div class="v">🌟 ${talentLevelsTotal()}</div><div class="k">${t('stTalents')}</div></div>
+      <div class="stat"><div class="v">${S.prestigeCount}</div><div class="k">${t('stPrestige')}</div></div>
+      <div class="stat"><div class="v">${Object.keys(S.achievements).length}/${ACHIEVEMENTS.length}</div><div class="k">${t('stAchv')}</div></div>
+      <div class="stat"><div class="v">🧭 ${S.expeditionsDone || 0}</div><div class="k">${t('stExp')}</div></div>
+      <div class="stat"><div class="v">🏺 ${artifactCount()}/${ARTIFACTS.length}</div><div class="k">${t('stArtifacts')}</div></div>
+      <div class="stat"><div class="v">⚔️ ${S.bossesKilled || 0}</div><div class="k">${t('stBosses')}</div></div>
+      <div class="stat"><div class="v">📅 ${S.loginStreak}</div><div class="k">${t('stStreak')}</div></div>
+      <div class="stat"><div class="v">🧪 ${researchDoneCount()}/${RESEARCH.length}</div><div class="k">${t('stResearch')}</div></div>
+      <div class="stat"><div class="v">🎯 ${S.missionsCompleted || 0}</div><div class="k">${t('stMissions')}</div></div>
     </div>
-    <div class="note">⚙️ Dźwięk, muzyka, powiadomienia i kopia zapasowa są teraz w <b>Ustawieniach</b> (ikona ⚙️ w rogu).</div>`;
+    <div class="note">${t('settingsHint')}</div>`;
   if (panelUnchanged(bonusContent)) return;
   p.innerHTML = bonusContent;
   const d = $('#dailyBtn');
   if (d && !S.dailyClaimed) d.onclick = () => {
     const r = claimDaily();
-    if (r > 0) { toast(`🎁 Bonus dzienny: +${fmt(r)} 💎 (seria: ${S.loginStreak} dni)`); Sound.claim(); }
+    if (r > 0) { toast(t('dailyToast', fmt(r), S.loginStreak)); Sound.claim(); }
     renderPanel();
   };
   const a = $('#adBoostBtn');
@@ -601,10 +593,10 @@ function renderBonus(p) {
     const res = claimMission(Number(el.dataset.mission));
     if (res) {
       toast(res.setDone
-        ? `🎯 Komplet misji dnia! +${fmt(res.reward)} 💎 i +${BALANCE.missionSetBonus} ✨ pyłu!`
-        : `🎯 Misja wykonana! +${fmt(res.reward)} 💎`);
+        ? t('misSet', fmt(res.reward), BALANCE.missionSetBonus)
+        : t('misOne', fmt(res.reward)));
       if (res.setDone) spawnConfetti(24);
-      if (navigator.vibrate) buzz([40, 60, 40]);
+      buzz([40, 60, 40]);
       Sound.claim();
       renderPanel();
     }
@@ -637,10 +629,10 @@ function checkMilestones() {
   }
   if (!hit) return;
   S.lastMilestone = hit;
-  toast(`🏆 Kamień milowy: ${fmt(hit)} 💎 wydobyte łącznie!`);
+  toast(t('milestoneToast', fmt(hit)));
   Sound.fanfare();
   spawnConfetti(30);
-  if (navigator.vibrate) buzz([50, 60, 50]);
+  buzz([50, 60, 50]);
 }
 
 // Wskaźnik „następny cel" — aspiracyjny i stabilny (nie powtarza tego samego
@@ -657,13 +649,13 @@ function updateGoal() {
     const cost = visible ? buildingCost(nb) : nb.baseCost * 0.5;
     const have = visible ? S.crystals : S.totalEarned;
     const pct = Math.min(100, have / cost * 100);
-    html = `🎯 ${visible ? 'Zdobądź' : 'Odblokuj'}: <b>${nb.name}</b> · ${Math.floor(pct)}%`
+    html = t('goalBuilding', visible ? t('goalGet') : t('goalUnlock'), nm(nb), Math.floor(pct))
       + `<span class="goalTrack"><span class="goalFill" style="width:${pct.toFixed(1)}%"></span></span>`;
   } else {
     const next = MILESTONES.find(m => (S.lastMilestone || 0) < m);
     if (next) {
       const pct = Math.min(100, S.allTimeEarned / next * 100);
-      html = `🎯 Kamień milowy: <b>${fmt(next)} 💎</b> · ${Math.floor(pct)}%`
+      html = t('goalMilestone', fmt(next), Math.floor(pct))
         + `<span class="goalTrack"><span class="goalFill" style="width:${pct.toFixed(1)}%"></span></span>`;
     }
   }
@@ -699,7 +691,7 @@ function onTap(e) {
   earn(p);
   S.totalClicks++;
   missionBump('clicks');
-  if (navigator.vibrate) buzz(crit ? 40 : 12);
+  buzz(crit ? 40 : 12);
   if (crit) Sound.crit(); else Sound.click();
   // Impuls kliknięcia przez Web Animations API (bez wymuszania reflow
   // przez void offsetWidth) — skala + błysk, tanio i płynnie.
@@ -720,7 +712,7 @@ function onTap(e) {
   if (_floatN < 24) {
     const f = document.createElement('div');
     f.className = 'floatNum' + (crit ? ' crit' : '');
-    f.textContent = (crit ? 'KRYT! +' : '+') + fmt(p);
+    f.textContent = (crit ? t('critShort') + '+' : '+') + fmt(p);
     f.style.left = (x - 20 + (Math.random() * 40 - 20)) + 'px';
     f.style.top = (y - 30) + 'px';
     document.body.appendChild(f);
@@ -751,12 +743,12 @@ function spawnComet() {
     if (Math.random() < 0.5) {
       const reward = Math.max(100, totalCps() * 90);
       earn(reward);
-      toast(`☄️ Złota kometa! +${fmt(reward)} 💎`);
+      toast(t('cometReward', fmt(reward)));
     } else {
       S.frenzyUntil = now() + BALANCE.frenzySeconds * 1000;
-      toast(`☄️ SZAŁ WYDOBYCIA! Produkcja ×${BALANCE.frenzyMult} przez ${BALANCE.frenzySeconds} sekund!`);
+      toast(t('cometFrenzy', BALANCE.frenzyMult, BALANCE.frenzySeconds));
     }
-    if (navigator.vibrate) buzz(60);
+    buzz(60);
     Sound.comet();
     save();
     scheduleComet();
@@ -774,14 +766,14 @@ function scheduleRandomEvent() {
 
 function startCrystalFever() {
   S.feverUntil = now() + BALANCE.feverSeconds * 1000;
-  toast(`💥 GORĄCZKA KRYSZTAŁOWA! Klikanie ×${BALANCE.feverMult} przez ${BALANCE.feverSeconds} sekund!`);
-  if (navigator.vibrate) buzz([50, 50, 50]);
+  toast(t('feverToast', BALANCE.feverMult, BALANCE.feverSeconds));
+  buzz([50, 50, 50]);
   save();
 }
 
 function startMeteorShower() {
-  toast('🌠 DESZCZ METEORYTÓW! Łap spadające meteory!');
-  if (navigator.vibrate) buzz([50, 50, 50]);
+  toast(t('meteorToast'));
+  buzz([50, 50, 50]);
   for (let i = 0; i < BALANCE.meteorCount; i++) {
     setTimeout(spawnMeteor, i * 600 + Math.random() * 300);
   }
@@ -797,7 +789,7 @@ function spawnMeteor() {
     ev.preventDefault();
     const reward = Math.max(50, totalCps() * 15 + clickPower() * 5);
     earn(reward);
-    if (navigator.vibrate) buzz(25);
+    buzz(25);
     Sound.meteor();
     spawnParticles(ev.clientX, ev.clientY, 5);
     const f = document.createElement('div');
@@ -829,18 +821,18 @@ function spawnBoss() {
   const box = document.createElement('div');
   box.id = 'bossBox';
   box.innerHTML = `
-    <div class="bossName">⚔️ ${def.name}</div>
+    <div class="bossName">⚔️ ${bossName(def)}</div>
     <div class="bossBar"><div class="bossHp" id="bossHp"></div></div>
     <div class="bossBar timer"><div class="bossTimer" id="bossTimer"></div></div>
     <div class="bossFace" id="bossFace">${def.icon}</div>
-    <div class="note">Klikaj, aby zadawać obrażenia!</div>`;
+    <div class="note">${t('bossHit')}</div>`;
   $('#tapArea').appendChild(box);
   const face = $('#bossFace');
   face.addEventListener('touchstart', e => { e.preventDefault(); hitBoss(e); }, { passive: false });
   face.addEventListener('mousedown', e => { if (!('ontouchstart' in window)) hitBoss(e); });
-  toast(`⚔️ ${def.name} nadlatuje! Masz ${BALANCE.bossTime} sekund!`);
+  toast(t('bossIncoming', bossName(def), BALANCE.bossTime));
   Sound.alarm();
-  if (navigator.vibrate) buzz([80, 60, 80]);
+  buzz([80, 60, 80]);
   boss.timer = setInterval(updateBossBars, 100);
   updateBossBars();
 }
@@ -862,14 +854,14 @@ function hitBoss(e) {
   S.totalClicks++;
   missionBump('clicks');
   Sound.hit();
-  if (navigator.vibrate) buzz(crit ? 40 : 15);
+  buzz(crit ? 40 : 15);
   const x = (e.touches ? e.touches[0].clientX : e.clientX) || window.innerWidth / 2;
   const y = (e.touches ? e.touches[0].clientY : e.clientY) || window.innerHeight / 3;
   spawnParticles(x, y, crit ? 8 : 2);
   if (_floatN < 24) {
     const f = document.createElement('div');
     f.className = 'floatNum' + (crit ? ' crit' : '');
-    f.textContent = (crit ? 'KRYT! −' : '−') + fmt(dmg);
+    f.textContent = (crit ? t('critMinus') : t('minus')) + fmt(dmg);
     f.style.left = (x - 20) + 'px';
     f.style.top = (y - 30) + 'px';
     document.body.appendChild(f);
@@ -894,19 +886,20 @@ function endBoss(won) {
   $('#asteroid').style.display = '';
   if (won) {
     const res = grantBossWin();
-    let html = `<h2>⚔️ ${name} pokonany!</h2>
+    const nameL = bossName({ name });
+    let html = `<h2>${t('bossDefeated', nameL)}</h2>
       <p><b style="font-size:22px;color:#8ff5ff">+${fmt(res.loot)} 💎</b><br>
-      <b style="color:#ffd76e">+${res.dust} ✨ pyłu</b>`;
-    if (res.artifact && res.duplicate) html += `<br><br>${res.artifact.icon} <b>${res.artifact.name}</b> — duplikat! +${BALANCE.duplicateDust} ✨`;
-    else if (res.artifact) html += `<br><br>Boss upuścił artefakt:<br><span style="font-size:34px">${res.artifact.icon}</span><br><b>${res.artifact.name}</b>!`;
-    html += `</p><button class="bigBtn gold" onclick="hideOverlay()">Zwycięstwo! 🎉</button>`;
+      <b style="color:#ffd76e">+${res.dust} ✨</b>`;
+    if (res.artifact && res.duplicate) html += `<br><br>${t('bossDup', res.artifact.icon, nm(res.artifact), BALANCE.duplicateDust)}`;
+    else if (res.artifact) html += `<br><br>${t('bossDrop')}<br><span style="font-size:34px">${res.artifact.icon}</span><br><b>${nm(res.artifact)}</b>!`;
+    html += `</p><button class="bigBtn gold" onclick="hideOverlay()">${t('victory')}</button>`;
     showOverlay(html);
     Sound.fanfare();
     spawnConfetti(26);
-    if (navigator.vibrate) buzz([60, 40, 60, 40, 120]);
+    buzz([60, 40, 60, 40, 120]);
   } else {
     const loot = grantBossFail();
-    toast(`💨 ${name} odleciał... Nagroda pocieszenia: +${fmt(loot)} 💎`);
+    toast(t('bossFledMsg', bossName({ name }), fmt(loot)));
     Sound.lose();
   }
   scheduleBoss();
@@ -919,11 +912,10 @@ function showOfflineWindow() {
   pendingOffline = offlineEarnings();
   if (pendingOffline <= 0) return;
   showOverlay(`
-    <h2>🌙 Witaj z powrotem!</h2>
-    <p>Twoje maszyny pracowały pod Twoją nieobecność i wydobyły:<br>
-    <b style="font-size:22px;color:#8ff5ff">${fmt(pendingOffline)} 💎</b></p>
-    <button class="bigBtn gold" onclick="claimOffline(true)">🎬 Obejrzyj reklamę i odbierz ×2</button>
-    <button class="bigBtn" onclick="claimOffline(false)">Odbierz zwykłą kwotę</button>
+    <h2>${t('welcomeBack')}</h2>
+    <p>${t('offlineBody', fmt(pendingOffline))}</p>
+    <button class="bigBtn gold" onclick="claimOffline(true)">${t('watchDouble')}</button>
+    <button class="bigBtn" onclick="claimOffline(false)">${t('claimPlain')}</button>
   `);
 }
 
@@ -937,10 +929,10 @@ function claimOffline(doubled) {
 
 // ---------- Samouczek ----------
 const TUTORIAL_STEPS = [
-  { text: '👆 Klikaj w asteroidę, aby wydobywać kryształy!', done: () => S.totalClicks >= 10 },
-  { text: '⛏️ Super! Kup pierwszego Astro-górnika w zakładce Kopalnia.', done: () => totalBuildings(S) >= 1, glow: 'mine' },
-  { text: '🤖 Maszyny kopią same! Kup teraz ulepszenie w zakładce Ulepszenia (potrzeba 100 💎).', done: () => (S.totalUpgradesBought || 0) >= 1, glow: 'upgrades' },
-  { text: '🎉 Świetnie Ci idzie! Zaglądaj do misji 🎁, wysyłaj wyprawy 🪐 i wracaj codziennie po bonusy!', done: null },
+  { text: () => t('tut1'), done: () => S.totalClicks >= 10 },
+  { text: () => t('tut2'), done: () => totalBuildings(S) >= 1, glow: 'mine' },
+  { text: () => t('tut3'), done: () => (S.totalUpgradesBought || 0) >= 1, glow: 'upgrades' },
+  { text: () => t('tut4'), done: null },
 ];
 
 let lastCoachStep = -1;
@@ -964,9 +956,9 @@ function updateTutorial() {
   if (lastCoachStep !== S.tutorialStep) {
     lastCoachStep = S.tutorialStep;
     coach.style.display = 'flex';
-    $('#coachText').textContent = step.text;
+    $('#coachText').textContent = step.text();
     const isLast = S.tutorialStep === TUTORIAL_STEPS.length - 1;
-    $('#coachBtn').textContent = isLast ? '✅ OK!' : '✖';
+    $('#coachBtn').textContent = isLast ? t('tutOk') : '✖';
     $('#coachBtn').onclick = () => { S.tutorialStep = 99; save(); updateTutorial(); };
     document.querySelectorAll('nav button').forEach(b =>
       b.classList.toggle('glow', !!step.glow && b.dataset.tab === step.glow));
@@ -982,27 +974,47 @@ function showSettings() {
       <div class="setInfo"><span class="setLbl">${icon} ${label}</span>${desc ? `<span class="setDesc">${desc}</span>` : ''}</div>
       <button class="toggle${on ? ' on' : ''}" id="${id}" role="switch" aria-checked="${on}"><span class="knob"></span></button>
     </div>`;
+  // Wiersz języka z dwoma przyciskami-flagami (PL / EN).
+  const langRow = `
+    <div class="setRow">
+      <div class="setInfo"><span class="setLbl">🌐 ${t('setLangLbl')}</span><span class="setDesc">${t('setLangD')}</span></div>
+      <div class="langBtns">
+        <button class="langBtn${LANG === 'pl' ? ' on' : ''}" data-lang="pl">Polski</button>
+        <button class="langBtn${LANG === 'en' ? ' on' : ''}" data-lang="en">English</button>
+      </div>
+    </div>`;
   showOverlay(`
-    <h2>⚙️ Ustawienia</h2>
+    <h2>${t('settings')}</h2>
     <div class="setList">
-      ${row('setSound', '🔊', 'Dźwięki', S.soundOn, 'Efekty klikania, zakupów i sukcesów')}
-      ${row('setMusic', '🎵', 'Muzyka', S.musicOn, 'Spokojna ścieżka w tle')}
-      ${row('setVibro', '📳', 'Wibracje', S.vibrateOn, 'Odzew dotykowy przy akcjach')}
-      ${row('setNotif', '🔔', 'Powiadomienia', S.notifOn, 'Przypomnienia o wyprawie, badaniu, bonusie')}
+      ${langRow}
+      ${row('setSound', '🔊', t('setSound'), S.soundOn, t('setSoundD'))}
+      ${row('setMusic', '🎵', t('setMusic'), S.musicOn, t('setMusicD'))}
+      ${row('setVibro', '📳', t('setVibro'), S.vibrateOn, t('setVibroD'))}
+      ${row('setNotif', '🔔', t('setNotif'), S.notifOn, t('setNotifD'))}
     </div>
-    <div class="note">💾 <b>Kopia zapasowa</b> — przenieś postęp na inny telefon</div>
+    <div class="note">${t('backupHead')}</div>
     <div class="saveBtns">
-      <button class="bigBtn" id="setExport">📤 Eksportuj</button>
-      <button class="bigBtn" id="setImport">📥 Importuj</button>
+      <button class="bigBtn" id="setExport">${t('exportBtn')}</button>
+      <button class="bigBtn" id="setImport">${t('importBtn')}</button>
     </div>
-    <div class="note danger-note">⚠️ <b>Reset</b> — usuwa cały postęp, bez możliwości cofnięcia</div>
-    <button class="bigBtn danger" id="setReset">🗑️ Zresetuj grę</button>
-    <button class="bigBtn" onclick="hideOverlay()">Zamknij</button>`);
+    <div class="note danger-note">${t('resetHead')}</div>
+    <button class="bigBtn danger" id="setReset">${t('resetBtn')}</button>
+    <button class="bigBtn" onclick="hideOverlay()">${t('close')}</button>`);
 
   const setUI = (id, on) => {
     const b = $('#' + id);
     if (b) { b.classList.toggle('on', on); b.setAttribute('aria-checked', on); }
   };
+  document.querySelectorAll('.langBtn').forEach(b => b.onclick = () => {
+    const l = b.dataset.lang;
+    if (l === LANG) return;
+    setLang(l); S.lang = l; save();
+    // Przerysuj wszystko w nowym języku i pokaż ustawienia ponownie.
+    renderHeader(); renderPanel(); applyStaticI18n();
+    lastCoachStep = -1; updateTutorial();
+    showSettings();
+    toast(t('langSwitched'));
+  });
   $('#setSound').onclick = () => setUI('setSound', toggleSound());
   $('#setMusic').onclick = () => setUI('setMusic', Music.toggle());
   $('#setVibro').onclick = () => {
@@ -1016,12 +1028,12 @@ function showSettings() {
       Notify.requestPermission().then(ok => {
         S.notifOn = ok; save(); rescheduleNotifications();
         setUI('setNotif', ok);
-        toast(ok ? '🔔 Powiadomienia włączone!' : '🔕 Odmówiono zgody — sprawdź ustawienia telefonu');
+        toast(ok ? t('notifOnToast') : t('notifDenied'));
       });
     } else {
       S.notifOn = false; save(); rescheduleNotifications();
       setUI('setNotif', false);
-      toast('🔕 Powiadomienia wyłączone');
+      toast(t('notifOffToast'));
     }
   };
   $('#setExport').onclick = showExportOverlay;
@@ -1032,12 +1044,11 @@ function showSettings() {
 // Reset z podwójnym potwierdzeniem — usuwa zapis i przeładowuje grę.
 function confirmReset() {
   showOverlay(`
-    <h2>🗑️ Zresetować grę?</h2>
-    <p>Utracisz <b>cały postęp</b>: kryształy, budynki, prestiż, talenty, artefakty — wszystko.
-    Tej operacji <b>nie da się cofnąć</b>.</p>
-    <p style="opacity:.8">Wskazówka: najpierw możesz zrobić eksport zapisu.</p>
-    <button class="bigBtn danger" id="resetYes">Tak, usuń wszystko</button>
-    <button class="bigBtn" onclick="showSettings()">Anuluj</button>`);
+    <h2>${t('resetTitle')}</h2>
+    <p>${t('resetBody')}</p>
+    <p style="opacity:.8">${t('resetTip')}</p>
+    <button class="bigBtn danger" id="resetYes">${t('resetYes')}</button>
+    <button class="bigBtn" onclick="showSettings()">${t('cancel')}</button>`);
   $('#resetYes').onclick = () => {
     try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
     location.reload();
@@ -1047,15 +1058,15 @@ function confirmReset() {
 function showExportOverlay() {
   const code = exportSave();
   showOverlay(`
-    <h2>📤 Eksport zapisu</h2>
-    <p>Skopiuj poniższy kod i schowaj w bezpiecznym miejscu<br>(np. w notatkach):</p>
+    <h2>${t('exportTitle')}</h2>
+    <p>${t('exportBody')}</p>
     <textarea class="saveArea" id="exportArea" readonly>${code}</textarea>
-    <button class="bigBtn" id="copySaveBtn">📋 Skopiuj do schowka</button>
-    <button class="bigBtn" onclick="showSettings()">Wróć</button>`);
+    <button class="bigBtn" id="copySaveBtn">${t('copyClip')}</button>
+    <button class="bigBtn" onclick="showSettings()">${t('back')}</button>`);
   $('#copySaveBtn').onclick = () => {
     const area = $('#exportArea');
     area.select();
-    const done = () => toast('📋 Zapis skopiowany do schowka!');
+    const done = () => toast(t('copied'));
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(code).then(done, () => { document.execCommand('copy'); done(); });
     } else { document.execCommand('copy'); done(); }
@@ -1064,23 +1075,39 @@ function showExportOverlay() {
 
 function showImportOverlay() {
   showOverlay(`
-    <h2>📥 Import zapisu</h2>
-    <p>Wklej kod zapisu. <b>Uwaga:</b> obecny postęp zostanie nadpisany!</p>
-    <textarea class="saveArea" id="importArea" placeholder="Wklej kod tutaj..."></textarea>
-    <button class="bigBtn gold" id="doImportBtn">📥 Wczytaj zapis</button>
-    <button class="bigBtn" onclick="showSettings()">Anuluj</button>`);
+    <h2>${t('importTitle')}</h2>
+    <p>${t('importBody')}</p>
+    <textarea class="saveArea" id="importArea" placeholder="${t('importPlaceholder')}"></textarea>
+    <button class="bigBtn gold" id="doImportBtn">${t('importDo')}</button>
+    <button class="bigBtn" onclick="showSettings()">${t('cancel')}</button>`);
   $('#doImportBtn').onclick = () => {
     if (importSave($('#importArea').value)) {
+      // Import może zawierać inny język — zastosuj go i przerysuj wszystko.
+      setLang(S.lang || detectLang());
       hideOverlay();
       checkDaily();
       renderHeader();
       renderPanel();
-      toast('✅ Zapis wczytany pomyślnie!');
+      applyStaticI18n();
+      toast(t('importOk'));
       Sound.fanfare();
     } else {
-      toast('❌ Nieprawidłowy kod zapisu!');
+      toast(t('importBad'));
     }
   };
+}
+
+// Podmienia statyczne teksty w HTML (nagłówki, nawigacja, splash) na bieżący język.
+function applyStaticI18n() {
+  document.querySelectorAll('nav button').forEach(b => {
+    const key = { mine: 'navMine', upgrades: 'navUpg', exp: 'navExp', prestige: 'navPrestige', achv: 'navAchv', bonus: 'navBonus' }[b.dataset.tab];
+    const ico = b.querySelector('.ico');
+    if (key && ico) b.innerHTML = ico.outerHTML + t(key);
+  });
+  const brand = $('#splash h1'); if (brand) brand.innerHTML = '💎 ' + t('brand');
+  const tag = $('#splash .tagline'); if (tag) tag.textContent = t('tagline');
+  const hint = $('#splash .tapHint'); if (hint) hint.textContent = t('tapToPlay');
+  const lbrand = $('#loader h1'); if (lbrand) lbrand.innerHTML = '💎 ' + t('brand');
 }
 
 // ---------- Overlay / toast ----------

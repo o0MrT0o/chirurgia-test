@@ -121,9 +121,11 @@ const UPGRADES = [
   const roman = ['II', 'III', 'IV', 'V', 'VI'];
   for (const b of BUILDINGS) {
     BALANCE.tierThresholds.forEach((th, i) => {
+      const enBase = (typeof EN !== 'undefined' && EN.names[b.id]) || b.name;
       UPGRADES.push({
         id: `t_${b.id}_${th}`,
         name: `${b.name} ${roman[i]}`,
+        enName: `${enBase} ${roman[i]}`,
         icon: b.icon,
         cost: Math.round(b.baseCost * th * BALANCE.tierCostFactor),
         type: 'building',
@@ -131,6 +133,7 @@ const UPGRADES = [
         mult: BALANCE.tierMult,
         req: { building: b.id, count: th },
         desc: `${b.name}: produkcja ×${BALANCE.tierMult} (nagroda za ${th} szt.)`,
+        enDesc: `${enBase}: production ×${BALANCE.tierMult} (reward for ${th})`,
       });
     });
   }
@@ -214,13 +217,13 @@ const RESEARCH = [
 // Codziennie losowane są 3 z poniższych typów. counter = licznik dzienny,
 // desc(n) = opis z celem, dynamicTarget = cel liczony z produkcji gracza.
 const MISSION_TYPES = [
-  { id: 'clicks',    icon: '👆', target: 200, counter: 'clicks',    desc: n => `Kliknij ${fmt(n)} razy` },
-  { id: 'buildings', icon: '🏗️', target: 30,  counter: 'buildings', desc: n => `Kup ${fmt(n)} budynków` },
-  { id: 'earn',      icon: '💎', target: 0,   counter: 'earned',    desc: n => `Wydobądź ${fmt(n)} kryształów`,
+  { id: 'clicks',    icon: '👆', target: 200, counter: 'clicks',    desc: n => t('mis_clicks', fmt(n)) },
+  { id: 'buildings', icon: '🏗️', target: 30,  counter: 'buildings', desc: n => t('mis_buildings', fmt(n)) },
+  { id: 'earn',      icon: '💎', target: 0,   counter: 'earned',    desc: n => t('mis_earn', fmt(n)),
     dynamicTarget: () => Math.max(10000, totalCps() * 1800) },
-  { id: 'comets',    icon: '☄️', target: 2,   counter: 'comets',    desc: n => `Złap ${n} złote komety` },
-  { id: 'upgrades',  icon: '🚀', target: 2,   counter: 'upgrades',  desc: n => `Kup ${n} ulepszenia` },
-  { id: 'ads',       icon: '🎬', target: 1,   counter: 'ads',       desc: n => `Obejrzyj ${n} reklamę z nagrodą` },
+  { id: 'comets',    icon: '☄️', target: 2,   counter: 'comets',    desc: n => t('mis_comets', n) },
+  { id: 'upgrades',  icon: '🚀', target: 2,   counter: 'upgrades',  desc: n => t('mis_upgrades', n) },
+  { id: 'ads',       icon: '🎬', target: 1,   counter: 'ads',       desc: n => t('mis_ads', n) },
 ];
 
 // ---------- Drzewko talentów (kupowane za gwiezdny pył z prestiżu) ----------
@@ -236,25 +239,25 @@ const TALENT_BRANCHES = [
 const TALENTS = [
   // — Moc klikania —
   { id: 'tc1', branch: 'click', name: 'Silne dłonie',    icon: '💪', max: 10, costBase: 1,
-    desc: '+25% mocy kliku za poziom',                    eff: l => `+${l * 25}% kliku` },
+    desc: '+25% mocy kliku za poziom',                    eff: l => `+${l * 25}% kliku`,          effEn: l => `+${l * 25}% click` },
   { id: 'tc2', branch: 'click', name: 'Echo kliknięcia', icon: '🌊', max: 5,  costBase: 2, req: { talent: 'tc1', level: 5 },
-    desc: 'klik daje dodatkowo +1% produkcji/sek. za poziom', eff: l => `+${2 + l}% produkcji/klik` },
+    desc: 'klik daje dodatkowo +1% produkcji/sek. za poziom', eff: l => `+${2 + l}% produkcji/klik`, effEn: l => `+${2 + l}% production/click` },
   { id: 'tc3', branch: 'click', name: 'Złoty dotyk',     icon: '✨', max: 5,  costBase: 5, req: { talent: 'tc2', level: 3 },
-    desc: '+2% szansy na krytyczny klik ×10 za poziom',   eff: l => `${l * 2}% szansy na kryt` },
+    desc: '+2% szansy na krytyczny klik ×10 za poziom',   eff: l => `${l * 2}% szansy na kryt`,   effEn: l => `${l * 2}% crit chance` },
   // — Produkcja —
   { id: 'tp1', branch: 'prod', name: 'Wydajne maszyny',    icon: '⚙️', max: 10, costBase: 1,
-    desc: '+10% całej produkcji za poziom',               eff: l => `+${l * 10}% produkcji` },
+    desc: '+10% całej produkcji za poziom',               eff: l => `+${l * 10}% produkcji`,      effEn: l => `+${l * 10}% production` },
   { id: 'tp2', branch: 'prod', name: 'Tania siła robocza', icon: '🏷️', max: 8, costBase: 2, req: { talent: 'tp1', level: 5 },
-    desc: 'budynki tańsze o 2% za poziom',                eff: l => `-${l * 2}% kosztów` },
+    desc: 'budynki tańsze o 2% za poziom',                eff: l => `-${l * 2}% kosztów`,         effEn: l => `-${l * 2}% costs` },
   { id: 'tp3', branch: 'prod', name: 'Synergia',           icon: '🔗', max: 5, costBase: 5, req: { talent: 'tp2', level: 3 },
-    desc: '+2% produkcji za każdy posiadany typ budynku, za poziom', eff: l => `+${l * 2}% za typ budynku` },
+    desc: '+2% produkcji za każdy posiadany typ budynku, za poziom', eff: l => `+${l * 2}% za typ budynku`, effEn: l => `+${l * 2}% per building type` },
   // — Czas i bonusy —
   { id: 'tt1', branch: 'time', name: 'Nocna zmiana',  icon: '🌃', max: 8, costBase: 1,
-    desc: 'zarobki offline lepsze o 5 p.p. za poziom',    eff: l => `offline: ${50 + l * 5}% stawki` },
+    desc: 'zarobki offline lepsze o 5 p.p. za poziom',    eff: l => `offline: ${50 + l * 5}% stawki`, effEn: l => `offline: ${50 + l * 5}% rate` },
   { id: 'tt2', branch: 'time', name: 'Magnes komet',  icon: '🧲', max: 5, costBase: 2, req: { talent: 'tt1', level: 4 },
-    desc: 'komety pojawiają się częściej o 8% za poziom', eff: l => `komety −${l * 8}% odstępu` },
+    desc: 'komety pojawiają się częściej o 8% za poziom', eff: l => `komety −${l * 8}% odstępu`,  effEn: l => `comets −${l * 8}% interval` },
   { id: 'tt3', branch: 'time', name: 'Wieczny boost', icon: '🔥', max: 6, costBase: 3, req: { talent: 'tt2', level: 2 },
-    desc: 'boost reklamowy dłuższy o 15 s za poziom',     eff: l => `boost: ${120 + l * 15} s` },
+    desc: 'boost reklamowy dłuższy o 15 s za poziom',     eff: l => `boost: ${120 + l * 15} s`,   effEn: l => `boost: ${120 + l * 15} s` },
 ];
 
 // ---------- Osiągnięcia (każde daje +1% do produkcji) ----------
