@@ -166,6 +166,9 @@ const Music = (() => {
     }
   }
 
+  const BASE_VOL = 0.16;                 // maks. poziom przy suwaku na 100%
+  const target = () => Math.max(0.0001, BASE_VOL * (S.musicVol != null ? S.musicVol : 1));
+
   return {
     // Uruchom (lub wznów) muzykę, jeśli włączona w ustawieniach.
     start() {
@@ -177,9 +180,17 @@ const Music = (() => {
       const t = ctx.currentTime;
       master.gain.cancelScheduledValues(t);
       master.gain.setValueAtTime(Math.max(0.0001, master.gain.value), t);
-      master.gain.exponentialRampToValueAtTime(0.11, t + 2.5); // łagodne wejście
+      master.gain.exponentialRampToValueAtTime(target(), t + 2.5); // łagodne wejście
       nextNoteTime = ctx.currentTime + 0.1;
       schedTimer = setInterval(scheduler, 30);
+    },
+    // Ustaw głośność na żywo (suwak w ustawieniach).
+    setVolume() {
+      if (!ctx || !master || !running) return;
+      const t = ctx.currentTime;
+      master.gain.cancelScheduledValues(t);
+      master.gain.setValueAtTime(Math.max(0.0001, master.gain.value), t);
+      master.gain.exponentialRampToValueAtTime(target(), t + 0.15);
     },
     // Zatrzymaj z krótkim wyciszeniem (np. gdy gra idzie w tło).
     stop() {

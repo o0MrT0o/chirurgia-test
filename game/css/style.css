@@ -70,6 +70,20 @@ body {
   border: 1px solid #2a3468; background: #2a2f52; color: #cfd6f5; transition: background .15s, color .15s;
 }
 .langBtn.on { background: linear-gradient(90deg, #2e7dff, #35e0c9); border-color: #46e0d0; color: #06263a; }
+/* Suwak głośności */
+.volRow { padding: 2px 12px 8px; margin-top: -2px; }
+input.vol {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 3px;
+  background: #2a2f52; outline: none; cursor: pointer;
+}
+input.vol::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: linear-gradient(180deg, #6ee7ff, #2e7dff); border: 2px solid #0b0f2a; box-shadow: 0 1px 4px #0008;
+}
+input.vol::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%; border: 2px solid #0b0f2a;
+  background: linear-gradient(180deg, #6ee7ff, #2e7dff); box-shadow: 0 1px 4px #0008;
+}
 
 /* ===== Cząsteczki przy klikaniu ===== */
 .particle {
@@ -262,12 +276,21 @@ nav {
   display: flex; background: #10153588; border-top: 1px solid #2a3468;
 }
 nav button {
+  position: relative;
   flex: 1; padding: 10px 1px; background: none; border: none;
   color: #8a95c8; font-size: 11px; font-weight: 600; cursor: pointer;
-  border-top: 2px solid transparent; white-space: nowrap; overflow: hidden;
+  border-top: 2px solid transparent; white-space: nowrap; overflow: visible;
 }
 nav button.active { color: #fff; border-top-color: #6ee7ff; background: #1a2151aa; }
 nav button .ico { display: block; font-size: 18px; margin-bottom: 2px; }
+/* Znacznik „jest coś do odebrania” — czerwona kropka jak w innych idle. */
+nav button.badge::after {
+  content: ''; position: absolute; top: 6px; right: calc(50% - 16px);
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #ff4d6d; border: 1.5px solid #0b0f2a;
+  box-shadow: 0 0 6px #ff4d6dcc; animation: badgePulse 1.4s ease-in-out infinite;
+}
+@keyframes badgePulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: .7; } }
 
 /* ===== Panel dolny ===== */
 #panel {

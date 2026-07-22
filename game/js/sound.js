@@ -24,10 +24,12 @@ const Sound = (() => {
     if (!c) return;
     try {
       const t = c.currentTime + delay;
+      const v = vol * (S.soundVol != null ? S.soundVol : 1); // skala głośności z ustawień
+      if (v <= 0.0005) return;
       const o = c.createOscillator(), g = c.createGain();
       o.type = type;
       o.frequency.setValueAtTime(freq, t);
-      g.gain.setValueAtTime(vol, t);
+      g.gain.setValueAtTime(v, t);
       g.gain.exponentialRampToValueAtTime(0.001, t + dur);
       o.connect(g).connect(c.destination);
       o.start(t);

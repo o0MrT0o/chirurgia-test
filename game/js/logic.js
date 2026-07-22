@@ -164,6 +164,8 @@ function doPrestige() {
     soundOn: S.soundOn,
     musicOn: S.musicOn,
     vibrateOn: S.vibrateOn,
+    soundVol: S.soundVol,
+    musicVol: S.musicVol,
     notifOn: S.notifOn,
     notifAsked: S.notifAsked,
     tutorialStep: S.tutorialStep,

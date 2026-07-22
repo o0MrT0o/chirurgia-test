@@ -31,6 +31,8 @@ const DEFAULT_STATE = () => ({
   soundOn: true,        // dźwięki włączone?
   musicOn: true,        // muzyka w tle włączona?
   vibrateOn: true,      // wibracje włączone?
+  soundVol: 0.8,        // głośność efektów (0–1)
+  musicVol: 0.6,        // głośność muzyki (0–1)
   notifOn: true,        // powiadomienia przypominające włączone?
   notifAsked: false,    // czy pytaliśmy już o zgodę na powiadomienia?
   tutorialStep: 0,      // krok samouczka (99 = ukończony/pominięty)

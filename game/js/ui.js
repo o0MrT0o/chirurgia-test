@@ -8,14 +8,22 @@
 // Optymalizacja: struktura licznika budowana raz, potem aktualizujemy tylko
 // tekst (tanie textContent zamiast przebudowy innerHTML 10×/s); pozostałe
 // pola i chipy zapisujemy do DOM wyłącznie, gdy realnie się zmieniły.
-let _hdrReady = false, _lastCps = '', _lastDust = '', _lastBoost = '';
+let _hdrReady = false, _lastCps = '', _lastDust = '', _lastBoost = '', _lastCrStr = '';
 let cachedClick = 1; // buforowana moc kliku (odświeżana w renderHeader ~10×/s)
+let dispCrystals = 0; // wyświetlana liczba kryształów (płynnie „nabija się” do S.crystals)
 function renderHeader() {
   if (!_hdrReady) {
     $('#crystalCount').innerHTML = '<span id="crAmt"></span> <span class="unit">💎</span>';
     _hdrReady = true;
+    dispCrystals = S.crystals;
   }
-  $('#crAmt').textContent = fmt(S.crystals);
+  // Płynny licznik: zbliżaj wyświetlaną wartość do rzeczywistej (jak w topowych idle).
+  // Duży skok (zarobki offline, prestiż) ustawiamy od razu, drobne przyrosty animujemy.
+  const diff = S.crystals - dispCrystals;
+  if (Math.abs(diff) < 0.5 || Math.abs(diff) > dispCrystals * 0.5 + 1e6) dispCrystals = S.crystals;
+  else dispCrystals += diff * 0.28;
+  const crStr = fmt(dispCrystals);
+  if (crStr !== _lastCrStr) { $('#crAmt').textContent = crStr; _lastCrStr = crStr; }
 
   cachedClick = clickPower();       // bufor: onTap/hitBoss nie przeliczają tego per klik
   const cps = t('cpsLabel', fmt(totalCps()), fmt(cachedClick));
@@ -662,6 +670,40 @@ function updateGoal() {
   if (html !== _lastGoal) { g.innerHTML = html; _lastGoal = html; }
 }
 
+// Znaczniki na zakładkach — czerwona kropka, gdy jest coś do zrobienia/odebrania.
+// To klasyczny chwyt idle clickerów: gracz od razu widzi, gdzie czeka nagroda.
+function badgeMine() {
+  return BUILDINGS.some(b => {
+    const visible = (S.buildings[b.id] || 0) > 0 || S.totalEarned >= b.baseCost * 0.5;
+    return visible && S.crystals >= buildingCost(b);
+  });
+}
+function badgeUpg() {
+  return UPGRADES.some(u => !S.upgrades[u.id] && upgradeVisible(u) && S.crystals >= u.cost);
+}
+function badgeExp() {
+  return (S.expedition && expeditionRemaining() <= 0) || (S.research && researchRemaining() <= 0);
+}
+function badgePrestige() {
+  return TALENTS.some(t => talentUnlocked(t) && talentLevel(t.id) < t.max && S.stardust >= talentCost(t));
+}
+function badgeAchv() {
+  return SKINS.some(sk => sk.cost && !skinOwned(sk) && S.stardust >= sk.cost);
+}
+function badgeBonus() {
+  if (wheelFreeAvailable() || !S.dailyClaimed) return true;
+  const ms = (S.dailyMissions.missions || []);
+  return ms.some(m => !m.claimed && missionProgress(m) >= m.target);
+}
+
+const _badgeFns = { mine: badgeMine, upgrades: badgeUpg, exp: badgeExp, prestige: badgePrestige, achv: badgeAchv, bonus: badgeBonus };
+function updateBadges() {
+  document.querySelectorAll('nav button').forEach(b => {
+    const fn = _badgeFns[b.dataset.tab];
+    b.classList.toggle('badge', !!(fn && fn()));
+  });
+}
+
 function spawnParticles(x, y, count) {
   if (_partN > 55) return; // nie mnóż w nieskończoność przy szybkim klikaniu
   for (let i = 0; i < count; i++) {
@@ -983,12 +1025,15 @@ function showSettings() {
         <button class="langBtn${LANG === 'en' ? ' on' : ''}" data-lang="en">English</button>
       </div>
     </div>`;
+  const vol = (id, v) => `<div class="volRow"><input type="range" min="0" max="100" value="${Math.round((v != null ? v : 1) * 100)}" id="${id}" class="vol" aria-label="volume"></div>`;
   showOverlay(`
     <h2>${t('settings')}</h2>
     <div class="setList">
       ${langRow}
       ${row('setSound', '🔊', t('setSound'), S.soundOn, t('setSoundD'))}
+      ${vol('volSound', S.soundVol)}
       ${row('setMusic', '🎵', t('setMusic'), S.musicOn, t('setMusicD'))}
+      ${vol('volMusic', S.musicVol)}
       ${row('setVibro', '📳', t('setVibro'), S.vibrateOn, t('setVibroD'))}
       ${row('setNotif', '🔔', t('setNotif'), S.notifOn, t('setNotifD'))}
     </div>
@@ -1036,6 +1081,20 @@ function showSettings() {
       toast(t('notifOffToast'));
     }
   };
+  const vs = $('#volSound');
+  if (vs) {
+    let tickAt = 0;
+    vs.oninput = () => {
+      S.soundVol = Number(vs.value) / 100;
+      if (S.soundOn && now() - tickAt > 90) { Sound.click(); tickAt = now(); } // podgląd głośności
+    };
+    vs.onchange = () => save();
+  }
+  const vm = $('#volMusic');
+  if (vm) {
+    vm.oninput = () => { S.musicVol = Number(vm.value) / 100; Music.setVolume(); };
+    vm.onchange = () => save();
+  }
   $('#setExport').onclick = showExportOverlay;
   $('#setImport').onclick = showImportOverlay;
   $('#setReset').onclick = confirmReset;

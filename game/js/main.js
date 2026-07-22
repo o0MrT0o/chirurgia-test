@@ -18,6 +18,7 @@ function tick() {
   if (document.hidden) return; // w tle: licz zarobki, ale nie rysuj (oszczędność CPU)
   renderHeader();
   updateGoal();
+  updateBadges();
   refreshCombo();
   checkMilestones();
   updateTutorial();
