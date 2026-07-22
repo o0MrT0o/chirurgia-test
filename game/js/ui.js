@@ -290,6 +290,12 @@ function renderExpeditions(p) {
   });
 }
 
+// Ikona pozycji: grafika (sprite CC0) jeśli jest, inaczej emoji (fallback).
+function iconHtml(item, cls) {
+  if (item && item.sprite) return `<img class="sprite${cls ? ' ' + cls : ''}" src="${item.sprite}" alt="" decoding="async">`;
+  return (item && item.icon) || '';
+}
+
 // ---------- Zakładka: Kopalnia ----------
 let buyMode = 1; // 1 | 10 | 'max'
 
@@ -304,7 +310,7 @@ function renderMineScene() {
     const del = (i * 0.35).toFixed(2);
     return `<div class="machine" style="--d:${dur}s;--del:${del}s" title="${nm(b)}">
       <span class="mCryst">💎</span>
-      <div class="mIco">${b.icon}</div>
+      <div class="mIco">${iconHtml(b, 'mSprite')}</div>
       <div class="mCount">×${count}</div>
     </div>`;
   }).join('');
@@ -328,7 +334,7 @@ function renderMine(p) {
     const cost = bulkCost(b, shownQty);
     const can = qty >= 1 && S.crystals >= cost;
     return `<div class="item ${can ? '' : 'locked'}" data-buy="${b.id}" data-qty="${shownQty}">
-      <div class="icon">${b.icon}</div>
+      <div class="icon">${iconHtml(b)}</div>
       <div class="info">
         <div class="name">${nm(b)}${shownQty > 1 ? ` <span class="qty">+${shownQty}</span>` : ''}</div>
         <div class="desc">${t('perSec', fmt(buildingCps(b) * globalMult()), count ? t('together') : t('gives', fmt(b.cps)))}</div>
@@ -367,13 +373,13 @@ function renderUpgrades(p) {
   p.innerHTML = (list.map(u => {
     const can = S.crystals >= u.cost;
     return `<div class="item ${can ? '' : 'locked'}" data-upg="${u.id}">
-      <div class="icon">${u.icon}</div>
+      <div class="icon">${iconHtml(u)}</div>
       <div class="info"><div class="name">${nm(u)}</div><div class="desc">${ds(u)}</div></div>
       <div class="right"><div class="cost ${can ? '' : 'cant'}">${fmt(u.cost)} 💎</div></div>
     </div>`;
   }).join('') || `<div class="note">${t('upgEmpty')}</div>`)
   + (bought.length ? `<div class="note">${t('upgBought', bought.length)}</div>` + bought.map(u =>
-      `<div class="item bought"><div class="icon">${u.icon}</div>
+      `<div class="item bought"><div class="icon">${iconHtml(u)}</div>
        <div class="info"><div class="name">${nm(u)}</div><div class="desc">${ds(u)}</div></div>
        <div class="right">✅</div></div>`).join('') : '');
   p.querySelectorAll('[data-upg]').forEach(el => el.onclick = () => {

@@ -117,17 +117,18 @@ const BOSSES = [
 ];
 
 // ---------- Budynki (produkcja pasywna) ----------
+// sprite = grafika (CC0 Kenney) w assets/buildings/; icon (emoji) to fallback.
 const BUILDINGS = [
-  { id: 'robot',   name: 'Astro-górnik',        icon: '🤖', baseCost: 15,      cps: 0.1 },
-  { id: 'drill',   name: 'Wiertło laserowe',    icon: '🔩', baseCost: 100,     cps: 1 },
-  { id: 'drone',   name: 'Dron wydobywczy',     icon: '🛸', baseCost: 1100,    cps: 8 },
-  { id: 'moon',    name: 'Kopalnia księżycowa', icon: '🌙', baseCost: 12000,   cps: 47 },
-  { id: 'ship',    name: 'Statek towarowy',     icon: '🚀', baseCost: 130000,  cps: 260 },
-  { id: 'station', name: 'Stacja orbitalna',    icon: '🛰️', baseCost: 1.4e6,  cps: 1400 },
-  { id: 'factory', name: 'Fabryka planetarna',  icon: '🏭', baseCost: 2e7,     cps: 7800 },
-  { id: 'portal',  name: 'Portal wymiarowy',    icon: '🌀', baseCost: 3.3e8,   cps: 44000 },
-  { id: 'sun',     name: 'Sztuczna gwiazda',    icon: '☀️', baseCost: 5.1e9,  cps: 260000 },
-  { id: 'hole',    name: 'Czarna dziura',       icon: '🕳️', baseCost: 7.5e10, cps: 1.6e6 },
+  { id: 'robot',   name: 'Astro-górnik',        icon: '🤖', sprite: 'assets/buildings/robot.png',   baseCost: 15,      cps: 0.1 },
+  { id: 'drill',   name: 'Wiertło laserowe',    icon: '🔩', sprite: 'assets/buildings/drill.png',   baseCost: 100,     cps: 1 },
+  { id: 'drone',   name: 'Dron wydobywczy',     icon: '🛸', sprite: 'assets/buildings/drone.png',   baseCost: 1100,    cps: 8 },
+  { id: 'moon',    name: 'Kopalnia księżycowa', icon: '🌙', sprite: 'assets/buildings/moon.png',    baseCost: 12000,   cps: 47 },
+  { id: 'ship',    name: 'Statek towarowy',     icon: '🚀', sprite: 'assets/buildings/ship.png',    baseCost: 130000,  cps: 260 },
+  { id: 'station', name: 'Stacja orbitalna',    icon: '🛰️', sprite: 'assets/buildings/station.png', baseCost: 1.4e6,  cps: 1400 },
+  { id: 'factory', name: 'Fabryka planetarna',  icon: '🏭', sprite: 'assets/buildings/factory.png', baseCost: 2e7,     cps: 7800 },
+  { id: 'portal',  name: 'Portal wymiarowy',    icon: '🌀', sprite: 'assets/buildings/portal.png',  baseCost: 3.3e8,   cps: 44000 },
+  { id: 'sun',     name: 'Sztuczna gwiazda',    icon: '☀️', sprite: 'assets/buildings/sun.png',    baseCost: 5.1e9,  cps: 260000 },
+  { id: 'hole',    name: 'Czarna dziura',       icon: '🕳️', sprite: 'assets/buildings/hole.png',   baseCost: 7.5e10, cps: 1.6e6 },
 ];
 
 // ---------- Ulepszenia (kupowane raz) ----------
@@ -166,6 +167,7 @@ const UPGRADES = [
         name: `${b.name} ${roman[i]}`,
         enName: `${enBase} ${roman[i]}`,
         icon: b.icon,
+        sprite: b.sprite,
         cost: Math.round(b.baseCost * th * BALANCE.tierCostFactor),
         type: 'building',
         target: b.id,
