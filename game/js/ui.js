@@ -795,7 +795,13 @@ function badgeBonus() {
 }
 
 const _badgeFns = { mine: badgeMine, upgrades: badgeUpg, exp: badgeExp, prestige: badgePrestige, achv: badgeAchv, bonus: badgeBonus };
+let _badgeAt = 0;
 function updateBadges() {
+  // Znaczniki nie muszą odświeżać się 10×/s — ~3×/s wystarcza i oszczędza CPU
+  // (każde wywołanie przechodzi po wszystkich budynkach/ulepszeniach/talentach).
+  const nowT = now();
+  if (nowT - _badgeAt < 320) return;
+  _badgeAt = nowT;
   document.querySelectorAll('nav button').forEach(b => {
     const fn = _badgeFns[b.dataset.tab];
     b.classList.toggle('badge', !!(fn && fn()));
@@ -1014,6 +1020,7 @@ function spawnBoss() {
   const def = BOSSES[Math.floor(Math.random() * BOSSES.length)];
   boss = { def, maxHp: bossMaxHp(), hp: bossMaxHp(), end: now() + BALANCE.bossTime * 1000 };
   $('#asteroid').style.display = 'none';
+  const zp = $('#zonePlate'); if (zp) zp.style.display = 'none'; // nie zasłaniaj walki z bossem
   const box = document.createElement('div');
   box.id = 'bossBox';
   box.innerHTML = `
@@ -1080,6 +1087,7 @@ function endBoss(won) {
   const box = $('#bossBox');
   if (box) box.remove();
   $('#asteroid').style.display = '';
+  const zp = $('#zonePlate'); if (zp) { zp.style.display = ''; _lastZonePlate = ''; } // przywróć tabliczkę sektora
   if (won) {
     const res = grantBossWin();
     const nameL = bossName({ name });
