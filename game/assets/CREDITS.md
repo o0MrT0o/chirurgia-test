@@ -14,3 +14,6 @@ przemianowane (bez modyfikacji samej grafiki).
 
 ## Sprite'y bossów (`assets/bosses/`)
 - Pakiet: „Space Shooter Redux" (statki wroga / UFO).
+
+## Sprite'y koła fortuny (`assets/wheel/`)
+- Pakiety: „Puzzle Pack" (klejnoty), „Space Shooter Redux" (piorun/gwiazdy), „Medals" (jackpot).

@@ -97,14 +97,14 @@ const DAILY_REWARDS = [
 // większa, tym częstszy segment). kind: crystals | boost | frenzy |
 // stardust | again | jackpot. mult = mnożnik nagrody kryształowej.
 const WHEEL = [
-  { id: 'cr1',    name: 'Kryształy',       icon: '💎', color: '#3d9bff', weight: 26, kind: 'crystals', mult: 1,  min: 2000 },
-  { id: 'boost',  name: 'Boost ×2',        icon: '⚡', color: '#8a5fff', weight: 15, kind: 'boost' },
-  { id: 'cr2',    name: 'Kryształy ×4',    icon: '💠', color: '#6ee7ff', weight: 18, kind: 'crystals', mult: 4,  min: 15000 },
-  { id: 'dust',   name: 'Gwiezdny pył',    icon: '✨', color: '#ffd76e', weight: 12, kind: 'stardust', amount: 1 },
-  { id: 'frenzy', name: 'Szał ×7',         icon: '☄️', color: '#ff8fc8', weight: 9,  kind: 'frenzy' },
-  { id: 'again',  name: 'Darmowy los!',    icon: '🔁', color: '#3ddc84', weight: 8,  kind: 'again' },
-  { id: 'cr3',    name: 'Wielka wygrana',  icon: '💰', color: '#ff9f43', weight: 6,  kind: 'crystals', mult: 15, min: 100000 },
-  { id: 'jackpot',name: 'JACKPOT',         icon: '🏆', color: '#ffe08a', weight: 2,  kind: 'jackpot' },
+  { id: 'cr1',    name: 'Kryształy',       icon: '💎', sprite: 'assets/wheel/cr1.png',     color: '#3d9bff', weight: 26, kind: 'crystals', mult: 1,  min: 2000 },
+  { id: 'boost',  name: 'Boost ×2',        icon: '⚡', sprite: 'assets/wheel/boost.png',   color: '#8a5fff', weight: 15, kind: 'boost' },
+  { id: 'cr2',    name: 'Kryształy ×4',    icon: '💠', sprite: 'assets/wheel/cr2.png',     color: '#6ee7ff', weight: 18, kind: 'crystals', mult: 4,  min: 15000 },
+  { id: 'dust',   name: 'Gwiezdny pył',    icon: '✨', sprite: 'assets/wheel/dust.png',    color: '#ffd76e', weight: 12, kind: 'stardust', amount: 1 },
+  { id: 'frenzy', name: 'Szał ×7',         icon: '☄️', sprite: 'assets/wheel/frenzy.png',  color: '#ff8fc8', weight: 9,  kind: 'frenzy' },
+  { id: 'again',  name: 'Darmowy los!',    icon: '🔁', sprite: 'assets/wheel/again.png',   color: '#3ddc84', weight: 8,  kind: 'again' },
+  { id: 'cr3',    name: 'Wielka wygrana',  icon: '💰', sprite: 'assets/wheel/cr3.png',     color: '#ff9f43', weight: 6,  kind: 'crystals', mult: 15, min: 100000 },
+  { id: 'jackpot',name: 'JACKPOT',         icon: '🏆', sprite: 'assets/wheel/jackpot.png', color: '#ffe08a', weight: 2,  kind: 'jackpot' },
 ];
 
 // ---------- Bossowie ----------

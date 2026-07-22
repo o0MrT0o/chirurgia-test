@@ -565,9 +565,13 @@ function buildWheelSVG() {
   for (let i = 0; i < N; i++) {
     const a0 = -90 + i * seg, a1 = -90 + (i + 1) * seg, am = -90 + (i + 0.5) * seg;
     const [x0, y0] = pt(a0, R), [x1, y1] = pt(a1, R), [lx, ly] = pt(am, R * 0.66);
+    const w = WHEEL[i];
+    // Ikona segmentu: grafika (sprite CC0) jako <image>, inaczej emoji jako <text>.
+    const iconEl = w.sprite
+      ? `<image href="${w.sprite}" x="${(lx - 13).toFixed(1)}" y="${(ly - 13).toFixed(1)}" width="26" height="26" preserveAspectRatio="xMidYMid meet"/>`
+      : `<text x="${lx.toFixed(1)}" y="${(ly + 6).toFixed(1)}" font-size="19" text-anchor="middle">${w.icon}</text>`;
     slices += `<path d="M 100 100 L ${x0.toFixed(1)} ${y0.toFixed(1)} A ${R} ${R} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)} Z"
-      fill="${WHEEL[i].color}" stroke="#0b1026" stroke-width="1.5"/>
-      <text x="${lx.toFixed(1)}" y="${(ly + 6).toFixed(1)}" font-size="19" text-anchor="middle">${WHEEL[i].icon}</text>`;
+      fill="${w.color}" stroke="#0b1026" stroke-width="1.5"/>${iconEl}`;
   }
   return `<div class="wheelWrap">
     <svg class="wheelSvg" id="wheelSvg" viewBox="0 0 200 200" style="transform:rotate(${wheelDeg}deg)">
@@ -617,7 +621,7 @@ function spinWheel(isFree) {
     else if (res.big) spawnConfetti(24);
     Sound.fanfare();
     buzz(res.big ? [60, 40, 60, 40, 120] : [40, 60, 40]);
-    showOverlay(`<h2>${seg.icon} ${nm(seg)}</h2>
+    showOverlay(`<h2>${seg.sprite ? iconHtml(seg, 'lootSprite') + '<br>' : seg.icon + ' '}${nm(seg)}</h2>
       <p><b style="font-size:20px;color:#8ff5ff">${res.text}</b></p>
       <button class="bigBtn gold" onclick="hideOverlay(); if (activeTab === 'bonus') renderPanel();">${t('awesome')} 🎉</button>`);
   }, 4600);
