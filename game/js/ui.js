@@ -39,6 +39,10 @@ function renderHeader() {
   if (now() < S.boostUntil) chips.push(`<span class="boostChip">${t('chipBoost', BALANCE.adBoostMult, Math.ceil((S.boostUntil - now()) / 1000))}</span>`);
   const bhtml = chips.join('');
   if (bhtml !== _lastBoost) { $('#boostBar').innerHTML = bhtml; _lastBoost = bhtml; }
+
+  // Klimatyczna poświata na krawędziach ekranu podczas szału/gorączki.
+  document.body.classList.toggle('frenzyOn', now() < S.frenzyUntil);
+  document.body.classList.toggle('feverOn', now() < S.feverUntil);
 }
 
 // Pomija przebudowę panelu, gdy wygenerowana treść jest identyczna jak
@@ -101,6 +105,41 @@ function spawnConfetti(n = 24) {
     document.body.appendChild(c);
     setTimeout(() => c.remove(), 3600);
   }
+}
+
+// ---------- Efekty na wielkie momenty ----------
+// Krótki błysk całego ekranu (kamień milowy, boss itp.).
+function screenFlash(color = '#ffffff', dur = 500) {
+  const f = document.createElement('div');
+  f.className = 'screenFx';
+  f.style.background = `radial-gradient(circle at 50% 40%, ${color}, transparent 70%)`;
+  document.body.appendChild(f);
+  if (f.animate) f.animate([{ opacity: 0.55 }, { opacity: 0 }], { duration: dur, easing: 'ease-out' });
+  setTimeout(() => f.remove(), dur + 60);
+}
+
+// Szybki „pop” elementu po zakupie — daje satysfakcję dotyku.
+function flashEl(el) {
+  if (!el || !el.animate) return;
+  el.animate(
+    [{ transform: 'scale(1)', filter: 'brightness(1)' },
+     { transform: 'scale(1.04)', filter: 'brightness(1.6)', offset: 0.35 },
+     { transform: 'scale(1)', filter: 'brightness(1)' }],
+    { duration: 260, easing: 'ease-out' });
+}
+
+// Cutscena prestiżu — rozbłysk supernowej z falą uderzeniową.
+function prestigeCutscene() {
+  const wrap = document.createElement('div');
+  wrap.className = 'prestigeFx';
+  wrap.innerHTML = '<div class="pfCore"></div><div class="pfRing"></div>';
+  document.body.appendChild(wrap);
+  const core = wrap.querySelector('.pfCore'), ring = wrap.querySelector('.pfRing');
+  if (core.animate) {
+    core.animate([{ transform: 'scale(0)', opacity: 1 }, { transform: 'scale(1)', opacity: 1, offset: 0.3 }, { transform: 'scale(1.4)', opacity: 0 }], { duration: 1100, easing: 'ease-out' });
+    ring.animate([{ transform: 'scale(0)', opacity: 0.9 }, { transform: 'scale(6)', opacity: 0 }], { duration: 1100, easing: 'ease-out' });
+  }
+  setTimeout(() => wrap.remove(), 1200);
 }
 
 // ---------- Zakładka: Wyprawy ----------
@@ -292,10 +331,12 @@ function renderMine(p) {
     renderPanel();
   });
   p.querySelectorAll('[data-buy]').forEach(el => el.onclick = () => {
-    if (buyBuilding(el.dataset.buy, Number(el.dataset.qty))) {
+    const id = el.dataset.buy;
+    if (buyBuilding(id, Number(el.dataset.qty))) {
       buzz(20);
       Sound.buy();
       renderPanel();
+      flashEl(p.querySelector(`[data-buy="${id}"]`)); // „pop” kupionego wiersza
     }
   });
 }
@@ -379,13 +420,19 @@ function renderPrestige(p) {
       buzz(30);
       Sound.buy();
       renderPanel();
+      flashEl(p.querySelector(`[data-talent="${talent.id}"]`));
     }
   });
 }
 
 function uiDoPrestige() {
   const gain = doPrestige();
-  if (gain > 0) { toast(t('prestigeDone', fmt(gain))); spawnConfetti(32); }
+  if (gain > 0) {
+    prestigeCutscene();
+    Sound.prestige();
+    buzz([80, 50, 80, 50, 160]);
+    setTimeout(() => { toast(t('prestigeDone', fmt(gain))); spawnConfetti(36); }, 350);
+  }
   renderPanel();
 }
 
@@ -638,7 +685,8 @@ function checkMilestones() {
   if (!hit) return;
   S.lastMilestone = hit;
   toast(t('milestoneToast', fmt(hit)));
-  Sound.fanfare();
+  Sound.milestone();
+  screenFlash('#ffe08a', 620);
   spawnConfetti(30);
   buzz([50, 60, 50]);
 }

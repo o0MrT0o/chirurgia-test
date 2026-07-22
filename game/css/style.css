@@ -85,6 +85,27 @@ input.vol::-moz-range-thumb {
   background: linear-gradient(180deg, #6ee7ff, #2e7dff); box-shadow: 0 1px 4px #0008;
 }
 
+/* ===== Efekty na wielkie momenty ===== */
+.screenFx { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+.prestigeFx { position: fixed; inset: 0; z-index: 95; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+.prestigeFx .pfCore {
+  position: absolute; width: 40vmin; height: 40vmin; border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, #ffe08a 25%, #ff9f43 45%, #8a5fff 70%, transparent 78%);
+  filter: blur(2px);
+}
+.prestigeFx .pfRing {
+  position: absolute; width: 30vmin; height: 30vmin; border-radius: 50%;
+  border: 3px solid #ffe08a; box-shadow: 0 0 40px #ffd76e, inset 0 0 30px #ffd76e88;
+}
+/* Poświata krawędzi podczas szału (złota) / gorączki (różowa) */
+body.frenzyOn::before, body.feverOn::after {
+  content: ''; position: fixed; inset: 0; z-index: 3; pointer-events: none;
+  animation: edgePulse 1.3s ease-in-out infinite;
+}
+body.frenzyOn::before { box-shadow: inset 0 0 90px 12px #ffb34766; }
+body.feverOn::after { box-shadow: inset 0 0 90px 12px #ff5fa066; }
+@keyframes edgePulse { 0%, 100% { opacity: .45; } 50% { opacity: .9; } }
+
 /* ===== Cząsteczki przy klikaniu ===== */
 .particle {
   position: fixed; z-index: 45; pointer-events: none; font-size: 13px;

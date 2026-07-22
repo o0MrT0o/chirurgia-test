@@ -54,6 +54,15 @@ const Sound = (() => {
     crit()    { beep(880, 0.09, 'square', 0.1); beep(1320, 0.12, 'square', 0.09, 0.05); },
     buy()     { beep(440, 0.06, 'sine', 0.11); beep(660, 0.08, 'sine', 0.11, 0.06); },
     fanfare() { [523, 659, 784, 1047].forEach((f, i) => beep(f, 0.12, 'triangle', 0.11, i * 0.09)); },
+    // Osobny, triumfalny akord na kamień milowy (mocniejszy niż fanfara).
+    milestone() {
+      [392, 523, 659, 784, 1047, 1319].forEach((f, i) => beep(f, 0.18, 'triangle', 0.12, i * 0.07));
+      beep(1568, 0.5, 'sine', 0.09, 0.42);
+    },
+    prestige() {
+      beep(1200, 0.6, 'sawtooth', 0.05, 0);          // narastający pomruk
+      [262, 330, 392, 523, 659, 784, 1047].forEach((f, i) => beep(f, 0.22, 'triangle', 0.12, 0.25 + i * 0.06));
+    },
     comet()   { beep(1200, 0.15, 'sine', 0.11); beep(1600, 0.2, 'sine', 0.09, 0.08); },
     meteor()  { beep(220, 0.12, 'sawtooth', 0.13); beep(140, 0.14, 'sawtooth', 0.1, 0.05); },
     claim()   { [392, 523, 659].forEach((f, i) => beep(f, 0.1, 'sine', 0.11, i * 0.07)); },
