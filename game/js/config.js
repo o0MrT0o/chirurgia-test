@@ -78,6 +78,20 @@ const ZONES = [
     theme: { bg: ['#20306a', '#141f48', '#0a1030', '#04060f'], neb: ['120,150,255', '90,120,255', '150,180,255', '110,140,255', '90,110,240', '180,200,255'] } },
 ];
 
+// ---------- Kalendarz nagród za logowanie (cykl 7-dniowy) ----------
+// Dzień w cyklu wyliczamy z serii logowań: ((loginStreak-1) % 7). Nagrody
+// rosną, a dzień 7 daje wielką nagrodę — klasyczny hak „wróć jutro".
+// kind: crystals (mult × produkcja/sek.) | spin (darmowy los) | boost | stardust.
+const DAILY_REWARDS = [
+  { day: 1, kind: 'crystals', mult: 600,  icon: '💎' },
+  { day: 2, kind: 'crystals', mult: 1200, icon: '💎' },
+  { day: 3, kind: 'spin',                 icon: '🎡' },
+  { day: 4, kind: 'crystals', mult: 2600, icon: '💠' },
+  { day: 5, kind: 'boost',                icon: '⚡' },
+  { day: 6, kind: 'crystals', mult: 5200, icon: '💰' },
+  { day: 7, kind: 'stardust', amount: 2,  icon: '✨' },
+];
+
 // ---------- Koło Fortuny ----------
 // Codziennie 1 darmowy los + dodatkowe za reklamę. weight = szansa (im
 // większa, tym częstszy segment). kind: crystals | boost | frenzy |

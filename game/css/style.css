@@ -85,6 +85,37 @@ input.vol::-moz-range-thumb {
   background: linear-gradient(180deg, #6ee7ff, #2e7dff); box-shadow: 0 1px 4px #0008;
 }
 
+/* ===== Kalendarz nagród za logowanie ===== */
+.calGrid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin: 6px 0 4px;
+}
+.calTile {
+  position: relative; border-radius: 12px; padding: 8px 4px 6px; text-align: center;
+  background: #10163acc; border: 1px solid #232c5a; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 78px;
+  justify-content: center;
+}
+.calTile .calDay { font-size: 10px; font-weight: 800; color: #8a95c8; letter-spacing: .3px; }
+.calTile .calIco { font-size: 24px; line-height: 1; }
+.calTile .calRew { font-size: 10.5px; font-weight: 700; color: #cfd6f5; }
+.calTile .calSt { font-size: 11px; font-weight: 800; min-height: 12px; }
+/* dzień 7 zajmuje całą szerokość ostatniego rzędu (wielka nagroda) */
+.calTile.big { grid-column: span 4; flex-direction: row; gap: 10px; min-height: 56px; }
+.calTile.big .calIco { font-size: 30px; }
+.calTile.big .calRew { font-size: 13px; }
+/* stany */
+.calTile.done { opacity: .55; }
+.calTile.done .calSt { color: #3ddc84; }
+.calTile.future { opacity: .8; }
+.calTile.today {
+  cursor: pointer; border-color: #ffd76e; background: #241f0e;
+  box-shadow: 0 0 14px #ffd76e55; animation: calPulse 1.5s ease-in-out infinite;
+}
+.calTile.today .calDay { color: #ffd76e; }
+.calTile.today .calSt { color: #ffe08a; }
+.calTile.today:active { transform: scale(.97); }
+@keyframes calPulse { 0%, 100% { box-shadow: 0 0 12px #ffd76e44; } 50% { box-shadow: 0 0 20px #ffd76e88; } }
+
 /* ===== Sektor: tabliczka postępu nad asteroidą ===== */
 #zonePlate {
   position: absolute; top: 6px; left: 50%; transform: translateX(-50%); z-index: 6;

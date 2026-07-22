@@ -274,17 +274,24 @@ function claimMission(i) {
   return { reward, setDone };
 }
 
-function dailyReward() {
-  return Math.max(500, totalCps() * 600) * Math.min(S.loginStreak, BALANCE.dailyStreakCap);
-}
+// Pozycja w 7-dniowym kalendarzu (0–6), wyliczona z serii logowań.
+function calIndex() { return (Math.max(1, S.loginStreak || 1) - 1) % 7; }
 
+// Kwota nagrody kryształowej dla danego dnia (skaluje się z produkcją).
+function calCrystals(r) { return Math.max(500 * r.day, totalCps() * r.mult); }
+
+// Odbierz dzisiejszą nagrodę z kalendarza. Zwraca {kind, amount?} albo null.
 function claimDaily() {
-  if (S.dailyClaimed) return 0;
+  if (S.dailyClaimed) return null;
   S.dailyClaimed = true;
-  const r = dailyReward();
-  earn(r);
+  const r = DAILY_REWARDS[calIndex()];
+  const out = { kind: r.kind, day: r.day };
+  if (r.kind === 'crystals') { const a = calCrystals(r); earn(a); out.amount = a; }
+  else if (r.kind === 'stardust') { S.stardust += r.amount; S.totalStardustEarned = (S.totalStardustEarned || 0) + r.amount; out.amount = r.amount; }
+  else if (r.kind === 'boost') { S.boostUntil = now() + boostDuration() * 1000; }
+  else if (r.kind === 'spin') { S.freeSpins = (S.freeSpins || 0) + 1; }
   save();
-  return r;
+  return out;
 }
 
 // ---------- Powiadomienia: planowanie na podstawie stanu ----------

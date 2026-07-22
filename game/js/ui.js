@@ -617,12 +617,33 @@ function spinWheel(isFree) {
   }, 4600);
 }
 
+// Kalendarz nagród — czytelna siatka 7 dni z rosnącymi nagrodami.
+function calRewardLabel(r) {
+  if (r.kind === 'crystals') return fmt(calCrystals(r)) + ' 💎';
+  if (r.kind === 'stardust') return '✨ ' + r.amount;
+  if (r.kind === 'boost') return t('calBoost');
+  if (r.kind === 'spin') return t('calSpin');
+  return '';
+}
+function renderCalendar() {
+  const idx = calIndex();
+  const tiles = DAILY_REWARDS.map((r, i) => {
+    let cls = 'future', st = '';
+    if (i < idx || (i === idx && S.dailyClaimed)) { cls = 'done'; st = '✅'; }
+    else if (i === idx) { cls = 'today'; st = t('calClaim'); }
+    return `<div class="calTile ${cls}${r.day === 7 ? ' big' : ''}" ${cls === 'today' ? 'data-cal="1"' : ''}>
+      <div class="calDay">${i === idx ? t('calToday') : t('calDay', r.day)}</div>
+      <div class="calIco">${r.icon}</div>
+      <div class="calRew">${calRewardLabel(r)}</div>
+      <div class="calSt">${st}</div>
+    </div>`;
+  }).join('');
+  return `<div class="note" style="padding-top:8px">${t('calHead', S.loginStreak, S.loginStreak === 1 ? t('dayS') : t('dayP'))}</div>
+    <div class="calGrid">${tiles}</div>`;
+}
+
 function renderBonus(p) {
-  const bonusContent = renderMissions() + renderWheel() + `
-    <div class="note" style="padding-top:8px">${t('dailyHead', S.loginStreak, S.loginStreak === 1 ? t('dayS') : t('dayP'))}</div>
-    <button class="bigBtn" id="dailyBtn" ${S.dailyClaimed ? 'disabled' : ''}>
-      ${S.dailyClaimed ? t('dailyClaimed') : t('dailyClaim', fmt(dailyReward()))}
-    </button>
+  const bonusContent = renderMissions() + renderWheel() + renderCalendar() + `
     <div class="note">${t('boostHead', Math.round(boostDuration()))}</div>
     <button class="bigBtn gold" id="adBoostBtn" ${now() < S.boostUntil ? 'disabled' : ''}>
       ${now() < S.boostUntil ? t('boostActive', Math.ceil((S.boostUntil - now()) / 1000)) : t('boostWatch', BALANCE.adBoostMult)}
@@ -652,10 +673,19 @@ function renderBonus(p) {
     <div class="note">${t('settingsHint')}</div>`;
   if (panelUnchanged(bonusContent)) return;
   p.innerHTML = bonusContent;
-  const d = $('#dailyBtn');
-  if (d && !S.dailyClaimed) d.onclick = () => {
-    const r = claimDaily();
-    if (r > 0) { toast(t('dailyToast', fmt(r), S.loginStreak)); Sound.claim(); }
+  const today = p.querySelector('.calTile[data-cal]');
+  if (today) today.onclick = () => {
+    const res = claimDaily();
+    if (!res) return;
+    let msg;
+    if (res.kind === 'crystals') msg = t('calGotCrystals', res.day, fmt(res.amount));
+    else if (res.kind === 'stardust') msg = t('calGotDust', res.amount);
+    else if (res.kind === 'boost') msg = t('calGotBoost', BALANCE.adBoostMult);
+    else msg = t('calGotSpin');
+    toast(msg);
+    Sound.claim();
+    buzz([40, 60, 40]);
+    if (res.day === 7) spawnConfetti(28); // wielka nagroda na koniec cyklu
     renderPanel();
   };
   const a = $('#adBoostBtn');
