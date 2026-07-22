@@ -35,10 +35,22 @@ function globalMult() {
   m *= 1 + ownedTypes * talentLevel('tp3') * 0.02;       // Synergia
   m *= 1 + artifactCount() * BALANCE.artifactBonus;      // kolekcja artefaktów
   m *= researchMult('prod');                             // badania: produkcja
+  m *= zoneBonus();                                       // odkryte sektory
   for (const u of UPGRADES) if (S.upgrades[u.id] && u.type === 'global') m *= u.mult;
   if (now() < S.frenzyUntil) m *= BALANCE.frenzyMult;
   if (now() < S.boostUntil) m *= BALANCE.adBoostMult;
   return m;
+}
+
+// ---------- Strefy / sektory ----------
+function currentZone() { return ZONES[Math.min(S.zone || 0, ZONES.length - 1)] || ZONES[0]; }
+function nextZone() { return ZONES[(S.zone || 0) + 1] || null; }
+function zoneBonus() { return 1 + (S.zone || 0) * ZONE_BONUS_PER; } // +15% za każdy sektor
+// Wejdź do kolejnego sektora, jeśli osiągnięto próg. Zwraca nowy sektor lub null.
+function advanceZone() {
+  const nz = ZONES[(S.zone || 0) + 1];
+  if (nz && S.allTimeEarned >= nz.reach) { S.zone = (S.zone || 0) + 1; return ZONES[S.zone]; }
+  return null;
 }
 
 function buildingCps(b) {
@@ -160,6 +172,7 @@ function doPrestige() {
     expeditionsDone: S.expeditionsDone,
     artifacts: S.artifacts,
     bossesKilled: S.bossesKilled,
+    zone: S.zone,
     lang: S.lang,
     soundOn: S.soundOn,
     musicOn: S.musicOn,

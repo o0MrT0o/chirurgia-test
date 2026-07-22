@@ -27,6 +27,7 @@ const DEFAULT_STATE = () => ({
   dailyMissions: { date: '', missions: [] }, // misje dnia
   missionCounters: {},  // dzienne liczniki postępu misji
   missionsCompleted: 0, // wykonane misje łącznie (od początku gry)
+  zone: 0,              // najwyższy odkryty sektor (indeks w ZONES)
   lang: '',             // '' = wykryj z urządzenia; 'pl' | 'en' = wybór gracza
   soundOn: true,        // dźwięki włączone?
   musicOn: true,        // muzyka w tle włączona?

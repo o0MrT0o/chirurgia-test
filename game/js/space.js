@@ -12,6 +12,7 @@ const Space = (() => {
   let sky, fx, sctx, fctx, W, H, dpr;
   let twinkle = [], motes = [], shooters = [];
   let running = false, lastFx = 0, nextShooter = 0;
+  let theme = null; // motyw kolorystyczny tła (per sektor); null = domyślny
 
   const rnd = (a, b) => a + Math.random() * (b - a);
   const pick = arr => arr[Math.floor(Math.random() * arr.length)];
@@ -121,20 +122,22 @@ const Space = (() => {
   function buildSky() {
     sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     sctx.clearRect(0, 0, W, H);
-    // tło — głęboki gradient + wineta
+    // tło — głęboki gradient + wineta (kolory z motywu sektora lub domyślne)
+    const bgc = (theme && theme.bg) || ['#1c2560', '#101740', '#080d24', '#04060f'];
     const bg = sctx.createRadialGradient(W * 0.5, H * 0.3, 0, W * 0.5, H * 0.42, Math.max(W, H) * 0.95);
-    bg.addColorStop(0, '#1c2560'); bg.addColorStop(0.45, '#101740'); bg.addColorStop(0.8, '#080d24'); bg.addColorStop(1, '#04060f');
+    bg.addColorStop(0, bgc[0]); bg.addColorStop(0.45, bgc[1]); bg.addColorStop(0.8, bgc[2]); bg.addColorStop(1, bgc[3]);
     sctx.fillStyle = bg; sctx.fillRect(0, 0, W, H);
 
-    // mgławice (addytywne, dla świetlistości)
+    // mgławice (addytywne, dla świetlistości) — kolory z motywu sektora
     sctx.globalCompositeOperation = 'lighter';
     const M = Math.max(W, H);
-    nebula(W * 0.18, H * 0.24, M * 0.55, '120,70,200', 0.20);   // fiolet
-    nebula(W * 0.86, H * 0.46, M * 0.5, '30,120,180', 0.18);    // błękit
-    nebula(W * 0.6, H * 0.12, M * 0.42, '40,150,150', 0.14);    // morski
-    nebula(W * 0.42, H * 0.72, M * 0.5, '190,60,150', 0.13);    // magenta
-    nebula(W * 0.08, H * 0.85, M * 0.4, '60,90,220', 0.14);     // niebieski
-    nebula(W * 0.95, H * 0.9, M * 0.38, '200,120,90', 0.10);    // ciepły
+    const nb = (theme && theme.neb) || ['120,70,200', '30,120,180', '40,150,150', '190,60,150', '60,90,220', '200,120,90'];
+    nebula(W * 0.18, H * 0.24, M * 0.55, nb[0], 0.20);
+    nebula(W * 0.86, H * 0.46, M * 0.5, nb[1], 0.18);
+    nebula(W * 0.6, H * 0.12, M * 0.42, nb[2], 0.14);
+    nebula(W * 0.42, H * 0.72, M * 0.5, nb[3], 0.13);
+    nebula(W * 0.08, H * 0.85, M * 0.4, nb[4], 0.14);
+    nebula(W * 0.95, H * 0.9, M * 0.38, nb[5], 0.10);
 
     // droga mleczna — miękkie obłoki wzdłuż ukośnej osi (bez ostrych krawędzi)
     const mcx = W * 0.5, mcy = H * 0.42, mang = -0.5;
@@ -260,5 +263,8 @@ const Space = (() => {
     start();
   }
 
-  return { init, start, stop };
+  // Ustaw motyw sektora i przerysuj statyczne tło.
+  function setTheme(th) { theme = th || null; if (sctx) buildSky(); }
+
+  return { init, start, stop, setTheme };
 })();

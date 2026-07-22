@@ -106,6 +106,7 @@ const STRINGS = {
     settingsHint: '⚙️ Dźwięk, muzyka, powiadomienia i kopia zapasowa są teraz w <b>Ustawieniach</b> (ikona ⚙️ w rogu).',
     // combo / milestone / goal
     milestoneToast: '🏆 Kamień milowy: {0} 💎 wydobyte łącznie!',
+    zoneNew: 'NOWY SEKTOR', zoneBonusMsg: '+{0}% produkcji na zawsze', zoneMax: 'ostatni sektor',
     goalGet: 'Zdobądź', goalUnlock: 'Odblokuj', goalBuilding: '🎯 {0}: <b>{1}</b> · {2}%',
     goalMilestone: '🎯 Kamień milowy: <b>{0} 💎</b> · {1}%',
     critShort: 'KRYT! ', // prefiks liczby przy krytyku klik
@@ -224,6 +225,7 @@ const STRINGS = {
     stResearch: 'research done', stMissions: 'missions done',
     settingsHint: '⚙️ Sound, music, notifications and backup are now in <b>Settings</b> (the ⚙️ icon in the corner).',
     milestoneToast: '🏆 Milestone: {0} 💎 mined in total!',
+    zoneNew: 'NEW SECTOR', zoneBonusMsg: '+{0}% production forever', zoneMax: 'final sector',
     goalGet: 'Get', goalUnlock: 'Unlock', goalBuilding: '🎯 {0}: <b>{1}</b> · {2}%',
     goalMilestone: '🎯 Milestone: <b>{0} 💎</b> · {1}%',
     critShort: 'CRIT! ',
@@ -300,6 +302,9 @@ const EN = {
     tc1: 'Strong Hands', tc2: 'Click Echo', tc3: 'Golden Touch',
     tp1: 'Efficient Machines', tp2: 'Cheap Labor', tp3: 'Synergy',
     tt1: 'Night Shift', tt2: 'Comet Magnet', tt3: 'Eternal Boost',
+    // sektory / strefy
+    z0: 'Asteroid Belt', z1: 'Orion Nebula', z2: 'Emerald Fields', z3: 'Volcanic Zone',
+    z4: 'Golden Reaches', z5: 'Rose Turbulence', z6: 'The Void', z7: 'Stellar Heart',
     // gałęzie talentów
     'branch_click': '⛏️ Click Power', 'branch_prod': '🏭 Production', 'branch_time': '🌙 Time & Bonuses',
     // bossowie

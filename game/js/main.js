@@ -18,6 +18,7 @@ function tick() {
   if (document.hidden) return; // w tle: licz zarobki, ale nie rysuj (oszczędność CPU)
   renderHeader();
   updateGoal();
+  updateZone();
   updateBadges();
   refreshCombo();
   checkMilestones();
@@ -72,8 +73,8 @@ function startGame() {
   const steps = [
     ['load1', () => { load(); checkDaily(); }],
     ['load2', () => { Space.init(); }],
-    ['load3', () => { initTabs(); applyStaticI18n(); applySkin(); }],
-    ['load4', () => { renderHeader(); renderPanel(); }],
+    ['load3', () => { initTabs(); applyStaticI18n(); applySkin(); Space.setTheme(currentZone().theme); }],
+    ['load4', () => { renderHeader(); updateZonePlate(); renderPanel(); }],
     ['load5', () => { scheduleComet(); scheduleRandomEvent(); scheduleBoss(); }],
     ['load6', () => { wireGame(); }],
   ];

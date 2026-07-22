@@ -457,20 +457,22 @@ function uiDoPrestige() {
 // ---------- Zakładka: Sukcesy (skórki + osiągnięcia) ----------
 function applySkin() {
   const ast = $('#asteroid');
-  const sk = SKINS.find(x => x.id === S.skin) || SKINS[0];
   SKINS.forEach(s => ast.classList.remove(s.css));
-  if (sk.id !== 'classic') ast.classList.add(sk.css); // klasa daje kolor poświaty (--glow)
+  // Gdy gracz nie wybrał własnej skórki ('classic'), wygląd asteroidy nadaje
+  // aktualny sektor; wybrana skórka zawsze ma pierwszeństwo (kosmetyka gracza).
+  const styleId = (S.skin === 'classic') ? currentZone().style : S.skin;
+  if (styleId !== 'classic') ast.classList.add('skin-' + styleId); // klasa daje kolor poświaty (--glow)
   // Rasteryzacja: kosztowny filtr SVG (feTurbulence + feDiffuseLighting)
   // liczony JEDEN RAZ do bitmapy. Usuwamy animacje SMIL — w <img> nadal by
   // działały i zmuszały do ponownego renderu filtra co klatkę. Wszystkie
   // detale (kratery, kryształy, tekstura) zostają; znika tylko pulsowanie.
-  const svg = generateAsteroidSVG(sk.id).replace(/<animate[^>]*>/g, '').replace(/<\/animate>/g, '');
+  const svg = generateAsteroidSVG(styleId).replace(/<animate[^>]*>/g, '').replace(/<\/animate>/g, '');
   const img = new Image();
   img.decoding = 'async';
   img.alt = '';
   img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   ast.replaceChildren(img);
-  document.body.dataset.skin = sk.id; // tło (poświata) dopasowuje się do skórki
+  document.body.dataset.skin = styleId; // tło (poświata) dopasowuje się do wyglądu
 }
 
 function renderSkins() {
@@ -768,6 +770,62 @@ function updateBadges() {
     const fn = _badgeFns[b.dataset.tab];
     b.classList.toggle('badge', !!(fn && fn()));
   });
+}
+
+// ---------- Strefy / sektory (progresja celu) ----------
+// Sprawdza awans do kolejnego sektora i odświeża tabliczkę postępu.
+function updateZone() {
+  let entered = null, z;
+  while ((z = advanceZone())) entered = z;   // duży skok (offline) może przeskoczyć kilka
+  if (entered) onZoneEntered(entered);
+  updateZonePlate();
+}
+
+function onZoneEntered(z) {
+  applySkin();               // nowy wygląd asteroidy (gdy skórka = domyślna)
+  Space.setTheme(z.theme);   // nowe tło/klimat
+  Sound.milestone();
+  screenFlash(z.flash, 700);
+  zoneCutscene(z);
+  buzz([60, 40, 60, 40, 120]);
+  spawnConfetti(30);
+  save();
+}
+
+// Efektowna zapowiedź nowego sektora (baner „NOWY SEKTOR").
+function zoneCutscene(z) {
+  const el = document.createElement('div');
+  el.className = 'zoneFx';
+  el.innerHTML = `<div class="zoneCard">
+    <div class="zcIco">${z.icon}</div>
+    <div class="zcTag">${t('zoneNew')}</div>
+    <div class="zcName">${nm(z)}</div>
+    <div class="zcBonus">${t('zoneBonusMsg', Math.round(ZONE_BONUS_PER * 100))}</div>
+  </div>`;
+  document.body.appendChild(el);
+  const card = el.querySelector('.zoneCard');
+  if (card.animate) card.animate(
+    [{ opacity: 0, transform: 'scale(.7)' }, { opacity: 1, transform: 'scale(1)', offset: 0.18 },
+     { opacity: 1, transform: 'scale(1)', offset: 0.8 }, { opacity: 0, transform: 'scale(1.05)' }],
+    { duration: 2300, easing: 'ease-out' });
+  setTimeout(() => el.remove(), 2400);
+}
+
+let _lastZonePlate = '';
+function updateZonePlate() {
+  const el = $('#zonePlate');
+  if (!el) return;
+  const z = currentZone(), nz = nextZone();
+  let pct = 100, max = '';
+  if (nz) {
+    const span = nz.reach - z.reach;
+    pct = span > 0 ? Math.max(0, Math.min(100, (S.allTimeEarned - z.reach) / span * 100)) : 100;
+  } else {
+    max = t('zoneMax');
+  }
+  const html = `<span class="zpName">${z.icon} ${nm(z)}${max ? ` · ${max}` : ''}</span>`
+    + `<span class="zoneTrack"><span class="zoneFill" style="width:${pct.toFixed(1)}%"></span></span>`;
+  if (html !== _lastZonePlate) { el.innerHTML = html; _lastZonePlate = html; }
 }
 
 function spawnParticles(x, y, count) {
