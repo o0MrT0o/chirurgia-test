@@ -471,6 +471,11 @@ nav button.badge::after {
 }
 .art.owned { opacity: 1; border-color: #ffd76e; box-shadow: 0 0 10px #ffd76e22; }
 .art .ai { font-size: 26px; }
+.art .ai .artSprite { width: 30px; height: 30px; object-fit: contain; display: inline-block; vertical-align: middle; filter: drop-shadow(0 1px 2px #0006); }
+/* Sprite bossa (grafika zamiast wielkiego emoji) */
+.bossFace .bossSprite { width: min(34vw, 150px); height: auto; object-fit: contain; display: block; }
+/* Sprite artefaktu w oknach nagród */
+.lootSprite { width: 46px; height: 46px; object-fit: contain; display: inline-block; vertical-align: middle; filter: drop-shadow(0 2px 4px #0007); }
 .art .an { font-size: 9px; color: #9aa7d9; margin-top: 3px; line-height: 1.2; }
 .art.owned .an { color: #ffe9a8; }
 

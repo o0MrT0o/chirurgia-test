@@ -109,11 +109,11 @@ const WHEEL = [
 
 // ---------- Bossowie ----------
 const BOSSES = [
-  { name: 'Obsydianowy Kolos',   icon: '🌑' },
-  { name: 'Strażnik Pierścieni', icon: '🪐' },
-  { name: 'Piroklast',           icon: '🌋' },
-  { name: 'Lodowy Behemot',      icon: '🧊' },
-  { name: 'Pożeracz Światów',    icon: '🕳️' },
+  { name: 'Obsydianowy Kolos',   icon: '🌑', sprite: 'assets/bosses/boss0.png' },
+  { name: 'Strażnik Pierścieni', icon: '🪐', sprite: 'assets/bosses/boss1.png' },
+  { name: 'Piroklast',           icon: '🌋', sprite: 'assets/bosses/boss2.png' },
+  { name: 'Lodowy Behemot',      icon: '🧊', sprite: 'assets/bosses/boss3.png' },
+  { name: 'Pożeracz Światów',    icon: '🕳️', sprite: 'assets/bosses/boss4.png' },
 ];
 
 // ---------- Budynki (produkcja pasywna) ----------
@@ -193,21 +193,21 @@ const PLANETS = [
 
 // ---------- Artefakty (kolekcja; każdy daje trwały bonus do produkcji) ----------
 const ARTIFACTS = [
-  { id: 'art_c1', planet: 'ceres',  name: 'Odłamek pramaterii',  icon: '🪨' },
-  { id: 'art_c2', planet: 'ceres',  name: 'Pył gwiezdnej burzy', icon: '🌫️' },
-  { id: 'art_c3', planet: 'ceres',  name: 'Krzemowa róża',       icon: '🌹' },
-  { id: 'art_m1', planet: 'mars',   name: 'Rdzawy kryształ',     icon: '🔶' },
-  { id: 'art_m2', planet: 'mars',   name: 'Piaskowy zegar',      icon: '⏳' },
-  { id: 'art_m3', planet: 'mars',   name: 'Spiżowy meteoryt',    icon: '🟤' },
-  { id: 'art_t1', planet: 'tytan',  name: 'Bursztyn metanowy',   icon: '🟠' },
-  { id: 'art_t2', planet: 'tytan',  name: 'Pierścień Tytana',    icon: '💍' },
-  { id: 'art_t3', planet: 'tytan',  name: 'Lodowy monolit',      icon: '🗿' },
-  { id: 'art_e1', planet: 'europa', name: 'Łza oceanu',          icon: '💧' },
-  { id: 'art_e2', planet: 'europa', name: 'Zamarznięta zorza',   icon: '🌈' },
-  { id: 'art_e3', planet: 'europa', name: 'Perła głębin',        icon: '🦪' },
-  { id: 'art_i1', planet: 'io',     name: 'Serce wulkanu',       icon: '❤️‍🔥' },
-  { id: 'art_i2', planet: 'io',     name: 'Siarkowy diament',    icon: '💛' },
-  { id: 'art_i3', planet: 'io',     name: 'Oko Io',              icon: '👁️' },
+  { id: 'art_c1', planet: 'ceres',  name: 'Odłamek pramaterii',  icon: '🪨', sprite: 'assets/artifacts/art_c1.png' },
+  { id: 'art_c2', planet: 'ceres',  name: 'Pył gwiezdnej burzy', icon: '🌫️', sprite: 'assets/artifacts/art_c2.png' },
+  { id: 'art_c3', planet: 'ceres',  name: 'Krzemowa róża',       icon: '🌹', sprite: 'assets/artifacts/art_c3.png' },
+  { id: 'art_m1', planet: 'mars',   name: 'Rdzawy kryształ',     icon: '🔶', sprite: 'assets/artifacts/art_m1.png' },
+  { id: 'art_m2', planet: 'mars',   name: 'Piaskowy zegar',      icon: '⏳', sprite: 'assets/artifacts/art_m2.png' },
+  { id: 'art_m3', planet: 'mars',   name: 'Spiżowy meteoryt',    icon: '🟤', sprite: 'assets/artifacts/art_m3.png' },
+  { id: 'art_t1', planet: 'tytan',  name: 'Bursztyn metanowy',   icon: '🟠', sprite: 'assets/artifacts/art_t1.png' },
+  { id: 'art_t2', planet: 'tytan',  name: 'Pierścień Tytana',    icon: '💍', sprite: 'assets/artifacts/art_t2.png' },
+  { id: 'art_t3', planet: 'tytan',  name: 'Lodowy monolit',      icon: '🗿', sprite: 'assets/artifacts/art_t3.png' },
+  { id: 'art_e1', planet: 'europa', name: 'Łza oceanu',          icon: '💧', sprite: 'assets/artifacts/art_e1.png' },
+  { id: 'art_e2', planet: 'europa', name: 'Zamarznięta zorza',   icon: '🌈', sprite: 'assets/artifacts/art_e2.png' },
+  { id: 'art_e3', planet: 'europa', name: 'Perła głębin',        icon: '🦪', sprite: 'assets/artifacts/art_e3.png' },
+  { id: 'art_i1', planet: 'io',     name: 'Serce wulkanu',       icon: '❤️‍🔥', sprite: 'assets/artifacts/art_i1.png' },
+  { id: 'art_i2', planet: 'io',     name: 'Siarkowy diament',    icon: '💛', sprite: 'assets/artifacts/art_i2.png' },
+  { id: 'art_i3', planet: 'io',     name: 'Oko Io',              icon: '👁️', sprite: 'assets/artifacts/art_i3.png' },
 ];
 
 // ---------- Skórki asteroidy (kosmetyka) ----------

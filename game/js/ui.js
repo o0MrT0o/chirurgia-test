@@ -226,7 +226,7 @@ function renderExpeditions(p) {
   const artHtml = `<div class="note">${t('artHead', artifactCount(), ARTIFACTS.length, Math.round(artifactCount() * BALANCE.artifactBonus * 100), BALANCE.duplicateDust)}</div>
     <div class="artGrid">${ARTIFACTS.map(a =>
       `<div class="art ${S.artifacts[a.id] ? 'owned' : ''}" title="${nm(a)}">
-        <div class="ai">${S.artifacts[a.id] ? a.icon : '❔'}</div>
+        <div class="ai">${S.artifacts[a.id] ? iconHtml(a, 'artSprite') : '❔'}</div>
         <div class="an">${S.artifacts[a.id] ? nm(a) : '???'}</div>
       </div>`).join('')}</div>`;
 
@@ -274,8 +274,8 @@ function renderExpeditions(p) {
     const res = claimExpedition();
     if (!res) return;
     let html = `<h2>${t('lootTitle')}</h2><p><b style="font-size:22px;color:#8ff5ff">+${fmt(res.loot)} 💎</b>`;
-    if (res.artifact && res.duplicate) html += `<br><br>${t('lootDup', res.artifact.icon, nm(res.artifact), res.dust)}`;
-    else if (res.artifact) html += `<br><br>${t('lootArt')}<br><span style="font-size:34px">${res.artifact.icon}</span><br><b>${nm(res.artifact)}</b> ${t('lootArtBonus', BALANCE.artifactBonus * 100)}`;
+    if (res.artifact && res.duplicate) html += `<br><br>${t('lootDup', iconHtml(res.artifact, 'lootSprite'), nm(res.artifact), res.dust)}`;
+    else if (res.artifact) html += `<br><br>${t('lootArt')}<br>${iconHtml(res.artifact, 'lootSprite')}<br><b>${nm(res.artifact)}</b> ${t('lootArtBonus', BALANCE.artifactBonus * 100)}`;
     html += `</p><button class="bigBtn" onclick="hideOverlay(); renderPanel()">${t('awesome')}</button>`;
     showOverlay(html);
     if (res.artifact && !res.duplicate) spawnConfetti(22);
@@ -1033,7 +1033,7 @@ function spawnBoss() {
     <div class="bossName">⚔️ ${bossName(def)}</div>
     <div class="bossBar"><div class="bossHp" id="bossHp"></div></div>
     <div class="bossBar timer"><div class="bossTimer" id="bossTimer"></div></div>
-    <div class="bossFace" id="bossFace">${def.icon}</div>
+    <div class="bossFace" id="bossFace">${iconHtml(def, 'bossSprite')}</div>
     <div class="note">${t('bossHit')}</div>`;
   $('#tapArea').appendChild(box);
   const face = $('#bossFace');
@@ -1100,8 +1100,8 @@ function endBoss(won) {
     let html = `<h2>${t('bossDefeated', nameL)}</h2>
       <p><b style="font-size:22px;color:#8ff5ff">+${fmt(res.loot)} 💎</b><br>
       <b style="color:#ffd76e">+${res.dust} ✨</b>`;
-    if (res.artifact && res.duplicate) html += `<br><br>${t('bossDup', res.artifact.icon, nm(res.artifact), BALANCE.duplicateDust)}`;
-    else if (res.artifact) html += `<br><br>${t('bossDrop')}<br><span style="font-size:34px">${res.artifact.icon}</span><br><b>${nm(res.artifact)}</b>!`;
+    if (res.artifact && res.duplicate) html += `<br><br>${t('bossDup', iconHtml(res.artifact, 'lootSprite'), nm(res.artifact), BALANCE.duplicateDust)}`;
+    else if (res.artifact) html += `<br><br>${t('bossDrop')}<br>${iconHtml(res.artifact, 'lootSprite')}<br><b>${nm(res.artifact)}</b>!`;
     html += `</p><button class="bigBtn gold" onclick="hideOverlay()">${t('victory')}</button>`;
     showOverlay(html);
     Sound.fanfare();
