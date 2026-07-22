@@ -106,6 +106,37 @@ body.frenzyOn::before { box-shadow: inset 0 0 90px 12px #ffb34766; }
 body.feverOn::after { box-shadow: inset 0 0 90px 12px #ff5fa066; }
 @keyframes edgePulse { 0%, 100% { opacity: .45; } 50% { opacity: .9; } }
 
+/* ===== Scena kopalni (żywe maszyny) ===== */
+.mineScene {
+  display: flex; flex-wrap: wrap; gap: 6px 10px; justify-content: center;
+  padding: 12px 8px 10px; margin-bottom: 6px;
+  background: linear-gradient(180deg, #141c44 0%, #0d1230 100%);
+  border-bottom: 1px solid #222c5c; border-radius: 0 0 14px 14px;
+  position: relative; overflow: hidden;
+}
+.machine {
+  position: relative; width: 50px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.machine .mIco {
+  font-size: 25px; line-height: 1;
+  animation: machineBob var(--d, 2.4s) ease-in-out infinite; animation-delay: var(--del, 0s);
+  filter: drop-shadow(0 2px 3px #0007);
+}
+@keyframes machineBob {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-4px) rotate(3deg); }
+}
+.machine .mCount { font-size: 10px; font-weight: 800; color: #9fb0e8; }
+.machine .mCryst {
+  position: absolute; top: 2px; font-size: 11px; opacity: 0; pointer-events: none;
+  animation: mineRise 2.6s ease-out infinite; animation-delay: var(--del, 0s);
+}
+@keyframes mineRise {
+  0% { opacity: 0; transform: translateY(8px) scale(.5); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-24px) scale(1); }
+}
+
 /* ===== Cząsteczki przy klikaniu ===== */
 .particle {
   position: fixed; z-index: 45; pointer-events: none; font-size: 13px;

@@ -293,6 +293,24 @@ function renderExpeditions(p) {
 // ---------- Zakładka: Kopalnia ----------
 let buyMode = 1; // 1 | 10 | 'max'
 
+// „Żywa” hala produkcyjna: każdy posiadany typ budynku to animowana maszyna,
+// która się kołysze i wypuszcza kryształy — widać, że kopalnia pracuje.
+function renderMineScene() {
+  const owned = BUILDINGS.filter(b => (S.buildings[b.id] || 0) > 0);
+  if (!owned.length) return '';
+  const tiles = owned.map((b, i) => {
+    const count = S.buildings[b.id] || 0;
+    const dur = (2.6 - Math.min(count, 40) * 0.03).toFixed(2);   // więcej sztuk = żwawiej
+    const del = (i * 0.35).toFixed(2);
+    return `<div class="machine" style="--d:${dur}s;--del:${del}s" title="${nm(b)}">
+      <span class="mCryst">💎</span>
+      <div class="mIco">${b.icon}</div>
+      <div class="mCount">×${count}</div>
+    </div>`;
+  }).join('');
+  return `<div class="mineScene">${tiles}</div>`;
+}
+
 function renderMine(p) {
   const toggle = `<div class="buyToggle">
     ${[1, 10, 'max'].map(m =>
@@ -322,7 +340,7 @@ function renderMine(p) {
     </div>`;
   }).join('');
 
-  const mineContent = toggle + (rows || `<div class="note">${t('mineEmpty')}</div>`);
+  const mineContent = renderMineScene() + toggle + (rows || `<div class="note">${t('mineEmpty')}</div>`);
   if (panelUnchanged(mineContent)) return;
   p.innerHTML = mineContent;
 
