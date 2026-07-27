@@ -10,7 +10,7 @@
 
 const Space = (() => {
   let sky, fx, sctx, fctx, W, H, dpr;
-  let twinkle = [], motes = [], shooters = [];
+  let twinkle = [], motes = [], shooters = [], traffic = [];
   let running = false, lastFx = 0, nextShooter = 0;
   let theme = null; // motyw kolorystyczny tła (per sektor); null = domyślny
 
@@ -86,49 +86,70 @@ const Space = (() => {
   // ---------- Ciała niebieskie w tle: prawdziwe grafiki (CC0), nie kółka ----------
   // Ładowane raz i buforowane; różne w każdym sektorze (theme.worlds z config.js).
   const WORLD_BASE = 'assets/space/';
-  const worldImgCache = {};
-  function worldImg(file) {
-    if (worldImgCache[file]) return worldImgCache[file];
+  const imgCache = {};
+  function loadImg(path) {
+    if (imgCache[path]) return imgCache[path];
     const img = new Image();
     img.decoding = 'async';
-    img.src = WORLD_BASE + file;
+    img.src = path;
     // Obrazek ładuje się async — gdy skończy, przerysuj niebo (jeśli jeszcze
     // nie zdążyło go narysować przy pierwszym buildSky()). Tanie, bo dzieje
     // się to raz na start/zmianę sektora, nie w pętli animacji.
     img.onload = () => { if (sctx) buildSky(); };
-    worldImgCache[file] = img;
+    imgCache[path] = img;
     return img;
   }
+  const worldImg = file => loadImg(WORLD_BASE + file);
 
-  // Podbarwienie sprite'a kolorem otoczenia (nebuli sektora) dla spójności —
-  // rysowane raz na małym canvasie i buforowane per (obrazek, kolor).
+  // Podbarwienie sprite'a kolorem otoczenia (nebuli sektora / mgławicy) dla
+  // spójności — rysowane raz na małym canvasie i buforowane per (obrazek, kolor, moc).
   const tintCache = {};
-  function tintedWorld(img, rgb) {
-    const key = img.src + '|' + rgb;
+  function tintedImg(img, rgb, alpha) {
+    const key = img.src + '|' + rgb + '|' + alpha;
     if (tintCache[key]) return tintCache[key];
     const c = document.createElement('canvas');
     c.width = img.naturalWidth; c.height = img.naturalHeight;
     const cx = c.getContext('2d');
     cx.drawImage(img, 0, 0);
     cx.globalCompositeOperation = 'source-atop';
-    cx.fillStyle = `rgba(${rgb},0.22)`;
+    cx.fillStyle = `rgba(${rgb},${alpha})`;
     cx.fillRect(0, 0, c.width, c.height);
     tintCache[key] = c;
     return c;
   }
 
-  function drawWorld(x, y, r, file, tintRgb) {
+  function drawWorld(x, y, r, file, tintRgb, alpha) {
     const img = worldImg(file);
     if (!img.complete || img.naturalWidth === 0) return; // jeszcze się ładuje — dorysuje się przy onload
     // miękki cień/poświata pod ciałem dla głębi (jak wcześniej dla rysowanych planet)
     const sh = sctx.createRadialGradient(x, y, r * 0.6, x, y, r * 1.7);
     sh.addColorStop(0, 'rgba(0,0,0,0.3)'); sh.addColorStop(1, 'rgba(0,0,0,0)');
     sctx.fillStyle = sh; sctx.fillRect(x - r * 1.7, y - r * 1.7, r * 3.4, r * 3.4);
-    const sprite = tintRgb ? tintedWorld(img, tintRgb) : img;
+    const sprite = tintRgb ? tintedImg(img, tintRgb, 0.22) : img;
     // dopasuj proporcje oryginału (nie rozciągaj meteorów do kwadratu — "contain", nie "stretch")
     const ar = img.naturalWidth / img.naturalHeight;
     const w = ar >= 1 ? r * 2 : r * 2 * ar, h = ar >= 1 ? r * 2 / ar : r * 2;
-    sctx.drawImage(sprite, x - w / 2, y - h / 2, w, h);
+    if (alpha != null) { sctx.globalAlpha = alpha; sctx.drawImage(sprite, x - w / 2, y - h / 2, w, h); sctx.globalAlpha = 1; }
+    else sctx.drawImage(sprite, x - w / 2, y - h / 2, w, h);
+  }
+
+  // Prawdziwa tekstura organicznej chmury mgławicy (zamiast tylko okrągłych
+  // gradientów) — podbarwiona mocno kolorem sektora, kilka kopii dla gęstości.
+  function nebulaBlob(x, y, r, rgb, alpha, flip) {
+    const img = loadImg(WORLD_BASE + 'nebulaBlob.png');
+    if (!img.complete || img.naturalWidth === 0) return;
+    const sprite = tintedImg(img, rgb, 0.85);
+    const ar = img.naturalWidth / img.naturalHeight;
+    const w = r * 2 * ar, h = r * 2;
+    sctx.globalAlpha = alpha;
+    if (flip) {
+      sctx.save(); sctx.translate(x, y); sctx.scale(-1, 1);
+      sctx.drawImage(sprite, -w / 2, -h / 2, w, h);
+      sctx.restore();
+    } else {
+      sctx.drawImage(sprite, x - w / 2, y - h / 2, w, h);
+    }
+    sctx.globalAlpha = 1;
   }
 
   function galaxy(x, y, r, tilt, rgb) {
@@ -163,6 +184,13 @@ const Space = (() => {
     nebula(W * 0.08, H * 0.85, M * 0.4, nb[4], 0.14);
     nebula(W * 0.95, H * 0.9, M * 0.38, nb[5], 0.10);
 
+    // prawdziwe tekstury chmur mgławicy — organiczny kształt zamiast tylko
+    // okrągłych gradientów, mocno podbarwione kolorami sektora, dla gęstości
+    nebulaBlob(W * 0.28, H * 0.18, M * 0.24, nb[0], 0.16, false);
+    nebulaBlob(W * 0.68, H * 0.58, M * 0.22, nb[2], 0.14, true);
+    nebulaBlob(W * 0.15, H * 0.7, M * 0.2, nb[3], 0.13, false);
+    nebulaBlob(W * 0.82, H * 0.32, M * 0.18, nb[1], 0.12, true);
+
     // droga mleczna — miękkie obłoki wzdłuż ukośnej osi (bez ostrych krawędzi)
     const mcx = W * 0.5, mcy = H * 0.42, mang = -0.5;
     for (let i = 0; i <= 8; i++) {
@@ -176,17 +204,18 @@ const Space = (() => {
     // odległe galaktyki
     galaxy(W * 0.72, H * 0.2, 46, 0.6, '180,150,255');
     galaxy(W * 0.22, H * 0.62, 34, -0.4, '150,200,255');
+    galaxy(W * 0.5, H * 0.85, 26, 0.2, '255,200,190');
 
     // gęstsze gwiazdy wzdłuż drogi mlecznej
     const colors = ['rgba(255,255,255,', 'rgba(255,255,255,', 'rgba(200,225,255,', 'rgba(255,240,210,', 'rgba(255,215,235,'];
-    for (let i = 0; i < 160; i++) {
+    for (let i = 0; i < 200; i++) {
       // punkt blisko ukośnej osi drogi mlecznej
       const t = Math.random();
       const ax = W * (0.05 + t * 0.9), ay = H * (0.75 - t * 0.55) + rnd(-H * 0.09, H * 0.09);
       star(sctx, ax, ay, rnd(0.3, 1.0), '#ffffff', rnd(0.15, 0.6));
     }
-    // pole gwiazd na całym niebie
-    const fieldCount = Math.round(W * H / 2600);
+    // pole gwiazd na całym niebie (gęściej niż wcześniej — więcej "życia" na ekranie)
+    const fieldCount = Math.round(W * H / 1900);
     for (let i = 0; i < fieldCount; i++) {
       const x = Math.random() * W, y = Math.random() * H;
       const r = rnd(0.35, 1.5);
@@ -194,20 +223,28 @@ const Space = (() => {
       star(sctx, x, y, r, c, 1);
     }
     // kilkanaście jasnych gwiazd z poświatą, część z błyskiem
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < 20; i++) {
       const x = Math.random() * W, y = Math.random() * H;
       brightStar(sctx, x, y, rnd(1, 1.8), pick(['rgba(255,255,255,1)', 'rgba(190,220,255,1)', 'rgba(255,235,200,1)', 'rgba(255,200,230,1)']), Math.random() < 0.5);
     }
 
-    // dwa ciała niebieskie w tle — prawdziwe grafiki, różne w każdym sektorze
+    // dwa główne ciała niebieskie w tle — prawdziwe grafiki, różne w każdym sektorze
     const worlds = (theme && theme.worlds) || ['meteorGrey1.png', 'meteorBrown1.png'];
     const accent = nb[0]; // podbarwienie kolorem dominującej mgławicy sektora
     drawWorld(W * 0.84, H * 0.13, 32, worlds[0], accent);
     drawWorld(W * 0.12, H * 0.34, 18, worlds[1], accent);
 
+    // rozrzucone drobne asteroidy w tle — więcej szczegółu, uczucie gęstego pola skał
+    const clutterPool = ['meteorGrey1.png', 'meteorGrey2.png', 'meteorGrey3.png', 'meteorGrey4.png',
+                          'meteorBrown1.png', 'meteorBrown2.png', 'meteorBrown3.png', 'meteorBrown4.png'];
+    for (let i = 0; i < 7; i++) {
+      const cx2 = rnd(0.04, 0.96) * W, cy2 = rnd(0.04, 0.6) * H;
+      drawWorld(cx2, cy2, rnd(5, 11), pick(clutterPool), accent, rnd(0.55, 1));
+    }
+
     // przygotuj elementy animowane (fx)
     twinkle = [];
-    for (let i = 0; i < 42; i++) {
+    for (let i = 0; i < 60; i++) {
       const c = pick(['255,255,255', '190,220,255', '255,235,200', '255,205,230']);
       twinkle.push({
         x: Math.random() * W, y: Math.random() * H,
@@ -216,8 +253,19 @@ const Space = (() => {
       });
     }
     motes = [];
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 20; i++) {
       motes.push({ x: Math.random() * W, y: Math.random() * H, r: rnd(0.6, 1.4), v: rnd(3, 9) });
+    }
+    // drobne, wolno dryfujące statki/satelity w oddali — odrobina życia w tle
+    const trafficPool = ['assets/buildings/drone.png', 'assets/buildings/ship.png', 'assets/buildings/station.png'];
+    traffic = [];
+    for (let i = 0; i < 3; i++) {
+      const dir = Math.random() < 0.5 ? 1 : -1;
+      traffic.push({
+        img: loadImg(pick(trafficPool)),
+        x: Math.random() * W, y: rnd(H * 0.06, H * 0.5),
+        vx: dir * rnd(2, 5), s: rnd(12, 20), a: rnd(0.3, 0.5),
+      });
     }
   }
 
@@ -248,6 +296,20 @@ const Space = (() => {
       m.y -= m.v * 0.016; m.x += Math.sin(t * 0.0006 + m.y) * 0.12;
       if (m.y < -4) { m.y = H + 4; m.x = Math.random() * W; }
       star(fctx, m.x, m.y, m.r, '#bfe0ff', 0.25);
+    }
+    // drobne statki/satelity przelatujące w oddali — tanie (kilka drawImage/klatkę)
+    for (const tr of traffic) {
+      tr.x += tr.vx * 0.4;
+      if (tr.vx > 0 && tr.x - tr.s > W) tr.x = -tr.s;
+      if (tr.vx < 0 && tr.x + tr.s < 0) tr.x = W + tr.s;
+      if (tr.img.complete && tr.img.naturalWidth > 0) {
+        const ar = tr.img.naturalWidth / tr.img.naturalHeight;
+        const w = tr.s, h = tr.s / ar;
+        fctx.globalAlpha = tr.a;
+        if (tr.vx < 0) { fctx.save(); fctx.translate(tr.x, tr.y); fctx.scale(-1, 1); fctx.drawImage(tr.img, -w / 2, -h / 2, w, h); fctx.restore(); }
+        else fctx.drawImage(tr.img, tr.x - w / 2, tr.y - h / 2, w, h);
+        fctx.globalAlpha = 1;
+      }
     }
     // spadające gwiazdy
     for (let i = shooters.length - 1; i >= 0; i--) {

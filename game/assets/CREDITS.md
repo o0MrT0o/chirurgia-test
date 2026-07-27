@@ -19,6 +19,8 @@ przemianowane (bez modyfikacji samej grafiki).
 - Pakiety: „Puzzle Pack" (klejnoty), „Space Shooter Redux" (piorun/gwiazdy), „Medals" (jackpot).
 
 ## Ciała niebieskie w tle (`assets/space/`)
-- Pakiety: „Background Elements Redux" (księżyc, słońce), „Space Shooter Redux" (asteroidy/meteory).
+- Pakiety: „Background Elements Redux" (księżyc, słońce), „Space Shooter Redux" (asteroidy/meteory,
+  tekstura mgławicy `nebulaBlob.png` z archiwalnego „Space shooter assets (retired)").
 - Używane w js/space.js zamiast rysowanych proceduralnie kółek — różne w każdym z 8 sektorów,
-  podbarwione kolorem mgławicy danego sektora dla spójności.
+  podbarwione kolorem mgławicy danego sektora dla spójności. Dodatkowo rozrzucone drobne
+  asteroidy w tle i wolno dryfujące statki (assets/buildings/) dla gęstszej, żywszej sceny.
