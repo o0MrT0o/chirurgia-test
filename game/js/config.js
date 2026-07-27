@@ -146,11 +146,11 @@ const BUILDINGS = [
 // ---------- Ulepszenia (kupowane raz) ----------
 // type: 'click' (mnoży klik) | 'building' (mnoży cps budynku target) | 'global' (mnoży wszystko)
 const UPGRADES = [
-  { id: 'c1', name: 'Wzmocnione rękawice', icon: '🧤', cost: 100,    type: 'click', mult: 2,  desc: 'Klikanie ×2' },
-  { id: 'c2', name: 'Tytanowy kilof',      icon: '⛏️', cost: 2500,   type: 'click', mult: 3,  desc: 'Klikanie ×3' },
-  { id: 'c3', name: 'Plazmowe ostrze',     icon: '🔪', cost: 80000,  type: 'click', mult: 4,  desc: 'Klikanie ×4' },
-  { id: 'c4', name: 'Rękawica mocy',       icon: '🧿', cost: 5e6,    type: 'click', mult: 5,  desc: 'Klikanie ×5' },
-  { id: 'c5', name: 'Dotyk supernowej',    icon: '💥', cost: 4e8,    type: 'click', mult: 10, desc: 'Klikanie ×10' },
+  { id: 'c1', name: 'Wzmocnione rękawice', icon: '🧤', sprite: 'assets/upgrades/mitt.png',     cost: 100,    type: 'click', mult: 2,  desc: 'Klikanie ×2' },
+  { id: 'c2', name: 'Tytanowy kilof',      icon: '⛏️', sprite: 'assets/upgrades/pickaxe.png',  cost: 2500,   type: 'click', mult: 3,  desc: 'Klikanie ×3' },
+  { id: 'c3', name: 'Plazmowe ostrze',     icon: '🔪', sprite: 'assets/upgrades/blade.png',    cost: 80000,  type: 'click', mult: 4,  desc: 'Klikanie ×4' },
+  { id: 'c4', name: 'Rękawica mocy',       icon: '🧿', sprite: 'assets/upgrades/gauntlet.png', cost: 5e6,    type: 'click', mult: 5,  desc: 'Klikanie ×5' },
+  { id: 'c5', name: 'Dotyk supernowej',    icon: '💥', sprite: 'assets/wheel/dust.png',        cost: 4e8,    type: 'click', mult: 10, desc: 'Klikanie ×10' },
   { id: 'b1', name: 'Lepsze akumulatory',  icon: '🔋', cost: 500,    type: 'building', target: 'robot',   mult: 2, desc: 'Astro-górnicy ×2' },
   { id: 'b2', name: 'Diamentowe wiertła',  icon: '💠', cost: 5000,   type: 'building', target: 'drill',   mult: 2, desc: 'Wiertła ×2' },
   { id: 'b3', name: 'Rój dronów',          icon: '🐝', cost: 55000,  type: 'building', target: 'drone',   mult: 2, desc: 'Drony ×2' },
@@ -159,11 +159,22 @@ const UPGRADES = [
   { id: 'b6', name: 'Panele słoneczne XXL',icon: '🔆', cost: 7e7,    type: 'building', target: 'station', mult: 2, desc: 'Stacje ×2' },
   { id: 'b7', name: 'Automatyzacja AI',    icon: '🧠', cost: 1e9,    type: 'building', target: 'factory', mult: 2, desc: 'Fabryki ×2' },
   { id: 'b8', name: 'Stabilizator portali',icon: '🔮', cost: 1.6e10, type: 'building', target: 'portal',  mult: 2, desc: 'Portale ×2' },
-  { id: 'g1', name: 'Kosmiczna kawa',           icon: '☕', cost: 50000, type: 'global', mult: 1.1,  desc: 'Cała produkcja +10%' },
-  { id: 'g2', name: 'Związki zawodowe robotów', icon: '🤝', cost: 5e6,   type: 'global', mult: 1.15, desc: 'Cała produkcja +15%' },
-  { id: 'g3', name: 'Galaktyczna giełda',       icon: '📈', cost: 5e8,   type: 'global', mult: 1.2,  desc: 'Cała produkcja +20%' },
-  { id: 'g4', name: 'Przychylność kosmitów',    icon: '👽', cost: 5e10,  type: 'global', mult: 1.25, desc: 'Cała produkcja +25%' },
+  { id: 'g1', name: 'Kosmiczna kawa',           icon: '☕', sprite: 'assets/upgrades/mug.png',    cost: 50000, type: 'global', mult: 1.1,  desc: 'Cała produkcja +10%' },
+  { id: 'g2', name: 'Związki zawodowe robotów', icon: '🤝', sprite: 'assets/buildings/robot.png', cost: 5e6,   type: 'global', mult: 1.15, desc: 'Cała produkcja +15%' },
+  { id: 'g3', name: 'Galaktyczna giełda',       icon: '📈', sprite: 'assets/upgrades/coin.png',   cost: 5e8,   type: 'global', mult: 1.2,  desc: 'Cała produkcja +20%' },
+  { id: 'g4', name: 'Przychylność kosmitów',    icon: '👽', sprite: 'assets/upgrades/alien.png',  cost: 5e10,  type: 'global', mult: 1.25, desc: 'Cała produkcja +25%' },
 ];
+
+// Ulepszenia budynków (b1-b8) dziedziczą sprite z odpowiedniego budynku —
+// ta sama spójność wizualna co ulepszenia progowe poniżej.
+(function inheritBuildingUpgradeSprites() {
+  for (const u of UPGRADES) {
+    if (u.type === 'building' && !u.sprite) {
+      const b = BUILDINGS.find(x => x.id === u.target);
+      if (b) u.sprite = b.sprite;
+    }
+  }
+})();
 
 // ---------- Ulepszenia progowe (generowane automatycznie) ----------
 // Każdy budynek dostaje ulepszenie ×2 za osiągnięcie progu posiadania
@@ -244,21 +255,21 @@ const SKINS = [
 // Efekty: prod (+% produkcji), click (+% kliku), costDisc (tańsze budynki),
 // cometFreq (częstsze komety) — działają na zawsze po ukończeniu.
 const RESEARCH = [
-  { id: 'r1',  name: 'Analiza spektralna',    icon: '🔬', hours: 0.5, cost: 5000, prod: 0.05,
+  { id: 'r1',  name: 'Analiza spektralna',    icon: '🔬', sprite: 'assets/upgrades/microscope.png', hours: 0.5, cost: 5000, prod: 0.05,
     desc: 'produkcja +5%' },
-  { id: 'r2',  name: 'Geologia asteroid',     icon: '🪨', hours: 1,  cost: 25000, click: 0.5,  req: 'r1',
+  { id: 'r2',  name: 'Geologia asteroid',     icon: '🪨', sprite: 'assets/space/meteorGrey1.png', hours: 1,  cost: 25000, click: 0.5,  req: 'r1',
     desc: 'moc kliku +50%' },
-  { id: 'r3',  name: 'Optymalizacja wierteł', icon: '⚙️', hours: 2,  cost: 150000, prod: 0.10, req: 'r2',
+  { id: 'r3',  name: 'Optymalizacja wierteł', icon: '⚙️', sprite: 'assets/upgrades/drilltool.png', hours: 2,  cost: 150000, prod: 0.10, req: 'r2',
     desc: 'produkcja +10%' },
-  { id: 'r4',  name: 'Nanoroboty',            icon: '🦠', hours: 3,  cost: 1e6,  costDisc: 0.05, req: 'r3',
+  { id: 'r4',  name: 'Nanoroboty',            icon: '🦠', sprite: 'assets/upgrades/roboclaw.png', hours: 3,  cost: 1e6,  costDisc: 0.05, req: 'r3',
     desc: 'budynki tańsze o 5%' },
-  { id: 'r5',  name: 'Krystalografia',        icon: '💎', hours: 4,  cost: 8e6,  prod: 0.15, req: 'r4',
+  { id: 'r5',  name: 'Krystalografia',        icon: '💎', sprite: 'assets/artifacts/art_e1.png', hours: 4,  cost: 8e6,  prod: 0.15, req: 'r4',
     desc: 'produkcja +15%' },
-  { id: 'r6',  name: 'Teoria komet',          icon: '☄️', hours: 5,  cost: 5e7,  cometFreq: 0.15, req: 'r5',
+  { id: 'r6',  name: 'Teoria komet',          icon: '☄️', sprite: 'assets/space/meteorBrown2.png', hours: 5,  cost: 5e7,  cometFreq: 0.15, req: 'r5',
     desc: 'komety częstsze o 15%' },
   { id: 'r7',  name: 'Fizyka kwantowa',       icon: '⚛️', hours: 6,  cost: 4e8,  click: 1, req: 'r6',
     desc: 'moc kliku +100%' },
-  { id: 'r8',  name: 'Astro-ekonomia',        icon: '📊', hours: 8,  cost: 1.5e9, prod: 0.20, req: 'r7',
+  { id: 'r8',  name: 'Astro-ekonomia',        icon: '📊', sprite: 'assets/upgrades/coin.png', hours: 8,  cost: 1.5e9, prod: 0.20, req: 'r7',
     desc: 'produkcja +20%' },
   { id: 'r9',  name: 'Ciemna materia',        icon: '🌌', hours: 10, cost: 1e10, prod: 0.25, req: 'r8',
     desc: 'produkcja +25%' },
@@ -291,25 +302,25 @@ const TALENT_BRANCHES = [
 
 const TALENTS = [
   // — Moc klikania —
-  { id: 'tc1', branch: 'click', name: 'Silne dłonie',    icon: '💪', max: 10, costBase: 1,
+  { id: 'tc1', branch: 'click', name: 'Silne dłonie',    icon: '💪', sprite: 'assets/upgrades/mitt.png', max: 10, costBase: 1,
     desc: '+25% mocy kliku za poziom',                    eff: l => `+${l * 25}% kliku`,          effEn: l => `+${l * 25}% click` },
   { id: 'tc2', branch: 'click', name: 'Echo kliknięcia', icon: '🌊', max: 5,  costBase: 2, req: { talent: 'tc1', level: 5 },
     desc: 'klik daje dodatkowo +1% produkcji/sek. za poziom', eff: l => `+${2 + l}% produkcji/klik`, effEn: l => `+${2 + l}% production/click` },
-  { id: 'tc3', branch: 'click', name: 'Złoty dotyk',     icon: '✨', max: 5,  costBase: 5, req: { talent: 'tc2', level: 3 },
+  { id: 'tc3', branch: 'click', name: 'Złoty dotyk',     icon: '✨', sprite: 'assets/upgrades/coin.png', max: 5,  costBase: 5, req: { talent: 'tc2', level: 3 },
     desc: '+2% szansy na krytyczny klik ×10 za poziom',   eff: l => `${l * 2}% szansy na kryt`,   effEn: l => `${l * 2}% crit chance` },
   // — Produkcja —
-  { id: 'tp1', branch: 'prod', name: 'Wydajne maszyny',    icon: '⚙️', max: 10, costBase: 1,
+  { id: 'tp1', branch: 'prod', name: 'Wydajne maszyny',    icon: '⚙️', sprite: 'assets/buildings/factory.png', max: 10, costBase: 1,
     desc: '+10% całej produkcji za poziom',               eff: l => `+${l * 10}% produkcji`,      effEn: l => `+${l * 10}% production` },
   { id: 'tp2', branch: 'prod', name: 'Tania siła robocza', icon: '🏷️', max: 8, costBase: 2, req: { talent: 'tp1', level: 5 },
     desc: 'budynki tańsze o 2% za poziom',                eff: l => `-${l * 2}% kosztów`,         effEn: l => `-${l * 2}% costs` },
   { id: 'tp3', branch: 'prod', name: 'Synergia',           icon: '🔗', max: 5, costBase: 5, req: { talent: 'tp2', level: 3 },
     desc: '+2% produkcji za każdy posiadany typ budynku, za poziom', eff: l => `+${l * 2}% za typ budynku`, effEn: l => `+${l * 2}% per building type` },
   // — Czas i bonusy —
-  { id: 'tt1', branch: 'time', name: 'Nocna zmiana',  icon: '🌃', max: 8, costBase: 1,
+  { id: 'tt1', branch: 'time', name: 'Nocna zmiana',  icon: '🌃', sprite: 'assets/space/moonFull.png', max: 8, costBase: 1,
     desc: 'zarobki offline lepsze o 5 p.p. za poziom',    eff: l => `offline: ${50 + l * 5}% stawki`, effEn: l => `offline: ${50 + l * 5}% rate` },
-  { id: 'tt2', branch: 'time', name: 'Magnes komet',  icon: '🧲', max: 5, costBase: 2, req: { talent: 'tt1', level: 4 },
+  { id: 'tt2', branch: 'time', name: 'Magnes komet',  icon: '🧲', sprite: 'assets/space/meteorBrown1.png', max: 5, costBase: 2, req: { talent: 'tt1', level: 4 },
     desc: 'komety pojawiają się częściej o 8% za poziom', eff: l => `komety −${l * 8}% odstępu`,  effEn: l => `comets −${l * 8}% interval` },
-  { id: 'tt3', branch: 'time', name: 'Wieczny boost', icon: '🔥', max: 6, costBase: 3, req: { talent: 'tt2', level: 2 },
+  { id: 'tt3', branch: 'time', name: 'Wieczny boost', icon: '🔥', sprite: 'assets/wheel/boost.png', max: 6, costBase: 3, req: { talent: 'tt2', level: 2 },
     desc: 'boost reklamowy dłuższy o 15 s za poziom',     eff: l => `boost: ${120 + l * 15} s`,   effEn: l => `boost: ${120 + l * 15} s` },
 ];
 

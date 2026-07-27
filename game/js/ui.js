@@ -196,10 +196,10 @@ function renderExpeditions(p) {
     const pct = Math.min(100, Math.round((1 - remaining / total) * 100));
     labHtml = remaining <= 0
       ? `<div class="note branchHead">${t('labHead')}</div>
-         <div class="note">${t('labResearchDone', r.icon, nm(r))}</div>
+         <div class="note">${t('labResearchDone', iconHtml(r, 'inlineIcon'), nm(r))}</div>
          <button class="bigBtn gold" id="claimResBtn">${t('labClaim', ds(r))}</button>`
       : `<div class="note branchHead">${t('labHead')}</div>
-         <div class="note">${t('labInProgress', r.icon, nm(r), ds(r))}</div>
+         <div class="note">${t('labInProgress', iconHtml(r, 'inlineIcon'), nm(r), ds(r))}</div>
          <div class="mbar" style="height:10px"><div class="mfill" style="width:${pct}%"></div></div>
          <div class="note">${t('labEnd', fmtCountdown(remaining))}</div>
          <button class="bigBtn gold" id="rushResBtn">${t('watchRush', BALANCE.rushMinutes)}</button>`;
@@ -213,7 +213,7 @@ function renderExpeditions(p) {
             const can = S.crystals >= r.cost;
             const time = durStr(r.hours);
             return `<div class="item ${can ? '' : 'locked'}" data-research="${r.id}">
-              <div class="icon">${r.icon}</div>
+              <div class="icon">${iconHtml(r)}</div>
               <div class="info">
                 <div class="name">${nm(r)} <span class="qty">${time}</span></div>
                 <div class="desc">${ds(r)}</div>
@@ -410,7 +410,7 @@ function renderPrestige(p) {
         ? tr('talentCost', cost)
         : tr('talentReq', nm(reqTalent), t.req.level);
       return `<div class="item ${maxed ? 'bought' : can ? '' : 'locked'}" data-talent="${t.id}">
-        <div class="icon">${t.icon}</div>
+        <div class="icon">${iconHtml(t)}</div>
         <div class="info">
           <div class="name">${nm(t)} <span class="qty">${lvl}/${t.max}</span></div>
           <div class="desc">${ds(t)}${lvl > 0 ? ` • ${tr('nowEff')}: <b>${effOf(t, lvl)}</b>` : ''}</div>

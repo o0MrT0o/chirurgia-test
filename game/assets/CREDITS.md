@@ -20,6 +20,15 @@ przemianowane (bez modyfikacji samej grafiki).
 ## Sprite'y koła fortuny (`assets/wheel/`)
 - Pakiety: „Puzzle Pack" (klejnoty), „Space Shooter Redux" (piorun/gwiazdy), „Medals" (jackpot).
 
+## Sprite'y ulepszeń/talentów/badań (`assets/upgrades/`)
+- Pakiet: „Generic Items" (110+ ikon przedmiotów — rękawica, kilof, nóż, obcęgi,
+  kubek, moneta, mikroskop, wiertarka, chwytak robota) oraz „Platformer assets"
+  (sprite kosmity — ulepszenie „Sojusz Kosmitów"/„Alien Alliance").
+- Używane w Sklepie (zakładka Ulepszenia), drzewku talentów (Prestiż) i liście
+  badań (Laboratorium) zamiast emoji. Część ikon jest dzielona (reużyta) z innych
+  sekcji gry (budynki, koło fortuny, artefakty, tło) — te same pliki, ta sama
+  licencja CC0.
+
 ## Asteroidy/księżyc w tle (`assets/space/`, część Kenney CC0)
 - Pakiety: „Background Elements Redux" (pełny księżyc), „Space Shooter Redux" (asteroidy/meteory,
   tekstura mgławicy `nebulaBlob.png` z archiwalnego „Space shooter assets (retired)").
