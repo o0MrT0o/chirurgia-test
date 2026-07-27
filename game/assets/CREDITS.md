@@ -1,7 +1,9 @@
 # Grafiki / Art credits
 
-Wszystkie grafiki poniżej pochodzą od **Kenney (https://kenney.nl)** i są na
-licencji **CC0 1.0 Universal (Public Domain)** —
+## Kenney (CC0) — większość grafik w grze
+
+Poniższe grafiki pochodzą od **Kenney (https://kenney.nl)** i są na licencji
+**CC0 1.0 Universal (Public Domain)** —
 https://creativecommons.org/publicdomain/zero/1.0/
 CC0 nie wymaga atrybucji; podajemy ją dobrowolnie. Pliki zostały jedynie
 przemianowane (bez modyfikacji samej grafiki).
@@ -18,9 +20,26 @@ przemianowane (bez modyfikacji samej grafiki).
 ## Sprite'y koła fortuny (`assets/wheel/`)
 - Pakiety: „Puzzle Pack" (klejnoty), „Space Shooter Redux" (piorun/gwiazdy), „Medals" (jackpot).
 
-## Ciała niebieskie w tle (`assets/space/`)
-- Pakiety: „Background Elements Redux" (księżyc, słońce), „Space Shooter Redux" (asteroidy/meteory,
+## Asteroidy/księżyc w tle (`assets/space/`, część Kenney CC0)
+- Pakiety: „Background Elements Redux" (pełny księżyc), „Space Shooter Redux" (asteroidy/meteory,
   tekstura mgławicy `nebulaBlob.png` z archiwalnego „Space shooter assets (retired)").
-- Używane w js/space.js zamiast rysowanych proceduralnie kółek — różne w każdym z 8 sektorów,
-  podbarwione kolorem mgławicy danego sektora dla spójności. Dodatkowo rozrzucone drobne
+- Używane w js/space.js zamiast rysowanych proceduralnie kółek. Dodatkowo rozrzucone drobne
   asteroidy w tle i wolno dryfujące statki (assets/buildings/) dla gęstszej, żywszej sceny.
+
+## Planety w tle (`assets/space/`) — UWAGA: inna licencja niż reszta
+
+Osiem prawdziwie renderowanych planet — po jednej „hero" planecie na każdy
+z 8 sektorów (mercury.png, neptune.png, earth.png, mars.png, jupiter.png,
+violetGasGiant.png, uranus.png, saturn.png) — pochodzi z gry open source
+**Endless Sky** (https://github.com/endless-sky/endless-sky, katalog
+`images/planet/`).
+
+Te obrazy są na licencji **CC BY-SA 4.0** (Creative Commons
+Uznanie autorstwa — Na tych samych warunkach) —
+https://creativecommons.org/licenses/by-sa/4.0/
+Autorzy (wg `credits.txt` projektu Endless Sky): Michael Zahniser, Maximilian
+Korber, Iaz Poolar, Matthew Smestad, Amazinite i inni współtwórcy Endless Sky.
+
+**W przeciwieństwie do reszty grafik w tym pliku (CC0), ta licencja WYMAGA
+podania autorstwa** przy dystrybucji gry. Powyższy akapit stanowi tę
+atrybucję — należy go zachować przy publikacji.
