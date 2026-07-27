@@ -205,9 +205,11 @@ body.feverOn::after { box-shadow: inset 0 0 90px 12px #ff5fa066; }
   100% { opacity: 0; transform: translateY(-24px) scale(1); }
 }
 
-/* ===== Cząsteczki przy klikaniu ===== */
+/* ===== Cząsteczki przy klikaniu (prawdziwe grafiki klejnotów) ===== */
 .particle {
-  position: fixed; z-index: 45; pointer-events: none; font-size: 13px;
+  position: fixed; z-index: 45; pointer-events: none;
+  width: 15px; height: 15px; object-fit: contain;
+  filter: drop-shadow(0 1px 3px #0007);
   animation: particleFly .7s ease-out forwards;
 }
 @keyframes particleFly {

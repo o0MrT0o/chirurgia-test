@@ -881,12 +881,17 @@ function updateZonePlate() {
   if (html !== _lastZonePlate) { el.innerHTML = html; _lastZonePlate = html; }
 }
 
+// Prawdziwe grafiki klejnotów (te same błyszczące sprite'y co artefakty) zamiast
+// emoji 💎/✦ — różnokolorowe, więc każdy tryskający pęk wygląda inaczej.
+// Przeglądarka cache'uje identyczne src, więc powtórne tworzenie <img> jest tanie.
+const PARTICLE_GEMS = ['art_c3.png', 'art_t1.png', 'art_e1.png', 'art_e2.png', 'art_i3.png', 'art_m2.png'];
 function spawnParticles(x, y, count) {
   if (_partN > 55) return; // nie mnóż w nieskończoność przy szybkim klikaniu
   for (let i = 0; i < count; i++) {
-    const s = document.createElement('span');
+    const s = document.createElement('img');
     s.className = 'particle';
-    s.textContent = Math.random() < 0.3 ? '💎' : '✦';
+    s.src = 'assets/artifacts/' + PARTICLE_GEMS[Math.floor(Math.random() * PARTICLE_GEMS.length)];
+    s.alt = '';
     const ang = Math.random() * Math.PI * 2;
     const dist = 40 + Math.random() * 60;
     s.style.cssText = `left:${x}px;top:${y}px;`
