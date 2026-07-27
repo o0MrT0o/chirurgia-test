@@ -425,7 +425,7 @@ function renderPrestige(p) {
       ${tr('prestigeIntro', fmt(S.totalEarned), fmt(gain))}
     </div>
     <button class="bigBtn gold" id="prestigeBtn" ${gain < 1 ? 'disabled' : ''}>
-      ${gain >= 1 ? tr('prestigeBtn', fmt(gain)) : tr('prestigeLocked')}
+      ${gain >= 1 ? tr('prestigeBtn', fmt(gain)) : tr('prestigeLocked', fmt(BALANCE.stardustDivisor))}
     </button>
     <div class="note">${tr('talentTree', fmt(S.stardust), S.prestigeCount)}</div>
     ${treeHtml}`;

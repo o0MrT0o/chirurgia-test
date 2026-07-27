@@ -10,7 +10,7 @@ const BALANCE = {
   clickCpsBonus: 0.02,     // klik daje dodatkowo 2% produkcji na sekundę
   offlineRate: 0.5,        // zarobki offline liczone na 50%
   offlineMaxHours: 8,      // maksymalnie 8 h zarobków offline
-  stardustDivisor: 1e7,    // pył = sqrt(zarobki_rundy / ta_liczba)
+  stardustDivisor: 2e5,    // pył = sqrt(zarobki_rundy / ta_liczba); niżej = szybszy, hojniejszy pierwszy prestiż
   achievementBonus: 0.01,  // +1% produkcji za każde osiągnięcie
   adBoostMult: 2,          // boost reklamowy ×2
   adBoostSeconds: 120,     // ...przez 2 minuty

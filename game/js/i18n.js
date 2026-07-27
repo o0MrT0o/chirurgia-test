@@ -52,7 +52,7 @@ const STRINGS = {
     upgBought: '— Kupione ({0}) —', upgToast: '🚀 Kupiono: {0}!',
     // prestige
     prestigeIntro: '✨ <b>Prestiż</b> resetuje kryształy, maszyny i ulepszenia,<br>ale daje <b>gwiezdny pył</b> — wydasz go w drzewku talentów poniżej.<br>Zdobyte w tej rundzie: <b>{0} 💎</b> • pył do zdobycia: <b style="color:#ffd76e">✨ {1}</b>',
-    prestigeBtn: '✨ Prestiż — odbierz {0} pyłu', prestigeLocked: 'Zdobądź min. 10 mln 💎, aby odblokować',
+    prestigeBtn: '✨ Prestiż — odbierz {0} pyłu', prestigeLocked: 'Zdobądź min. {0} 💎, aby odblokować',
     talentTree: '🌟 <b>Drzewko talentów</b> — do wydania: <b style="color:#ffd76e">✨ {0}</b> • prestiże: {1}',
     prestigeSure: '✨ Na pewno?', prestigeSureBody: 'Stracisz kryształy, maszyny i ulepszenia,<br>ale zyskasz <b>{0} pyłu</b> na talenty.<br>Talenty i osiągnięcia zostają!',
     yesReset: 'Tak, resetuj!', notYet: 'Jeszcze nie',
@@ -180,7 +180,7 @@ const STRINGS = {
     upgEmpty: 'Earn crystals and grow your mine to discover new upgrades! 🚀',
     upgBought: '— Owned ({0}) —', upgToast: '🚀 Purchased: {0}!',
     prestigeIntro: '✨ <b>Prestige</b> resets crystals, machines and upgrades,<br>but grants <b>stardust</b> — spend it in the talent tree below.<br>Earned this run: <b>{0} 💎</b> • dust to gain: <b style="color:#ffd76e">✨ {1}</b>',
-    prestigeBtn: '✨ Prestige — claim {0} dust', prestigeLocked: 'Earn at least 10M 💎 to unlock',
+    prestigeBtn: '✨ Prestige — claim {0} dust', prestigeLocked: 'Earn at least {0} 💎 to unlock',
     talentTree: '🌟 <b>Talent tree</b> — to spend: <b style="color:#ffd76e">✨ {0}</b> • prestiges: {1}',
     prestigeSure: '✨ Are you sure?', prestigeSureBody: 'You will lose crystals, machines and upgrades,<br>but gain <b>{0} dust</b> for talents.<br>Talents and achievements stay!',
     yesReset: 'Yes, reset!', notYet: 'Not yet',
