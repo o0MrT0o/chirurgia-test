@@ -256,11 +256,11 @@ const RESEARCH = [
     desc: 'komety częstsze o 15%' },
   { id: 'r7',  name: 'Fizyka kwantowa',       icon: '⚛️', hours: 6,  cost: 4e8,  click: 1, req: 'r6',
     desc: 'moc kliku +100%' },
-  { id: 'r8',  name: 'Astro-ekonomia',        icon: '📊', hours: 8,  cost: 3e9,  prod: 0.20, req: 'r7',
+  { id: 'r8',  name: 'Astro-ekonomia',        icon: '📊', hours: 8,  cost: 1.5e9, prod: 0.20, req: 'r7',
     desc: 'produkcja +20%' },
-  { id: 'r9',  name: 'Ciemna materia',        icon: '🌌', hours: 10, cost: 2e10, prod: 0.25, req: 'r8',
+  { id: 'r9',  name: 'Ciemna materia',        icon: '🌌', hours: 10, cost: 1e10, prod: 0.25, req: 'r8',
     desc: 'produkcja +25%' },
-  { id: 'r10', name: 'Teoria wszystkiego',    icon: '🧠', hours: 12, cost: 1e11, prod: 0.30, click: 1, req: 'r9',
+  { id: 'r10', name: 'Teoria wszystkiego',    icon: '🧠', hours: 12, cost: 5e10, prod: 0.30, click: 1, req: 'r9',
     desc: 'produkcja +30% i moc kliku +100%' },
 ];
 
