@@ -1238,9 +1238,9 @@ nav button.active { box-shadow: inset 0 3px 14px -8px #6ee7ff; }
 }
 .goalFill { display: block; height: 100%; background: linear-gradient(90deg, #6ee7ff, #3ddc84); transition: width .2s; }
 
-/* kombos — nad asteroidą */
+/* kombos — nad asteroidą, poniżej tabliczki sektora (#zonePlate), żeby się nie zlewały */
 #comboMeter {
-  position: absolute; top: 4%; left: 50%; translate: -50% 0; z-index: 4;
+  position: absolute; top: 46px; left: 50%; translate: -50% 0; z-index: 4;
   text-align: center; pointer-events: none;
   opacity: 0; scale: .8; transition: opacity .2s, scale .2s;
 }
