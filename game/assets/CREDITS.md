@@ -17,3 +17,8 @@ przemianowane (bez modyfikacji samej grafiki).
 
 ## Sprite'y koła fortuny (`assets/wheel/`)
 - Pakiety: „Puzzle Pack" (klejnoty), „Space Shooter Redux" (piorun/gwiazdy), „Medals" (jackpot).
+
+## Ciała niebieskie w tle (`assets/space/`)
+- Pakiety: „Background Elements Redux" (księżyc, słońce), „Space Shooter Redux" (asteroidy/meteory).
+- Używane w js/space.js zamiast rysowanych proceduralnie kółek — różne w każdym z 8 sektorów,
+  podbarwione kolorem mgławicy danego sektora dla spójności.

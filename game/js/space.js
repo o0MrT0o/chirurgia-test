@@ -83,28 +83,52 @@ const Space = (() => {
     }
   }
 
-  function planet(x, y, r, c0, c1, c2, ring) {
-    // cień rzucany dla głębi
-    const sh = sctx.createRadialGradient(x, y, r * 0.6, x, y, r * 1.6);
-    sh.addColorStop(0, 'rgba(0,0,0,0.35)'); sh.addColorStop(1, 'rgba(0,0,0,0)');
-    sctx.fillStyle = sh; sctx.fillRect(x - r * 1.6, y - r * 1.6, r * 3.2, r * 3.2);
-    // kula
-    const g = sctx.createRadialGradient(x - r * 0.35, y - r * 0.35, 0, x, y, r);
-    g.addColorStop(0, c0); g.addColorStop(0.5, c1); g.addColorStop(1, c2);
-    sctx.fillStyle = g;
-    sctx.beginPath(); sctx.arc(x, y, r, 0, 7); sctx.fill();
-    // terminator (cień od dołu-prawo)
-    const t = sctx.createRadialGradient(x - r * 0.4, y - r * 0.4, r * 0.2, x + r * 0.3, y + r * 0.3, r * 1.3);
-    t.addColorStop(0, 'rgba(0,0,0,0)'); t.addColorStop(1, 'rgba(0,0,0,0.55)');
-    sctx.fillStyle = t;
-    sctx.beginPath(); sctx.arc(x, y, r, 0, 7); sctx.fill();
-    if (ring) {
-      sctx.save();
-      sctx.translate(x, y); sctx.rotate(-0.4); sctx.scale(1, 0.32);
-      sctx.strokeStyle = 'rgba(180,210,255,0.35)'; sctx.lineWidth = r * 0.18;
-      sctx.beginPath(); sctx.arc(0, 0, r * 1.7, 0, 7); sctx.stroke();
-      sctx.restore();
-    }
+  // ---------- Ciała niebieskie w tle: prawdziwe grafiki (CC0), nie kółka ----------
+  // Ładowane raz i buforowane; różne w każdym sektorze (theme.worlds z config.js).
+  const WORLD_BASE = 'assets/space/';
+  const worldImgCache = {};
+  function worldImg(file) {
+    if (worldImgCache[file]) return worldImgCache[file];
+    const img = new Image();
+    img.decoding = 'async';
+    img.src = WORLD_BASE + file;
+    // Obrazek ładuje się async — gdy skończy, przerysuj niebo (jeśli jeszcze
+    // nie zdążyło go narysować przy pierwszym buildSky()). Tanie, bo dzieje
+    // się to raz na start/zmianę sektora, nie w pętli animacji.
+    img.onload = () => { if (sctx) buildSky(); };
+    worldImgCache[file] = img;
+    return img;
+  }
+
+  // Podbarwienie sprite'a kolorem otoczenia (nebuli sektora) dla spójności —
+  // rysowane raz na małym canvasie i buforowane per (obrazek, kolor).
+  const tintCache = {};
+  function tintedWorld(img, rgb) {
+    const key = img.src + '|' + rgb;
+    if (tintCache[key]) return tintCache[key];
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const cx = c.getContext('2d');
+    cx.drawImage(img, 0, 0);
+    cx.globalCompositeOperation = 'source-atop';
+    cx.fillStyle = `rgba(${rgb},0.22)`;
+    cx.fillRect(0, 0, c.width, c.height);
+    tintCache[key] = c;
+    return c;
+  }
+
+  function drawWorld(x, y, r, file, tintRgb) {
+    const img = worldImg(file);
+    if (!img.complete || img.naturalWidth === 0) return; // jeszcze się ładuje — dorysuje się przy onload
+    // miękki cień/poświata pod ciałem dla głębi (jak wcześniej dla rysowanych planet)
+    const sh = sctx.createRadialGradient(x, y, r * 0.6, x, y, r * 1.7);
+    sh.addColorStop(0, 'rgba(0,0,0,0.3)'); sh.addColorStop(1, 'rgba(0,0,0,0)');
+    sctx.fillStyle = sh; sctx.fillRect(x - r * 1.7, y - r * 1.7, r * 3.4, r * 3.4);
+    const sprite = tintRgb ? tintedWorld(img, tintRgb) : img;
+    // dopasuj proporcje oryginału (nie rozciągaj meteorów do kwadratu — "contain", nie "stretch")
+    const ar = img.naturalWidth / img.naturalHeight;
+    const w = ar >= 1 ? r * 2 : r * 2 * ar, h = ar >= 1 ? r * 2 / ar : r * 2;
+    sctx.drawImage(sprite, x - w / 2, y - h / 2, w, h);
   }
 
   function galaxy(x, y, r, tilt, rgb) {
@@ -175,9 +199,11 @@ const Space = (() => {
       brightStar(sctx, x, y, rnd(1, 1.8), pick(['rgba(255,255,255,1)', 'rgba(190,220,255,1)', 'rgba(255,235,200,1)', 'rgba(255,200,230,1)']), Math.random() < 0.5);
     }
 
-    // dwie planety w tle (ładniej cieniowane)
-    planet(W * 0.84, H * 0.13, 30, '#7ee0d0', '#2a9d8f', '#0e3f39', true);
-    planet(W * 0.12, H * 0.34, 16, '#ffc8a0', '#e07a3f', '#5a2810', false);
+    // dwa ciała niebieskie w tle — prawdziwe grafiki, różne w każdym sektorze
+    const worlds = (theme && theme.worlds) || ['meteorGrey1.png', 'meteorBrown1.png'];
+    const accent = nb[0]; // podbarwienie kolorem dominującej mgławicy sektora
+    drawWorld(W * 0.84, H * 0.13, 32, worlds[0], accent);
+    drawWorld(W * 0.12, H * 0.34, 18, worlds[1], accent);
 
     // przygotuj elementy animowane (fx)
     twinkle = [];

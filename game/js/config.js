@@ -58,24 +58,34 @@ const MILESTONES = [1e6, 1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13, 1e14];
 // zmienia wygląd asteroidy (style z asteroid.js) i tło (theme dla space.js)
 // oraz daje trwały bonus do produkcji (+15% za każdy odkryty sektor).
 // flash = kolor rozbłysku przy wejściu. style musi mieć odpowiednik skin-* w CSS.
+// theme.worlds = [duże ciało, małe ciało] — prawdziwe grafiki (CC0, assets/space/)
+// zamiast rysowanych proceduralnie kółek; różne w każdym sektorze.
 const ZONE_BONUS_PER = 0.15;
 const ZONES = [
   { id: 'z0', name: 'Pas Planetoid', icon: '🪨', reach: 0, style: 'classic', flash: '#8ea0d0',
-    theme: { bg: ['#1c2560', '#101740', '#080d24', '#04060f'], neb: ['120,70,200', '30,120,180', '40,150,150', '190,60,150', '60,90,220', '200,120,90'] } },
+    theme: { bg: ['#1c2560', '#101740', '#080d24', '#04060f'], neb: ['120,70,200', '30,120,180', '40,150,150', '190,60,150', '60,90,220', '200,120,90'],
+      worlds: ['meteorGrey1.png', 'meteorBrown1.png'] } },
   { id: 'z1', name: 'Mgławica Oriona', icon: '🌫️', reach: 2.5e4, style: 'ice', flash: '#7fe3ff',
-    theme: { bg: ['#123050', '#0c2036', '#06121f', '#03080f'], neb: ['40,150,200', '30,120,180', '60,180,200', '80,160,220', '40,120,180', '120,200,230'] } },
+    theme: { bg: ['#123050', '#0c2036', '#06121f', '#03080f'], neb: ['40,150,200', '30,120,180', '60,180,200', '80,160,220', '40,120,180', '120,200,230'],
+      worlds: ['moonFull.png', 'meteorGrey2.png'] } },
   { id: 'z2', name: 'Pola Szmaragdowe', icon: '🟢', reach: 1e6, style: 'emerald', flash: '#5cf0a0',
-    theme: { bg: ['#0e3a2a', '#0a2a1e', '#061a12', '#030d09'], neb: ['40,200,120', '30,160,100', '60,200,140', '80,180,120', '40,150,110', '120,220,160'] } },
+    theme: { bg: ['#0e3a2a', '#0a2a1e', '#061a12', '#030d09'], neb: ['40,200,120', '30,160,100', '60,200,140', '80,180,120', '40,150,110', '120,220,160'],
+      worlds: ['meteorGrey3.png', 'moonFull.png'] } },
   { id: 'z3', name: 'Strefa Wulkaniczna', icon: '🌋', reach: 5e7, style: 'lava', flash: '#ff8a5c',
-    theme: { bg: ['#3a1410', '#2a0e0a', '#1a0806', '#0d0403'], neb: ['220,80,40', '200,60,30', '230,100,50', '200,50,60', '180,70,40', '230,140,90'] } },
+    theme: { bg: ['#3a1410', '#2a0e0a', '#1a0806', '#0d0403'], neb: ['220,80,40', '200,60,30', '230,100,50', '200,50,60', '180,70,40', '230,140,90'],
+      worlds: ['meteorBrown2.png', 'meteorBrown3.png'] } },
   { id: 'z4', name: 'Złote Rubieże', icon: '🟡', reach: 2e9, style: 'gold', flash: '#ffd76e',
-    theme: { bg: ['#3a300f', '#2a220a', '#1a1506', '#0d0a03'], neb: ['220,180,60', '200,150,40', '230,190,80', '200,160,50', '180,140,60', '230,210,120'] } },
+    theme: { bg: ['#3a300f', '#2a220a', '#1a1506', '#0d0a03'], neb: ['220,180,60', '200,150,40', '230,190,80', '200,160,50', '180,140,60', '230,210,120'],
+      worlds: ['sun.png', 'meteorBrown4.png'] } },
   { id: 'z5', name: 'Różowa Turbulencja', icon: '🌸', reach: 8e10, style: 'heart', flash: '#ff8fc8',
-    theme: { bg: ['#3a1030', '#2a0a24', '#1a0616', '#0d030b'], neb: ['220,60,150', '200,50,130', '230,80,170', '200,60,140', '180,50,120', '230,120,190'] } },
+    theme: { bg: ['#3a1030', '#2a0a24', '#1a0616', '#0d030b'], neb: ['220,60,150', '200,50,130', '230,80,170', '200,60,140', '180,50,120', '230,120,190'],
+      worlds: ['moonFull.png', 'meteorGrey4.png'] } },
   { id: 'z6', name: 'Otchłań', icon: '🕳️', reach: 3e12, style: 'void', flash: '#b8a0ff',
-    theme: { bg: ['#1a1040', '#120a2e', '#0a061c', '#04030d'], neb: ['120,80,220', '100,60,190', '140,90,230', '110,60,200', '90,60,180', '160,120,240'] } },
+    theme: { bg: ['#1a1040', '#120a2e', '#0a061c', '#04030d'], neb: ['120,80,220', '100,60,190', '140,90,230', '110,60,200', '90,60,180', '160,120,240'],
+      worlds: ['meteorGrey2.png', 'meteorBrown1.png'] } },
   { id: 'z7', name: 'Gwiezdne Serce', icon: '⭐', reach: 1e14, style: 'star', flash: '#eaf2ff',
-    theme: { bg: ['#20306a', '#141f48', '#0a1030', '#04060f'], neb: ['120,150,255', '90,120,255', '150,180,255', '110,140,255', '90,110,240', '180,200,255'] } },
+    theme: { bg: ['#20306a', '#141f48', '#0a1030', '#04060f'], neb: ['120,150,255', '90,120,255', '150,180,255', '110,140,255', '90,110,240', '180,200,255'],
+      worlds: ['sun.png', 'moonFull.png'] } },
 ];
 
 // ---------- Kalendarz nagród za logowanie (cykl 7-dniowy) ----------
