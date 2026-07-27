@@ -37,6 +37,7 @@ function renderHeader() {
   if (now() < S.frenzyUntil) chips.push(`<span class="boostChip gold">${t('chipFrenzy', BALANCE.frenzyMult, Math.ceil((S.frenzyUntil - now()) / 1000))}</span>`);
   if (now() < S.feverUntil) chips.push(`<span class="boostChip gold">${t('chipFever', BALANCE.feverMult, Math.ceil((S.feverUntil - now()) / 1000))}</span>`);
   if (now() < S.boostUntil) chips.push(`<span class="boostChip">${t('chipBoost', BALANCE.adBoostMult, Math.ceil((S.boostUntil - now()) / 1000))}</span>`);
+  if (now() < S.autoClickUntil) chips.push(`<span class="boostChip">${t('chipAutoClick', Math.ceil((S.autoClickUntil - now()) / 1000))}</span>`);
   const bhtml = chips.join('');
   if (bhtml !== _lastBoost) { $('#boostBar').innerHTML = bhtml; _lastBoost = bhtml; }
 
@@ -658,6 +659,10 @@ function renderBonus(p) {
     <button class="bigBtn gold" id="adBoostBtn" ${now() < S.boostUntil ? 'disabled' : ''}>
       ${now() < S.boostUntil ? t('boostActive', Math.ceil((S.boostUntil - now()) / 1000)) : t('boostWatch', BALANCE.adBoostMult)}
     </button>
+    <div class="note">${t('autoClickHead', BALANCE.autoClickSeconds)}</div>
+    <button class="bigBtn gold" id="autoClickBtn" ${now() < S.autoClickUntil ? 'disabled' : ''}>
+      ${now() < S.autoClickUntil ? t('autoClickActive', Math.ceil((S.autoClickUntil - now()) / 1000)) : t('autoClickWatch', BALANCE.autoClickSeconds)}
+    </button>
     <div class="note">${t('statsHead')}</div>
     <div class="statGrid">
       <div class="stat"><div class="v">${fmt(S.allTimeEarned)} 💎</div><div class="k">${t('stAllTime')}</div></div>
@@ -700,6 +705,8 @@ function renderBonus(p) {
   };
   const a = $('#adBoostBtn');
   if (a && now() >= S.boostUntil) a.onclick = adBoost;
+  const ac = $('#autoClickBtn');
+  if (ac && now() >= S.autoClickUntil) ac.onclick = adAutoClick;
   const wf = $('#wheelFreeBtn');
   if (wf && wheelFreeAvailable()) wf.onclick = () => spinWheel(true);
   const wa = $('#wheelAdBtn');
@@ -889,6 +896,29 @@ function spawnParticles(x, y, count) {
     _partN++;
     setTimeout(() => { s.remove(); _partN--; }, 700);
   }
+}
+
+// Kosmetyczny puls auto-klikacza: dochód liczy się już w tick() (przez upływ
+// czasu, odporne na tło); tu tylko wizualny/dźwiękowy „ktoś tam klika" —
+// zero wpływu na ekonomię, więc jeśli karta jest w tle, po prostu nie widać
+// efektu (nic się nie gubi, bo dochód i tak już naliczony).
+let _lastAutoFx = 0;
+function updateAutoClickFx() {
+  if (now() >= S.autoClickUntil) return;
+  const interval = 1000 / BALANCE.autoClickRate;
+  if (now() - _lastAutoFx < interval) return;
+  _lastAutoFx = now();
+  const ast = $('#asteroid');
+  const img = ast && ast.firstElementChild;
+  if (img && img.animate) {
+    img.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.03)', offset: 0.35 }, { transform: 'scale(1)' }],
+      { duration: 150, easing: 'ease-out' });
+  }
+  const rect = ast ? ast.getBoundingClientRect() : null;
+  const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+  const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 3;
+  spawnParticles(x, y, 2);
+  Sound.click();
 }
 
 function onTap(e) {

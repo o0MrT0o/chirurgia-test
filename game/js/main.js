@@ -12,7 +12,7 @@ function tick() {
   const dt = (now() - lastTick) / 1000;
   lastTick = now();
   const cps = totalCps();
-  earn(cps * dt);
+  earn(cps * dt + autoClickBonus() * dt); // auto-klikacz liczony przez upływ czasu — działa też w tle
   S.playSeconds = (S.playSeconds || 0) + dt;
   if (cps > (S.bestCps || 0)) S.bestCps = cps;
   if (document.hidden) return; // w tle: licz zarobki, ale nie rysuj (oszczędność CPU)
@@ -20,6 +20,7 @@ function tick() {
   updateGoal();
   updateZone();
   updateBadges();
+  updateAutoClickFx(); // kosmetyczny puls + cząsteczki, tylko gdy widoczne
   refreshCombo();
   checkMilestones();
   updateTutorial();

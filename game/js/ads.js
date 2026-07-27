@@ -37,3 +37,12 @@ function adBoost() {
     save();
   });
 }
+
+function adAutoClick() {
+  Ads.showRewarded(() => {
+    S.autoClickUntil = now() + BALANCE.autoClickSeconds * 1000;
+    toast(t('autoClickToast', BALANCE.autoClickSeconds));
+    Sound.buy();
+    save();
+  });
+}

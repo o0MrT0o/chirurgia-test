@@ -14,6 +14,8 @@ const BALANCE = {
   achievementBonus: 0.01,  // +1% produkcji za każde osiągnięcie
   adBoostMult: 2,          // boost reklamowy ×2
   adBoostSeconds: 120,     // ...przez 2 minuty
+  autoClickSeconds: 60,    // auto-klikacz: czas trwania po obejrzeniu reklamy
+  autoClickRate: 2.2,      // auto-klikacz: symulowane kliknięcia/sek (dochód = moc kliku × ta liczba)
   frenzyMult: 7,           // szał komety ×7
   frenzySeconds: 30,       // ...przez 30 sekund
   cometMinDelay: 60,       // kometa: min odstęp (sekundy)

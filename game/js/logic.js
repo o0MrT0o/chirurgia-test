@@ -217,6 +217,13 @@ function cometDelayMult() {
 // Długość boostu reklamowego w sekundach (talent Wieczny boost).
 function boostDuration() { return BALANCE.adBoostSeconds + talentLevel('tt3') * 15; }
 
+// Dodatkowy dochód/sek. z auto-klikacza (symulowane kliknięcia mocą kliku).
+// Liczone przez upływ czasu w tick() — działa poprawnie nawet po zwinięciu
+// aplikacji w tło (tak jak cps), w przeciwieństwie do osobnego interwału.
+function autoClickBonus() {
+  return now() < S.autoClickUntil ? clickPower() * BALANCE.autoClickRate : 0;
+}
+
 // ---------- Bonus dzienny ----------
 function checkDaily() {
   const today = todayStr();
