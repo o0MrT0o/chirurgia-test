@@ -379,6 +379,24 @@ const ACHIEVEMENTS = [
   { id: 'a_arena2', name: 'Mistrz areny',    icon: '🏵️', desc: 'Dotrzyj do fali 15 w Arenie bossów', check: s => (s.arenaBest || 0) >= 15 },
 ];
 
+// ---------- Google Play Games Services ----------
+// Zestaw ID trzeba utworzyć samemu w Google Play Console (Play Games Services
+// -> Osiągnięcia/Rankingi) i wkleić tutaj — poniższe to tylko PLACEHOLDERY.
+// Zsynchronizowany jest celowo tylko wybrany zestaw najbardziej "końcowych"
+// osiągnięć (nie wszystkie 32) — mniej ID do ręcznego założenia w konsoli,
+// a to i tak te, którymi naprawdę warto się pochwalić.
+const GPG_ACHIEVEMENTS = {
+  a_cr3:     'REPLACE_WITH_YOUR_ACHIEVEMENT_ID', // Krezus galaktyki
+  a_b4:      'REPLACE_WITH_YOUR_ACHIEVEMENT_ID', // Galaktyczny potentat
+  a_p2:      'REPLACE_WITH_YOUR_ACHIEVEMENT_ID', // Wieczny powrót
+  a_rebirth: 'REPLACE_WITH_YOUR_ACHIEVEMENT_ID', // Osobliwy początek
+  a_boss2:   'REPLACE_WITH_YOUR_ACHIEVEMENT_ID', // Postrach galaktyki
+  a_art2:    'REPLACE_WITH_YOUR_ACHIEVEMENT_ID', // Kolekcjoner legend
+  a_lab2:    'REPLACE_WITH_YOUR_ACHIEVEMENT_ID', // Geniusz galaktyki
+  a_arena2:  'REPLACE_WITH_YOUR_ACHIEVEMENT_ID', // Mistrz areny
+};
+const GPG_LEADERBOARD_ID = 'REPLACE_WITH_YOUR_LEADERBOARD_ID'; // ranking: łącznie wydobyte kryształy
+
 // Grafiki osiągnięć: medale CC0 (Kenney). Numer medalu rośnie z prestiżem
 // osiągnięcia (brąz → srebro → złoto, z gwiazdką/krzyżem/rozetą).
 (function assignMedals() {

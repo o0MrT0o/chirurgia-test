@@ -12,6 +12,7 @@ w całości na telefonie**, a APK zbuduje za Ciebie automatycznie GitHub Actions
 | `js/state.js` | stan gry, zapis/odczyt (localStorage), formatowanie liczb |
 | `js/logic.js` | silnik: produkcja, zakupy, prestiż, bonus dzienny, offline |
 | `js/ads.js` | warstwa reklam — realny AdMob w APK, symulacja w przeglądarce |
+| `js/playgames.js` | Google Play Games — logowanie, osiągnięcia, ranking, zapis w chmurze |
 | `js/ui.js` | rysowanie: zakładki, panele, efekty, kometa |
 | `js/main.js` | start gry i pętla główna |
 | `css/style.css` | cały wygląd |
@@ -37,6 +38,7 @@ ekran do `ui.js`.
 - [x] **Etap 13** — 🎉 Wydarzenia weekendowe: piątek-niedziela, jeden z 3 typów rotujący co tydzień (kryształy ×2, artefakty ×2, pył z prestiżu ×2) — bez serwera, w pełni po stronie klienta
 - [x] **Etap 14** — 🛡️ Arena bossów: powtarzalny tryb wyzwania — fale coraz silniejszych bossów na czas, osobny rekord, pył tylko za nowe fale ponad rekord
 - [x] **Etap 7** — prawdziwy AdMob podpięty (`@capacitor-community/admob`, testowe ID Google — podmień na własne przed publikacją, patrz sekcja „Reklamy (AdMob)")
+- [x] **Etap 15** — Google Play Games Services podpięte (logowanie, 8 osiągnięć, ranking, zapis w chmurze — wymaga Twojej konfiguracji w Play Console, patrz sekcja niżej); Capacitor podniesiony 6→8 (Node ≥22, Java 21)
 - [ ] **Etap 7b (finał)** — podpisany AAB do publikacji (własny klucz + konto Google Play)
 
 ## 🎮 Mechaniki (zaprojektowane pod długą retencję graczy)
@@ -56,6 +58,7 @@ ekran do `ui.js`.
 | 🌙 Zarobki offline (20%, max 4 h) | gra "pracuje" gdy gracz śpi, ale nie zastępuje aktywnej gry |
 | 🔔 Powiadomienia push | przypominają o wyprawie, badaniu, pełnej kopalni i bonusie — **sprowadzają graczy z powrotem** |
 | 🎬 Reklamy z nagrodą | ×2 zarobki offline, boost ×2 na 2 min — **tu zarabiasz** |
+| 🎮 Google Play Games | logowanie, osiągnięcia, ranking, zapis w chmurze — retencja + social proof |
 
 > Powiadomienia: w przeglądarce działają przez Web Notifications (póki karta
 > żyje), a w APK przez wtyczkę `@capacitor/local-notifications` (dodaną w
@@ -102,6 +105,43 @@ Przed publikacją:
    graczy — gracz sam wybiera, kiedy je oglądać. **Nie klikaj własnych
    prawdziwych reklam** (nawet w testach) — to łamie zasady AdMob i grozi
    banem konta.
+
+## 🎮 Google Play Games Services — podpięte, wymaga Twojego projektu w konsoli
+
+W przeciwieństwie do AdMob, Play Games **nie ma bezpiecznego trybu testowego**
+z gotowymi ID — logowanie i cała reszta zadziała dopiero po Twojej własnej
+konfiguracji w Google Play Console. Do tego czasu wtyczka po prostu nic nie
+robi (żadnych błędów, gra działa normalnie bez tych bonusów).
+
+Warstwa (`js/playgames.js`, obiekt `PlayGames`) przez
+[`@idleflowgames/capacitor-play-games`](https://github.com/idleflowgames/capacitor-play-games):
+- **Ciche logowanie** przy starcie gry (bez okna — działa tylko, jeśli gracz już
+  kiedyś zalogował się w tej grze); pełny ekran logowania to przycisk
+  „Zaloguj się przez Google Play" w Ustawieniach.
+- **Osiągnięcia** — zsynchronizowany jest celowo tylko wybrany zestaw ~8
+  najbardziej „końcowych" osiągnięć (`GPG_ACHIEVEMENTS` w `config.js`), nie
+  wszystkie 32 — mniej ID do ręcznego założenia w konsoli.
+- **Ranking** — jeden, „łącznie wydobyte kryształy" (`GPG_LEADERBOARD_ID`),
+  aktualizowany co ok. 3 minuty w tle.
+- **Zapis w chmurze** — kopia zapasowa co ok. 3 minuty i przy zwinięciu
+  aplikacji; przy świeżej instalacji z zalogowanym kontem gra pyta, czy
+  przywrócić postęp z chmury (localStorage zawsze zostaje głównym, natychmiast
+  zapisywanym źródłem prawdy — chmura to tylko backup/synchronizacja).
+
+Przed publikacją:
+
+1. W [Google Play Console](https://play.google.com/console) skonfiguruj
+   **Play Games Services** dla swojej aplikacji (Growth → Play Games Services →
+   Ustawienia), utwórz osiągnięcia i jeden ranking, skopiuj ich ID.
+2. Podmień w `game/js/config.js`: `GPG_ACHIEVEMENTS` (ID przy każdym kluczu) i
+   `GPG_LEADERBOARD_ID`.
+3. Podmień numer projektu (`000000000000`) w
+   `.github/workflows/build-apk.yml`, krok „Skonfiguruj Google Play Games
+   Services", na prawdziwy z ustawień Play Games Services.
+4. Logowanie działa tylko w buildzie podpisanym tym samym kluczem, który jest
+   zarejestrowany w Play Console (patrz sekcja publikacji niżej) — debug APK
+   z tego workflow **nie zaloguje gracza**, dopóki appka nie trafi choćby do
+   testów wewnętrznych w Play Console z właściwym podpisem.
 
 ## 🏪 Publikacja w Google Play — krok po kroku
 

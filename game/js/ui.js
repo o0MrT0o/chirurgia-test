@@ -1397,6 +1397,14 @@ function showSettings() {
       ${row('setVibro', '📳', t('setVibro'), S.vibrateOn, t('setVibroD'))}
       ${row('setNotif', '🔔', t('setNotif'), S.notifOn, t('setNotifD'))}
     </div>
+    ${IS_NATIVE_PG ? `
+    <div class="note branchHead">${t('gpgHead')}</div>
+    ${PlayGames.isSignedIn() ? `
+      <div class="note">${t('gpgSignedIn')}</div>
+      <button class="bigBtn" id="gpgAchvBtn">${t('gpgShowAchv')}</button>
+      <button class="bigBtn" id="gpgBoardBtn">${t('gpgShowBoard')}</button>
+    ` : `<button class="bigBtn" id="gpgSignInBtn">${t('gpgSignIn')}</button>`}
+    ` : ''}
     <div class="note">${t('backupHead')}</div>
     <div class="saveBtns">
       <button class="bigBtn" id="setExport">${t('exportBtn')}</button>
@@ -1458,6 +1466,16 @@ function showSettings() {
   $('#setExport').onclick = showExportOverlay;
   $('#setImport').onclick = showImportOverlay;
   $('#setReset').onclick = confirmReset;
+  const gpgSignIn = $('#gpgSignInBtn');
+  if (gpgSignIn) gpgSignIn.onclick = async () => {
+    const ok = await PlayGames.signInManually();
+    toast(ok ? t('gpgSignInOk') : t('gpgSignInFail'));
+    showSettings();
+  };
+  const gpgAchv = $('#gpgAchvBtn');
+  if (gpgAchv) gpgAchv.onclick = () => PlayGames.showAchievements();
+  const gpgBoard = $('#gpgBoardBtn');
+  if (gpgBoard) gpgBoard.onclick = () => PlayGames.showLeaderboard();
 }
 
 // Reset z podwójnym potwierdzeniem — usuwa zapis i przeładowuje grę.

@@ -2,7 +2,7 @@
 /* =====================================================================
    MAIN.JS — start gry i pętla główna. Ten plik spina wszystko razem.
    Kolejność ładowania skryptów ustala index.html:
-   config -> state -> logic -> ads -> ui -> main
+   config -> state -> logic -> ads -> playgames -> ui -> main
    ===================================================================== */
 
 // ---------- Pętla gry ----------
@@ -29,6 +29,7 @@ function tick() {
     buzz([40, 60, 40]);
     Sound.fanfare();
     spawnConfetti(18);
+    PlayGames.syncAchievement(a.id);
   }
 }
 
@@ -59,10 +60,12 @@ function wireGame() {
   setInterval(tick, 100);
   setInterval(save, 5000);
   setInterval(() => { if (!document.hidden && !wheelSpinning && ['bonus', 'mine', 'exp'].includes(activeTab)) renderPanel(); }, 2000);
+  // Google Play Games: zapis w chmurze + ranking, rzadko — to nie jest krytyczna ścieżka.
+  setInterval(() => { PlayGames.cloudSave(); PlayGames.submitScore(S.allTimeEarned); }, 180000);
   window.addEventListener('beforeunload', () => { save(); rescheduleNotifications(); });
   document.addEventListener('visibilitychange', () => {
     // W tle: zatrzymaj animację tła (oszczędność), zapisz i zaplanuj powiadomienia.
-    if (document.hidden) { Space.stop(); Music.stop(); save(); rescheduleNotifications(); }
+    if (document.hidden) { Space.stop(); Music.stop(); save(); rescheduleNotifications(); PlayGames.cloudSave(); }
     else { Space.start(); Music.start(); }
   });
 }
@@ -77,7 +80,7 @@ function startGame() {
     ['load3', () => { initTabs(); applyStaticI18n(); applySkin(); Space.setTheme(currentZone().theme); }],
     ['load4', () => { renderHeader(); updateZonePlate(); renderPanel(); }],
     ['load5', () => { scheduleComet(); scheduleRandomEvent(); scheduleBoss(); }],
-    ['load6', () => { wireGame(); Ads.init(); }],
+    ['load6', () => { wireGame(); Ads.init(); PlayGames.init(); }],
   ];
   let i = 0;
   function step() {
