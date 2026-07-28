@@ -43,6 +43,18 @@ przemianowane (bez modyfikacji samej grafiki).
   złota gwiazda (`assets/wheel/dust.png` — Prestiż), medal
   (`assets/achievements/medal4.png` — Sukcesy).
 
+## Sprite'y misji dziennych (`assets/missions/`)
+Świeże pakiety Kenney (jeszcze nieużyte gdzie indziej w grze — żeby ikony misji
+nie powielały grafik z innych zakładek):
+- „Space Shooter Extension" — rakieta (`rocket.png`, misja „Kup ulepszenia").
+- „Abstract Platformer" — niebieski i żółty kryształ (`crystal.png` — misja
+  „Wydobądź kryształy", `comet.png` — misja „Złap złote komety", kolor złoty
+  nawiązuje do koloru samej komety w grze).
+- „UI Pack: Space" — kursor z dłonią (`tap.png`, misja „Kliknij X razy").
+- „Generic Items" — klucz płaski (`wrench.png`, misja „Zbuduj budynki";
+  ten sam pakiet co ikony w Sklepie, ale inny, dotąd nieużyty plik).
+- „Game Icons" — klaps filmowy (`adplay.png`, misja „Obejrzyj reklamę").
+
 ## Asteroidy/księżyc w tle (`assets/space/`, część Kenney CC0)
 - Pakiety: „Background Elements Redux" (pełny księżyc), „Space Shooter Redux" (asteroidy/meteory,
   tekstura mgławicy `nebulaBlob.png` z archiwalnego „Space shooter assets (retired)").

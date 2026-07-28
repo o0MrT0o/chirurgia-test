@@ -547,7 +547,7 @@ function renderMissions() {
       const done = prog >= m.target;
       const pct = Math.round(prog / m.target * 100);
       return `<div class="item ${m.claimed ? 'bought' : done ? 'ready' : ''}" data-mission="${i}">
-        <div class="icon">${mt.icon}</div>
+        <div class="icon">${iconHtml(mt)}</div>
         <div class="info">
           <div class="name">${mt.desc(m.target)}</div>
           <div class="mbar"><div class="mfill" style="width:${pct}%"></div></div>

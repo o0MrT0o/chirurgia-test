@@ -281,13 +281,13 @@ const RESEARCH = [
 // Codziennie losowane są 3 z poniższych typów. counter = licznik dzienny,
 // desc(n) = opis z celem, dynamicTarget = cel liczony z produkcji gracza.
 const MISSION_TYPES = [
-  { id: 'clicks',    icon: '👆', target: 200, counter: 'clicks',    desc: n => t('mis_clicks', fmt(n)) },
-  { id: 'buildings', icon: '🏗️', target: 30,  counter: 'buildings', desc: n => t('mis_buildings', fmt(n)) },
-  { id: 'earn',      icon: '💎', target: 0,   counter: 'earned',    desc: n => t('mis_earn', fmt(n)),
+  { id: 'clicks',    icon: '👆', sprite: 'assets/missions/tap.png',    target: 200, counter: 'clicks',    desc: n => t('mis_clicks', fmt(n)) },
+  { id: 'buildings', icon: '🏗️', sprite: 'assets/missions/wrench.png', target: 30,  counter: 'buildings', desc: n => t('mis_buildings', fmt(n)) },
+  { id: 'earn',      icon: '💎', sprite: 'assets/missions/crystal.png', target: 0,   counter: 'earned',    desc: n => t('mis_earn', fmt(n)),
     dynamicTarget: () => Math.max(10000, totalCps() * 1800) },
-  { id: 'comets',    icon: '☄️', target: 2,   counter: 'comets',    desc: n => t('mis_comets', n) },
-  { id: 'upgrades',  icon: '🚀', target: 2,   counter: 'upgrades',  desc: n => t('mis_upgrades', n) },
-  { id: 'ads',       icon: '🎬', target: 1,   counter: 'ads',       desc: n => t('mis_ads', n) },
+  { id: 'comets',    icon: '☄️', sprite: 'assets/missions/comet.png',  target: 2,   counter: 'comets',    desc: n => t('mis_comets', n) },
+  { id: 'upgrades',  icon: '🚀', sprite: 'assets/missions/rocket.png', target: 2,   counter: 'upgrades',  desc: n => t('mis_upgrades', n) },
+  { id: 'ads',       icon: '🎬', sprite: 'assets/missions/adplay.png', target: 1,   counter: 'ads',       desc: n => t('mis_ads', n) },
 ];
 
 // ---------- Drzewko talentów (kupowane za gwiezdny pył z prestiżu) ----------
