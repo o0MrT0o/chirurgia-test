@@ -344,11 +344,10 @@ header {
 #comet {
   position: fixed; z-index: 60; font-size: 44px; cursor: pointer;
   filter: drop-shadow(0 0 14px #ffd76e);
-  animation: cometFly 12s linear forwards, spin 2s linear infinite;
+  animation: cometFly 12s linear forwards;
   display: none;
 }
 @keyframes cometFly { from { top: 8%; } to { top: 70%; } }
-@keyframes spin { to { rotate: 360deg; } }
 
 /* ===== Deszcz meteorytów ===== */
 .meteor {

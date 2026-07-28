@@ -141,9 +141,11 @@ function buyBuilding(id, n = 1) {
 }
 
 // Czy ulepszenie ma się już pokazać w sklepie?
+// (0.8 = pojawia się dopiero tuż przed tym, jak będzie na nie stać —
+// wcześniej pokazywało duże mnożniki klikania/produkcji za wcześnie).
 function upgradeVisible(u) {
   if (u.req) return (S.buildings[u.req.building] || 0) >= u.req.count;
-  return S.totalEarned >= u.cost * 0.3;
+  return S.totalEarned >= u.cost * 0.8;
 }
 
 function buyUpgrade(id) {
