@@ -34,10 +34,36 @@ jobs:
           cp -r game/* apk-build/www/
           cd apk-build
           npm init -y
-          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/local-notifications@6
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/local-notifications@6 @capacitor-community/admob@6
           npx cap init "Kosmiczny Gornik" "com.mrt.kosmicznygornik" --web-dir=www
           npx cap add android
           npx cap sync android
+
+      - name: Skonfiguruj AdMob (App ID w AndroidManifest.xml)
+        # Testowe App ID Google (bezpieczne do budowania/testowania) — przed
+        # publikacją podmień razem z ID w game/js/ads.js na własne z AdMob.
+        # Zgodnie z dokumentacją wtyczki: meta-data w AndroidManifest.xml
+        # odwołuje się do zasobu string (a nie wpisuje ID wprost).
+        run: |
+          python3 - <<'PYEOF'
+          import re
+          manifest_path = "apk-build/android/app/src/main/AndroidManifest.xml"
+          strings_path = "apk-build/android/app/src/main/res/values/strings.xml"
+
+          with open(manifest_path) as f:
+              xml = f.read()
+          meta = '        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="@string/admob_app_id"/>\n'
+          xml = re.sub(r'(<application[^>]*>)', r'\1\n' + meta, xml, count=1)
+          with open(manifest_path, "w") as f:
+              f.write(xml)
+
+          with open(strings_path) as f:
+              strings = f.read()
+          entry = '    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>\n'
+          strings = strings.replace('</resources>', entry + '</resources>')
+          with open(strings_path, "w") as f:
+              f.write(strings)
+          PYEOF
 
       - name: Wygeneruj ikonę aplikacji na Androida
         run: |

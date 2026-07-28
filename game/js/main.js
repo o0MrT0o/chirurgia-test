@@ -77,7 +77,7 @@ function startGame() {
     ['load3', () => { initTabs(); applyStaticI18n(); applySkin(); Space.setTheme(currentZone().theme); }],
     ['load4', () => { renderHeader(); updateZonePlate(); renderPanel(); }],
     ['load5', () => { scheduleComet(); scheduleRandomEvent(); scheduleBoss(); }],
-    ['load6', () => { wireGame(); }],
+    ['load6', () => { wireGame(); Ads.init(); }],
   ];
   let i = 0;
   function step() {

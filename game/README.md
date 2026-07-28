@@ -11,7 +11,7 @@ w całości na telefonie**, a APK zbuduje za Ciebie automatycznie GitHub Actions
 | `js/config.js` | **cały balans**: budynki, ulepszenia, osiągnięcia, stałe (koszty, mnożniki) |
 | `js/state.js` | stan gry, zapis/odczyt (localStorage), formatowanie liczb |
 | `js/logic.js` | silnik: produkcja, zakupy, prestiż, bonus dzienny, offline |
-| `js/ads.js` | warstwa reklam (`=== ADMOB ===`) — tu podepniesz prawdziwy AdMob |
+| `js/ads.js` | warstwa reklam — realny AdMob w APK, symulacja w przeglądarce |
 | `js/ui.js` | rysowanie: zakładki, panele, efekty, kometa |
 | `js/main.js` | start gry i pętla główna |
 | `css/style.css` | cały wygląd |
@@ -36,7 +36,8 @@ ekran do `ui.js`.
 - [x] **Etap 12** — 🌀 Odrodzenie: druga warstwa prestiżu nad pyłem/talentami — reset wszystkiego (w tym prestiżu) za osobliwości, trwały +20% produkcji/kliku na zawsze za każdą
 - [x] **Etap 13** — 🎉 Wydarzenia weekendowe: piątek-niedziela, jeden z 3 typów rotujący co tydzień (kryształy ×2, artefakty ×2, pył z prestiżu ×2) — bez serwera, w pełni po stronie klienta
 - [x] **Etap 14** — 🛡️ Arena bossów: powtarzalny tryb wyzwania — fale coraz silniejszych bossów na czas, osobny rekord, pył tylko za nowe fale ponad rekord
-- [ ] **Etap 7 (finał)** — prawdziwy AdMob + podpisany AAB do publikacji
+- [x] **Etap 7** — prawdziwy AdMob podpięty (`@capacitor-community/admob`, testowe ID Google — podmień na własne przed publikacją, patrz sekcja „Reklamy (AdMob)")
+- [ ] **Etap 7b (finał)** — podpisany AAB do publikacji (własny klucz + konto Google Play)
 
 ## 🎮 Mechaniki (zaprojektowane pod długą retencję graczy)
 
@@ -75,22 +76,32 @@ ekran do `ui.js`.
    `kosmiczny-gornik-apk` i zainstaluj na telefonie (zezwól na instalację
    z nieznanych źródeł).
 
-## 💰 Podpięcie prawdziwych reklam (AdMob)
+## 💰 Reklamy (AdMob) — już podpięte, zostają 2 kroki przed publikacją
 
-W kodzie warstwa reklam to obiekt `Ads` (szukaj komentarza `=== ADMOB ===`).
-W przeglądarce reklamy są symulowane. Aby zarabiać naprawdę:
+Warstwa reklam (`js/ads.js`, obiekt `Ads`) sama rozpoznaje środowisko:
+- **W przeglądarce** — symulacja (odliczanie 3 s), do testowania bez budowania APK.
+- **W APK** — prawdziwe reklamy z nagrodą przez wtyczkę
+  [`@capacitor-community/admob`](https://github.com/capacitor-community/admob)
+  (już w `npm install` w workflow) — `Ads.init()` inicjalizuje SDK przy starcie,
+  `Ads.showRewarded()` woła `AdMob.showRewardVideoAd()` i odpala nagrodę
+  dopiero w evencie `onRewardedVideoAdReward`. Workflow sam wstrzykuje App ID
+  AdMob do `strings.xml`/`AndroidManifest.xml` (krok „Skonfiguruj AdMob").
+
+Na razie wszędzie są **oficjalne testowe ID Google** — bezpieczne, można
+klikać do woli, ale nigdy nie pokażą prawdziwej reklamy ani nie zarobią.
+Przed publikacją:
 
 1. Załóż konto na [admob.google.com](https://admob.google.com), dodaj aplikację
    i utwórz jednostkę **Rewarded** (reklama z nagrodą).
-2. Do projektu Capacitor (buduje go workflow — możesz go też wygenerować
-   lokalnie na komputerze) dodaj wtyczkę
-   [`@capacitor-community/admob`](https://github.com/capacitor-community/admob):
-   `npm install @capacitor-community/admob`.
-3. W `Ads.showRewarded()` podmień symulację na wywołanie
-   `AdMob.showRewardVideoAd()` z Twoim ID jednostki reklamowej i wywołaj
-   `onReward()` w evencie nagrody.
-4. Reklamy z nagrodą (rewarded) mają najwyższe stawki eCPM i nie irytują
-   graczy — gracz sam wybiera, kiedy je oglądać.
+2. Podmień testowe ID na własne w dwóch miejscach:
+   - `game/js/ads.js` — stałe `ADMOB_REWARDED_ID` (Twoje ID jednostki Rewarded)
+     i `ADMOB_IS_TESTING` (ustaw na `false`).
+   - `.github/workflows/build-apk.yml` — App ID (`ca-app-pub-...~...` z ustawień
+     Twojej aplikacji w AdMob) w kroku „Skonfiguruj AdMob".
+3. Reklamy z nagrodą (rewarded) mają najwyższe stawki eCPM i nie irytują
+   graczy — gracz sam wybiera, kiedy je oglądać. **Nie klikaj własnych
+   prawdziwych reklam** (nawet w testach) — to łamie zasady AdMob i grozi
+   banem konta.
 
 ## 🏪 Publikacja w Google Play — krok po kroku
 
