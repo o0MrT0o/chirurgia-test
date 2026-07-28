@@ -46,6 +46,7 @@ const DEFAULT_STATE = () => ({
   expeditionsDone: 0,   // ukończone wyprawy łącznie
   artifacts: {},        // id artefaktu -> true (kolekcja)
   bossesKilled: 0,      // pokonani bossowie łącznie
+  arenaBest: 0,         // arena bossów: najwyższa ukończona fala (rekord)
   research: null,       // aktywne badanie: { id, end } albo null
   researchDone: {},     // id badania -> true (ukończone)
   skin: 'classic',      // wybrana skórka asteroidy

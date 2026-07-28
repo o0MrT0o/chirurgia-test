@@ -35,6 +35,7 @@ ekran do `ui.js`.
 - [x] **Etap 11** — 10 skórek asteroidy (za pył i warunki: bossowie, serie logowań, kliknięcia, prestiże)
 - [x] **Etap 12** — 🌀 Odrodzenie: druga warstwa prestiżu nad pyłem/talentami — reset wszystkiego (w tym prestiżu) za osobliwości, trwały +20% produkcji/kliku na zawsze za każdą
 - [x] **Etap 13** — 🎉 Wydarzenia weekendowe: piątek-niedziela, jeden z 3 typów rotujący co tydzień (kryształy ×2, artefakty ×2, pył z prestiżu ×2) — bez serwera, w pełni po stronie klienta
+- [x] **Etap 14** — 🛡️ Arena bossów: powtarzalny tryb wyzwania — fale coraz silniejszych bossów na czas, osobny rekord, pył tylko za nowe fale ponad rekord
 - [ ] **Etap 7 (finał)** — prawdziwy AdMob + podpisany AAB do publikacji
 
 ## 🎮 Mechaniki (zaprojektowane pod długą retencję graczy)
@@ -47,7 +48,8 @@ ekran do `ui.js`.
 | ✨ Prestiż (gwiezdny pył) | długoterminowa pętla — reset za trwałe +5%/pyłek |
 | 🌀 Odrodzenie (osobliwości) | endgame — głębszy reset (kasuje też prestiż/talenty/sektor) za +20% na zawsze za sztukę |
 | 🎉 Wydarzenia weekendowe | powód, żeby wracać akurat w piątek/sobotę/niedzielę — inny bonus ×2 co tydzień |
-| 🏆 14 osiągnięć (+1% każde) | cele kolekcjonerskie |
+| 🛡️ Arena bossów | powtarzalne wyzwanie zręcznościowe na żądanie, osobny rekord (fala) |
+| 🏆 32 osiągnięcia (+1% każde) | cele kolekcjonerskie |
 | 🎁 Bonus dzienny z serią logowań | powód, by wracać codziennie |
 | ☄️ Złota kometa (co 1–3 min) | losowe eventy — gracz nie odkłada telefonu |
 | 🌙 Zarobki offline (50%, max 8 h) | gra "pracuje" gdy gracz śpi |

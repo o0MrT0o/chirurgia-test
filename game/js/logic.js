@@ -183,6 +183,7 @@ function doPrestige() {
     bestCps: S.bestCps,
     lastMilestone: S.lastMilestone,
     bestCombo: S.bestCombo,
+    arenaBest: S.arenaBest,
     dailyMissions: S.dailyMissions,
     missionCounters: S.missionCounters,
     missionsCompleted: S.missionsCompleted,
@@ -243,6 +244,7 @@ function doRebirth() {
     playSeconds: S.playSeconds,
     bestCps: S.bestCps,
     bestCombo: S.bestCombo,
+    arenaBest: S.arenaBest,
     loginStreak: S.loginStreak,
     lastLoginDay: S.lastLoginDay,
     dailyClaimed: S.dailyClaimed,
@@ -625,6 +627,35 @@ function grantBossFail() {
   earn(loot);
   save();
   return loot;
+}
+
+// ---------- Arena bossów (tryb wyzwania: fale na czas, bez losowego oczekiwania) ----------
+// Osobna pula od zwykłych bossów: nie liczy się do S.bossesKilled (odblokowań
+// skórek/osiągnięć), a nagroda za falę jest mniejsza niż za zwykłego bossa —
+// to dodatkowa, powtarzalna aktywność oparta na zręczności, nie substytut.
+function arenaWaveHp(wave) {
+  return clickPower() * BALANCE.arenaHpBase * Math.pow(BALANCE.arenaHpGrowth, wave - 1);
+}
+
+function arenaWaveReward() {
+  return Math.max(BALANCE.arenaRewardMin, totalCps() * BALANCE.arenaRewardCps);
+}
+
+// Kończy przebieg areny: pył dostajesz TYLKO za fale ponad dotychczasowy
+// rekord (powtarzanie znanych fal nie daje pyłu — chroni to przed farmieniem).
+// Zwraca { isRecord, dust, newWaves, prevBest }.
+function finishArenaRun(reachedWave) {
+  const prevBest = S.arenaBest || 0;
+  const newWaves = Math.max(0, reachedWave - prevBest);
+  const dust = newWaves * BALANCE.arenaRecordDustPerWave;
+  const isRecord = reachedWave > prevBest;
+  if (isRecord) S.arenaBest = reachedWave;
+  if (dust > 0) {
+    S.stardust += dust;
+    S.totalStardustEarned = (S.totalStardustEarned || 0) + dust;
+  }
+  save();
+  return { isRecord, dust, newWaves, prevBest };
 }
 
 // ---------- Osiągnięcia ----------

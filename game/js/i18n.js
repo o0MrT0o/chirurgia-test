@@ -119,7 +119,7 @@ const STRINGS = {
     stPlaytime: 'czas gry', stClicks: 'kliknięcia', stBestCombo: 'rekord kombosa', stBuildings: 'budynki',
     stUpgrades: 'kupione ulepszenia', stComets: 'złapane komety', stDust: 'pył zdobyty łącznie',
     stTalents: 'poziomy talentów', stPrestige: 'prestiże', stAchv: 'osiągnięcia', stExp: 'ukończone wyprawy',
-    stSingularities: 'osobliwości',
+    stSingularities: 'osobliwości', stArenaBest: 'rekord areny (fala)',
     stArtifacts: 'artefakty', stBosses: 'pokonani bossowie', stStreak: 'seria logowań (dni)',
     stResearch: 'ukończone badania', stMissions: 'wykonane misje',
     settingsHint: '⚙️ Dźwięk, muzyka, powiadomienia i kopia zapasowa są teraz w <b>Ustawieniach</b> (ikona ⚙️ w rogu).',
@@ -139,6 +139,15 @@ const STRINGS = {
     victory: 'Zwycięstwo! 🎉', bossFled: '💨 {0} odleciał... Nagroda pocieszenia: +{0} 💎',
     bossFledMsg: '💨 {0} odleciał... Nagroda pocieszenia: +{1} 💎',
     critMinus: 'KRYT! −', minus: '−',
+    // arena bossów
+    arenaHead: '🛡️ <b>Arena bossów</b> — rekord: fala {0}',
+    arenaIntro: 'Fale coraz silniejszych bossów pod rząd, na czas ({0}s/fala). Nagroda za falę mniejsza niż za zwykłego bossa — ale pył dostajesz za każdą falę <b>powyżej dotychczasowego rekordu</b>.',
+    arenaBtnStart: '🛡️ Wejdź do Areny', arenaBusy: 'Najpierw zakończ obecną walkę',
+    arenaWaveLabel: 'Fala {0}', arenaStart: '🛡️ Arena! Masz {0}s na każdą falę.',
+    arenaWaveWon: '⚔️ Fala {0} pokonana! +{1} 💎', arenaSurrender: 'Poddaj się',
+    arenaSummaryRecord: '🏆 Nowy rekord — fala {0}!', arenaSummaryPlain: 'Koniec — dotarłeś do fali {0}',
+    arenaSummaryBest: 'Rekord: fala {0}', arenaSummaryLoot: 'Zdobyto łącznie: {0} 💎',
+    arenaSummaryDust: '+{0} ✨ za {1} nowych fal!',
     // offline
     welcomeBack: '🌙 Witaj z powrotem!', offlineBody: 'Twoje maszyny pracowały pod Twoją nieobecność i wydobyły:<br><b style="font-size:22px;color:#8ff5ff">{0} 💎</b>',
     watchDouble: '🎬 Obejrzyj reklamę i odbierz ×2', claimPlain: 'Odbierz zwykłą kwotę',
@@ -257,7 +266,7 @@ const STRINGS = {
     stPlaytime: 'play time', stClicks: 'clicks', stBestCombo: 'best combo', stBuildings: 'buildings',
     stUpgrades: 'upgrades bought', stComets: 'comets caught', stDust: 'dust earned total',
     stTalents: 'talent levels', stPrestige: 'prestiges', stAchv: 'achievements', stExp: 'expeditions done',
-    stSingularities: 'singularities',
+    stSingularities: 'singularities', stArenaBest: 'arena record (wave)',
     stArtifacts: 'artifacts', stBosses: 'bosses defeated', stStreak: 'login streak (days)',
     stResearch: 'research done', stMissions: 'missions done',
     settingsHint: '⚙️ Sound, music, notifications and backup are now in <b>Settings</b> (the ⚙️ icon in the corner).',
@@ -273,6 +282,15 @@ const STRINGS = {
     bossDefeated: '⚔️ {0} defeated!', bossDrop: 'The boss dropped an artifact:', bossDup: '{0} <b>{1}</b> — duplicate! +{2} ✨',
     victory: 'Victory! 🎉', bossFledMsg: '💨 {0} flew away... Consolation reward: +{1} 💎',
     critMinus: 'CRIT! −', minus: '−',
+    // boss arena
+    arenaHead: '🛡️ <b>Boss Arena</b> — record: wave {0}',
+    arenaIntro: 'Waves of increasingly tough bosses back to back, on the clock ({0}s/wave). Reward per wave is smaller than a normal boss — but you get dust for every wave <b>beyond your current record</b>.',
+    arenaBtnStart: '🛡️ Enter the Arena', arenaBusy: 'Finish the current fight first',
+    arenaWaveLabel: 'Wave {0}', arenaStart: '🛡️ Arena! You have {0}s per wave.',
+    arenaWaveWon: '⚔️ Wave {0} cleared! +{1} 💎', arenaSurrender: 'Surrender',
+    arenaSummaryRecord: '🏆 New record — wave {0}!', arenaSummaryPlain: 'Run over — reached wave {0}',
+    arenaSummaryBest: 'Record: wave {0}', arenaSummaryLoot: 'Total earned: {0} 💎',
+    arenaSummaryDust: '+{0} ✨ for {1} new waves!',
     welcomeBack: '🌙 Welcome back!', offlineBody: 'Your machines kept working while you were away and mined:<br><b style="font-size:22px;color:#8ff5ff">{0} 💎</b>',
     watchDouble: '🎬 Watch an ad and claim ×2', claimPlain: 'Claim the normal amount',
     tut1: '👆 Tap the asteroid to mine crystals!',
@@ -361,6 +379,7 @@ const EN = {
     a_boss1: 'Colossus Slayer', a_boss2: 'Terror of the Galaxy', a_lab1: 'Young Scientist', a_lab2: 'Galactic Genius',
     a_rebirth: 'Singular Beginning',
     we_crystal: 'Crystal Weekend', we_artifact: 'Artifact Weekend', we_stardust: 'Stardust Weekend',
+    a_arena1: 'Arena Warrior', a_arena2: 'Arena Master',
   },
   descs: {
     // ulepszenia (statyczne)
@@ -393,6 +412,7 @@ const EN = {
     a_lab1: 'Complete 3 research', a_lab2: 'Complete all 10 research',
     a_rebirth: 'Perform your first rebirth',
     we_crystal: 'all production and click power ×{0}', we_artifact: 'artifact chance ×{0}', we_stardust: 'prestige stardust ×{0}',
+    a_arena1: 'Reach wave 5 in the Boss Arena', a_arena2: 'Reach wave 15 in the Boss Arena',
   },
   // warunki skórek
   cond: {

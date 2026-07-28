@@ -697,6 +697,9 @@ function renderBonus(p) {
     <button class="bigBtn gold" id="autoClickBtn" ${now() < S.autoClickUntil ? 'disabled' : ''}>
       ${now() < S.autoClickUntil ? t('autoClickActive', Math.ceil((S.autoClickUntil - now()) / 1000)) : t('autoClickWatch', BALANCE.autoClickSeconds)}
     </button>
+    <div class="note branchHead">${t('arenaHead', S.arenaBest || 0)}</div>
+    <div class="note">${t('arenaIntro', BALANCE.arenaTimePerWave)}</div>
+    <button class="bigBtn purple" id="arenaBtn">${t('arenaBtnStart')}</button>
     <div class="note">${t('statsHead')}</div>
     <div class="statGrid">
       <div class="stat"><div class="v">${fmt(S.allTimeEarned)} 💎</div><div class="k">${t('stAllTime')}</div></div>
@@ -719,6 +722,7 @@ function renderBonus(p) {
       <div class="stat"><div class="v">🧪 ${researchDoneCount()}/${RESEARCH.length}</div><div class="k">${t('stResearch')}</div></div>
       <div class="stat"><div class="v">🎯 ${S.missionsCompleted || 0}</div><div class="k">${t('stMissions')}</div></div>
       <div class="stat"><div class="v">🌀 ${S.singularities || 0}</div><div class="k">${t('stSingularities')}</div></div>
+      <div class="stat"><div class="v">🛡️ ${S.arenaBest || 0}</div><div class="k">${t('stArenaBest')}</div></div>
     </div>
     <div class="note">${t('settingsHint')}</div>`;
   if (panelUnchanged(bonusContent)) return;
@@ -746,6 +750,8 @@ function renderBonus(p) {
   if (wf && wheelFreeAvailable()) wf.onclick = () => spinWheel(true);
   const wa = $('#wheelAdBtn');
   if (wa) wa.onclick = () => Ads.showRewarded(() => spinWheel(false));
+  const ar = $('#arenaBtn');
+  if (ar) ar.onclick = startArena;
   p.querySelectorAll('[data-mission]').forEach(el => el.onclick = () => {
     const res = claimMission(Number(el.dataset.mission));
     if (res) {
@@ -1096,7 +1102,7 @@ function scheduleBoss() {
 }
 
 function spawnBoss() {
-  if (boss) { scheduleBoss(); return; }
+  if (boss || arena) { scheduleBoss(); return; }
   const def = BOSSES[Math.floor(Math.random() * BOSSES.length)];
   boss = { def, maxHp: bossMaxHp(), hp: bossMaxHp(), end: now() + BALANCE.bossTime * 1000 };
   $('#asteroid').style.display = 'none';
@@ -1187,6 +1193,118 @@ function endBoss(won) {
     Sound.lose();
   }
   scheduleBoss();
+}
+
+// ---------- Arena bossów (tryb wyzwania: fale na czas, uruchamiane z zakładki Bonusy) ----------
+// Walka toczy się w #tapArea, który jest widoczny nad każdą zakładką (jak zwykły
+// losowy boss) — nie trzeba przełączać na Kopalnię, gracz widzi ją od razu.
+let arena = null; // { wave, def, hp, maxHp, end, timer, totalLoot } — trwa poza zapisem, jak walka z bossem
+
+function startArena() {
+  if (boss || arena) { toast(t('arenaBusy')); return; }
+  spawnArenaWave(1, 0);
+}
+
+function spawnArenaWave(wave, totalLoot) {
+  const def = BOSSES[(wave - 1) % BOSSES.length];
+  const maxHp = arenaWaveHp(wave);
+  arena = { wave, def, maxHp, hp: maxHp, end: now() + BALANCE.arenaTimePerWave * 1000, totalLoot };
+  $('#asteroid').style.display = 'none';
+  const zp = $('#zonePlate'); if (zp) zp.style.display = 'none';
+  const box = document.createElement('div');
+  box.id = 'bossBox';
+  box.innerHTML = `
+    <div class="bossName arena">🛡️ ${t('arenaWaveLabel', wave)} — ${bossName(def)}</div>
+    <div class="bossBar"><div class="bossHp arena" id="bossHp"></div></div>
+    <div class="bossBar timer"><div class="bossTimer" id="bossTimer"></div></div>
+    <div class="bossFace" id="bossFace">${iconHtml(def, 'bossSprite')}</div>
+    <div class="note">${t('bossHit')}</div>
+    <button class="bigBtn" id="arenaSurrenderBtn" style="margin-top:2px">${t('arenaSurrender')}</button>`;
+  $('#tapArea').appendChild(box);
+  const face = $('#bossFace');
+  face.addEventListener('touchstart', e => { e.preventDefault(); hitArena(e); }, { passive: false });
+  face.addEventListener('mousedown', e => { if (!('ontouchstart' in window)) hitArena(e); });
+  $('#arenaSurrenderBtn').onclick = () => endArenaRun(wave - 1, arena.totalLoot);
+  if (wave === 1) toast(t('arenaStart', BALANCE.arenaTimePerWave));
+  Sound.alarm();
+  buzz([80, 60, 80]);
+  arena.timer = setInterval(updateArenaBars, 100);
+  updateArenaBars();
+}
+
+function updateArenaBars() {
+  if (!arena) return;
+  const hpEl = $('#bossHp'), tEl = $('#bossTimer');
+  if (hpEl) hpEl.style.width = Math.max(0, arena.hp / arena.maxHp * 100) + '%';
+  if (tEl) tEl.style.width = Math.max(0, (arena.end - now()) / (BALANCE.arenaTimePerWave * 1000) * 100) + '%';
+  if (now() >= arena.end && arena.hp > 0) endArenaRun(arena.wave - 1, arena.totalLoot);
+}
+
+function hitArena(e) {
+  if (!arena) return;
+  let dmg = cachedClick;
+  const crit = Math.random() < critChance();
+  if (crit) dmg *= 10;
+  arena.hp -= dmg;
+  S.totalClicks++;
+  missionBump('clicks');
+  Sound.hit();
+  buzz(crit ? 40 : 15);
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) || window.innerWidth / 2;
+  const y = (e.touches ? e.touches[0].clientY : e.clientY) || window.innerHeight / 3;
+  spawnParticles(x, y, crit ? 8 : 2);
+  if (_floatN < 24) {
+    const f = document.createElement('div');
+    f.className = 'floatNum' + (crit ? ' crit' : '');
+    f.textContent = (crit ? t('critMinus') : t('minus')) + fmt(dmg);
+    f.style.left = (x - 20) + 'px';
+    f.style.top = (y - 30) + 'px';
+    document.body.appendChild(f);
+    _floatN++;
+    setTimeout(() => { f.remove(); _floatN--; }, 1000);
+  }
+  const face = $('#bossFace');
+  if (face && face.animate) {
+    face.animate([{ filter: 'brightness(1)' }, { filter: 'brightness(2)', offset: 0.5 }, { filter: 'brightness(1)' }], { duration: 150 });
+  }
+  updateArenaBars();
+  if (arena.hp <= 0) winArenaWave();
+}
+
+function winArenaWave() {
+  clearInterval(arena.timer);
+  const reward = arenaWaveReward();
+  earn(reward);
+  const wave = arena.wave;
+  const totalLoot = arena.totalLoot + reward;
+  const box = $('#bossBox'); if (box) box.remove();
+  Sound.fanfare();
+  buzz([60, 40, 60]);
+  spawnConfetti(10);
+  toast(t('arenaWaveWon', wave, fmt(reward)));
+  arena = null;
+  setTimeout(() => spawnArenaWave(wave + 1, totalLoot), 700);
+}
+
+// Kończy przebieg areny (przegrana fala lub poddanie się). reachedWave = ostatnia W PEŁNI pokonana fala.
+function endArenaRun(reachedWave, totalLoot) {
+  if (!arena) return;
+  clearInterval(arena.timer);
+  arena = null;
+  const box = $('#bossBox'); if (box) box.remove();
+  $('#asteroid').style.display = '';
+  const zp = $('#zonePlate'); if (zp) { zp.style.display = ''; _lastZonePlate = ''; }
+  const res = finishArenaRun(reachedWave);
+  let html = res.isRecord
+    ? `<h2>${t('arenaSummaryRecord', reachedWave)}</h2>`
+    : `<h2>${t('arenaSummaryPlain', reachedWave)}</h2><p>${t('arenaSummaryBest', res.prevBest)}</p>`;
+  html += `<p>${t('arenaSummaryLoot', fmt(totalLoot))}`;
+  if (res.dust > 0) html += `<br><b style="color:#ffd76e">${t('arenaSummaryDust', res.dust, res.newWaves)}</b>`;
+  html += `</p><button class="bigBtn purple" onclick="hideOverlay()">${t('awesome')}</button>`;
+  showOverlay(html);
+  if (res.isRecord) { Sound.fanfare(); spawnConfetti(30); buzz([80, 50, 80, 50, 160]); }
+  else Sound.lose();
+  renderPanel();
 }
 
 // ---------- Okno powitalne (zarobki offline) ----------

@@ -53,6 +53,12 @@ const BALANCE = {
   singularityDivisor: 500, // osobliwość = sqrt(pył_zdobyty_od_ostatniego_odrodzenia / ta_liczba)
   singularityBonus: 0.20,  // +20% całej produkcji/mocy kliku na zawsze za każdą osobliwość
   weekendMult: 2,          // mnożnik wydarzenia weekendowego (piątek-niedziela)
+  arenaTimePerWave: 15,    // arena: sekund na pokonanie fali (krócej niż zwykły boss — więcej napięcia)
+  arenaHpBase: 18,         // arena: HP fali 1 = moc kliku × ta liczba (łatwiejsza niż zwykły boss)
+  arenaHpGrowth: 1.30,     // arena: HP rośnie o tyle razy z każdą kolejną falą
+  arenaRewardCps: 80,      // arena: nagroda za falę = produkcja/sek. × ta liczba (mniej niż zwykły boss)
+  arenaRewardMin: 200,     // ...ale nie mniej niż tyle
+  arenaRecordDustPerWave: 1, // arena: pył za KAŻDĄ falę powyżej dotychczasowego rekordu (tylko przy biciu rekordu)
 };
 
 // ---------- Kamienie milowe (łączne wydobycie) — celebracja przekroczenia ----------
@@ -369,6 +375,8 @@ const ACHIEVEMENTS = [
   { id: 'a_lab1',   name: 'Młody naukowiec',     icon: '🧪', desc: 'Ukończ 3 badania',            check: s => Object.keys(s.researchDone || {}).length >= 3 },
   { id: 'a_lab2',   name: 'Geniusz galaktyki',   icon: '🎓', desc: 'Ukończ wszystkie 10 badań',   check: s => Object.keys(s.researchDone || {}).length >= 10 },
   { id: 'a_rebirth', name: 'Osobliwy początek',  icon: '🌀', desc: 'Wykonaj pierwsze odrodzenie', check: s => (s.rebirthCount || 0) >= 1 },
+  { id: 'a_arena1', name: 'Wojownik areny',  icon: '🛡️', desc: 'Dotrzyj do fali 5 w Arenie bossów',  check: s => (s.arenaBest || 0) >= 5 },
+  { id: 'a_arena2', name: 'Mistrz areny',    icon: '🏵️', desc: 'Dotrzyj do fali 15 w Arenie bossów', check: s => (s.arenaBest || 0) >= 15 },
 ];
 
 // Grafiki osiągnięć: medale CC0 (Kenney). Numer medalu rośnie z prestiżem
@@ -379,7 +387,7 @@ const ACHIEVEMENTS = [
     a_b1: 1, a_b2: 4, a_b3: 5, a_b4: 9, a_p1: 6, a_p2: 7, a_comet: 8, a_streak: 3,
     a_upg1: 2, a_upg2: 5, a_time: 9, a_tal1: 6, a_dust: 7, a_mis1: 4, a_mis2: 5,
     a_exp1: 8, a_exp2: 9, a_art1: 2, a_art2: 3, a_boss1: 4, a_boss2: 7, a_lab1: 8, a_lab2: 9,
-    a_rebirth: 9,
+    a_rebirth: 9, a_arena1: 4, a_arena2: 7,
   };
   for (const a of ACHIEVEMENTS) if (M[a.id]) a.sprite = `assets/achievements/medal${M[a.id]}.png`;
 })();
