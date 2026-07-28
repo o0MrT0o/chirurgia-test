@@ -8,8 +8,8 @@
 const BALANCE = {
   costGrowth: 1.15,        // każdy kolejny budynek droższy o 15%
   clickCpsBonus: 0.02,     // klik daje dodatkowo 2% produkcji na sekundę
-  offlineRate: 0.5,        // zarobki offline liczone na 50%
-  offlineMaxHours: 8,      // maksymalnie 8 h zarobków offline
+  offlineRate: 0.3,        // zarobki offline liczone na 30%
+  offlineMaxHours: 6,      // maksymalnie 6 h zarobków offline
   stardustDivisor: 2e5,    // pył = sqrt(zarobki_rundy / ta_liczba); niżej = szybszy, hojniejszy pierwszy prestiż
   achievementBonus: 0.01,  // +1% produkcji za każde osiągnięcie
   adBoostMult: 2,          // boost reklamowy ×2
@@ -336,7 +336,7 @@ const TALENTS = [
     desc: '+2% produkcji za każdy posiadany typ budynku, za poziom', eff: l => `+${l * 2}% za typ budynku`, effEn: l => `+${l * 2}% per building type` },
   // — Czas i bonusy —
   { id: 'tt1', branch: 'time', name: 'Nocna zmiana',  icon: '🌃', sprite: 'assets/space/moonFull.png', max: 8, costBase: 1,
-    desc: 'zarobki offline lepsze o 5 p.p. za poziom',    eff: l => `offline: ${50 + l * 5}% stawki`, effEn: l => `offline: ${50 + l * 5}% rate` },
+    desc: 'zarobki offline lepsze o 5 p.p. za poziom',    eff: l => `offline: ${30 + l * 5}% stawki`, effEn: l => `offline: ${30 + l * 5}% rate` },
   { id: 'tt2', branch: 'time', name: 'Magnes komet',  icon: '🧲', sprite: 'assets/space/meteorBrown1.png', max: 5, costBase: 2, req: { talent: 'tt1', level: 4 },
     desc: 'komety pojawiają się częściej o 8% za poziom', eff: l => `komety −${l * 8}% odstępu`,  effEn: l => `comets −${l * 8}% interval` },
   { id: 'tt3', branch: 'time', name: 'Wieczny boost', icon: '🔥', sprite: 'assets/wheel/boost.png', max: 6, costBase: 3, req: { talent: 'tt2', level: 2 },
