@@ -1523,10 +1523,10 @@ function applyStaticI18n() {
     const ico = b.querySelector('.ico');
     if (key && ico) b.innerHTML = ico.outerHTML + t(key);
   });
-  const brand = $('#splash h1'); if (brand) brand.innerHTML = '💎 ' + t('brand');
+  const brand = $('#splash h1'); if (brand) brand.innerHTML = t('brand');
   const tag = $('#splash .tagline'); if (tag) tag.textContent = t('tagline');
   const hint = $('#splash .tapHint'); if (hint) hint.textContent = t('tapToPlay');
-  const lbrand = $('#loader h1'); if (lbrand) lbrand.innerHTML = '💎 ' + t('brand');
+  const lbrand = $('#loader h1'); if (lbrand) lbrand.innerHTML = t('brand');
 }
 
 // ---------- Overlay / toast ----------
