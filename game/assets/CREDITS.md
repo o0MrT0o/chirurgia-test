@@ -20,8 +20,13 @@ przemianowane (bez modyfikacji samej grafiki).
   tu użyte — przy rozmiarze ikony listy (34px) ich ciemna, „nocna" strona
   wygląda jak zepsuty obrazek zamiast kolorowej planety.
 
-## Sprite'y bossów (`assets/bosses/`)
-- Pakiet: „Space Shooter Redux" (statki wroga / UFO).
+## Sprite'y bossów (`assets/bosses/`) — UWAGA: inna licencja niż reszta (CC BY-SA 4.0)
+Celowo INNY styl niż reszta gry (malarskie, szczegółowe statki zamiast płaskich
+ikon Kenney) — bossowie mają wyglądać jak coś obcego/groźnego, nie jak kolejny
+przedmiot ze sklepu. Grafiki pochodzą z gry open source **Endless Sky**
+(https://github.com/endless-sky/endless-sky, katalog `images/ship/`), tak jak
+planety w tle poniżej — pełne informacje o licencji i atrybucja w sekcji
+„Planety i statki bossów" niżej.
 
 ## Sprite'y koła fortuny (`assets/wheel/`)
 - Pakiety: „Puzzle Pack" (klejnoty), „Space Shooter Redux" (piorun/gwiazdy), „Medals" (jackpot).
@@ -72,19 +77,27 @@ nie powielały grafik z innych zakładek):
 - Używane w js/space.js zamiast rysowanych proceduralnie kółek. Dodatkowo rozrzucone drobne
   asteroidy w tle i wolno dryfujące statki (assets/buildings/) dla gęstszej, żywszej sceny.
 
-## Planety w tle (`assets/space/`) — UWAGA: inna licencja niż reszta
+## Planety i statki bossów (`assets/space/`, `assets/bosses/`) — UWAGA: inna licencja niż reszta
 
-Osiem prawdziwie renderowanych planet — po jednej „hero" planecie na każdy
-z 8 sektorów (mercury.png, neptune.png, earth.png, mars.png, jupiter.png,
-violetGasGiant.png, uranus.png, saturn.png) — pochodzi z gry open source
-**Endless Sky** (https://github.com/endless-sky/endless-sky, katalog
-`images/planet/`).
+Osiem prawdziwie renderowanych planet w tle — po jednej „hero" planecie na
+każdy z 8 sektorów (mercury.png, neptune.png, earth.png, mars.png, jupiter.png,
+violetGasGiant.png, uranus.png, saturn.png) — oraz pięć statków-bossów
+(`assets/bosses/boss0-4.png`) pochodzą z gry open source **Endless Sky**
+(https://github.com/endless-sky/endless-sky, katalogi `images/planet/` i
+`images/ship/`):
+- boss0 (Obsydianowy Kolos) = `asteroid adult.png`
+- boss1 (Strażnik Pierścieni) = `quarg wyvern.png`
+- boss2 (Piroklast) = `aberrant chomper.png`
+- boss3 (Lodowy Behemot) = `behemoth.png`
+- boss4 (Pożeracz Światów) = `leviathan.png`
 
 Te obrazy są na licencji **CC BY-SA 4.0** (Creative Commons
 Uznanie autorstwa — Na tych samych warunkach) —
 https://creativecommons.org/licenses/by-sa/4.0/
-Autorzy (wg `credits.txt` projektu Endless Sky): Michael Zahniser, Maximilian
-Korber, Iaz Poolar, Matthew Smestad, Amazinite i inni współtwórcy Endless Sky.
+Autorzy (wg `copyright` projektu Endless Sky): planety i boss3/boss4 —
+Michael Zahniser, Maximilian Korber, Iaz Poolar, Matthew Smestad, Amazinite;
+boss0/boss2 — Becca Tommaso; boss1 — 1010todd (na bazie prac Michaela
+Zahnisera, na tej samej licencji).
 
 **W przeciwieństwie do reszty grafik w tym pliku (CC0), ta licencja WYMAGA
 podania autorstwa** przy dystrybucji gry. Powyższy akapit stanowi tę
