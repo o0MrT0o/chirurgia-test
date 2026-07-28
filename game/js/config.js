@@ -50,6 +50,8 @@ const BALANCE = {
   comboWindowMs: 1300,     // okno na utrzymanie kombosa (ms od ostatniego kliknięcia)
   comboBonusPer: 0.03,     // +3% mocy kliku za każdy poziom kombosa
   comboMaxLevel: 50,       // maks. poziom kombosa liczony do bonusu (×2,5 przy 50)
+  singularityDivisor: 500, // osobliwość = sqrt(pył_zdobyty_od_ostatniego_odrodzenia / ta_liczba)
+  singularityBonus: 0.20,  // +20% całej produkcji/mocy kliku na zawsze za każdą osobliwość
 };
 
 // ---------- Kamienie milowe (łączne wydobycie) — celebracja przekroczenia ----------
@@ -355,6 +357,7 @@ const ACHIEVEMENTS = [
   { id: 'a_boss2',  name: 'Postrach galaktyki',  icon: '👑', desc: 'Pokonaj 20 bossów',           check: s => (s.bossesKilled || 0) >= 20 },
   { id: 'a_lab1',   name: 'Młody naukowiec',     icon: '🧪', desc: 'Ukończ 3 badania',            check: s => Object.keys(s.researchDone || {}).length >= 3 },
   { id: 'a_lab2',   name: 'Geniusz galaktyki',   icon: '🎓', desc: 'Ukończ wszystkie 10 badań',   check: s => Object.keys(s.researchDone || {}).length >= 10 },
+  { id: 'a_rebirth', name: 'Osobliwy początek',  icon: '🌀', desc: 'Wykonaj pierwsze odrodzenie', check: s => (s.rebirthCount || 0) >= 1 },
 ];
 
 // Grafiki osiągnięć: medale CC0 (Kenney). Numer medalu rośnie z prestiżem
@@ -365,6 +368,7 @@ const ACHIEVEMENTS = [
     a_b1: 1, a_b2: 4, a_b3: 5, a_b4: 9, a_p1: 6, a_p2: 7, a_comet: 8, a_streak: 3,
     a_upg1: 2, a_upg2: 5, a_time: 9, a_tal1: 6, a_dust: 7, a_mis1: 4, a_mis2: 5,
     a_exp1: 8, a_exp2: 9, a_art1: 2, a_art2: 3, a_boss1: 4, a_boss2: 7, a_lab1: 8, a_lab2: 9,
+    a_rebirth: 9,
   };
   for (const a of ACHIEVEMENTS) if (M[a.id]) a.sprite = `assets/achievements/medal${M[a.id]}.png`;
 })();

@@ -36,6 +36,7 @@ function globalMult() {
   m *= 1 + artifactCount() * BALANCE.artifactBonus;      // kolekcja artefaktów
   m *= researchMult('prod');                             // badania: produkcja
   m *= zoneBonus();                                       // odkryte sektory
+  m *= 1 + (S.singularities || 0) * BALANCE.singularityBonus; // osobliwości (odrodzenie) — na zawsze
   for (const u of UPGRADES) if (S.upgrades[u.id] && u.type === 'global') m *= u.mult;
   if (now() < S.frenzyUntil) m *= BALANCE.frenzyMult;
   if (now() < S.boostUntil) m *= BALANCE.adBoostMult;
@@ -184,6 +185,62 @@ function doPrestige() {
     tutorialStep: S.tutorialStep,
     research: S.research,
     researchDone: S.researchDone,
+    skin: S.skin,
+    skinsBought: S.skinsBought,
+    lastWheelSpinDay: S.lastWheelSpinDay,
+    freeSpins: S.freeSpins,
+    totalSpins: S.totalSpins,
+    singularities: S.singularities,
+    totalSingularitiesEarned: S.totalSingularitiesEarned,
+    rebirthCount: S.rebirthCount,
+    stardustAtLastRebirth: S.stardustAtLastRebirth,
+  };
+  S = Object.assign(DEFAULT_STATE(), keep);
+  save();
+  return gain;
+}
+
+// ---------- Odrodzenie (druga warstwa prestiżu, nad pyłem/talentami) ----------
+// Pył zdobyty od ostatniego odrodzenia (totalStardustEarned nigdy się nie resetuje,
+// więc liczymy różnicę względem migawki sprzed ostatniego odrodzenia).
+function stardustSinceRebirth() {
+  return (S.totalStardustEarned || 0) - (S.stardustAtLastRebirth || 0);
+}
+
+function singularityGain() {
+  return Math.floor(Math.sqrt(stardustSinceRebirth() / BALANCE.singularityDivisor));
+}
+
+function doRebirth() {
+  const gain = singularityGain();
+  if (gain < 1) return 0;
+  const keep = {
+    singularities: (S.singularities || 0) + gain,
+    totalSingularitiesEarned: (S.totalSingularitiesEarned || 0) + gain,
+    rebirthCount: (S.rebirthCount || 0) + 1,
+    stardustAtLastRebirth: S.totalStardustEarned || 0,
+    totalStardustEarned: S.totalStardustEarned || 0, // licznik od początku gry — nie resetujemy
+    achievements: S.achievements,
+    totalClicks: S.totalClicks,
+    cometsCaught: S.cometsCaught,
+    playSeconds: S.playSeconds,
+    bestCps: S.bestCps,
+    bestCombo: S.bestCombo,
+    loginStreak: S.loginStreak,
+    lastLoginDay: S.lastLoginDay,
+    dailyClaimed: S.dailyClaimed,
+    dailyMissions: S.dailyMissions,
+    missionCounters: S.missionCounters,
+    missionsCompleted: S.missionsCompleted,
+    lang: S.lang,
+    soundOn: S.soundOn,
+    musicOn: S.musicOn,
+    vibrateOn: S.vibrateOn,
+    soundVol: S.soundVol,
+    musicVol: S.musicVol,
+    notifOn: S.notifOn,
+    notifAsked: S.notifAsked,
+    tutorialStep: S.tutorialStep,
     skin: S.skin,
     skinsBought: S.skinsBought,
     lastWheelSpinDay: S.lastWheelSpinDay,

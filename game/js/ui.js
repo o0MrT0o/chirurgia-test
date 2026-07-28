@@ -397,6 +397,8 @@ function renderUpgrades(p) {
 // ---------- Zakładka: Prestiż + drzewko talentów ----------
 function renderPrestige(p) {
   const gain = stardustGain();
+  const rGain = singularityGain();
+  const showRebirth = S.prestigeCount >= 1 || (S.singularities || 0) > 0;
 
   const treeHtml = TALENT_BRANCHES.map(br => {
     const rows = TALENTS.filter(t => t.branch === br.id).map(t => {
@@ -429,13 +431,28 @@ function renderPrestige(p) {
       ${gain >= 1 ? tr('prestigeBtn', fmt(gain)) : tr('prestigeLocked', fmt(BALANCE.stardustDivisor))}
     </button>
     <div class="note">${tr('talentTree', fmt(S.stardust), S.prestigeCount)}</div>
-    ${treeHtml}`;
+    ${treeHtml}
+    ${showRebirth ? `
+    <div class="note branchHead">${tr('rebirthHead')}</div>
+    <div class="note">${tr('rebirthIntro', Math.round(BALANCE.singularityBonus * 100), fmt(stardustSinceRebirth()), rGain)}</div>
+    <button class="bigBtn purple" id="rebirthBtn" ${rGain < 1 ? 'disabled' : ''}>
+      ${rGain >= 1 ? tr('rebirthBtn', rGain) : tr('rebirthLocked', fmt(BALANCE.singularityDivisor))}
+    </button>
+    ${(S.singularities || 0) > 0 ? `<div class="note">${tr('rebirthStat', S.singularities, Math.round(S.singularities * BALANCE.singularityBonus * 100), S.rebirthCount || 0)}</div>` : ''}
+    ` : ''}`;
 
   const b = $('#prestigeBtn');
   if (b && gain >= 1) b.onclick = () => showOverlay(`
     <h2>${tr('prestigeSure')}</h2>
     <p>${tr('prestigeSureBody', fmt(gain))}</p>
     <button class="bigBtn gold" onclick="hideOverlay(); uiDoPrestige()">${tr('yesReset')}</button>
+    <button class="bigBtn" onclick="hideOverlay()">${tr('notYet')}</button>`);
+
+  const rb = $('#rebirthBtn');
+  if (rb && rGain >= 1) rb.onclick = () => showOverlay(`
+    <h2>${tr('rebirthSure')}</h2>
+    <p>${tr('rebirthSureBody', rGain)}</p>
+    <button class="bigBtn purple" onclick="hideOverlay(); uiDoRebirth()">${tr('yesReset')}</button>
     <button class="bigBtn" onclick="hideOverlay()">${tr('notYet')}</button>`);
 
   p.querySelectorAll('[data-talent]').forEach(el => el.onclick = () => {
@@ -457,6 +474,17 @@ function uiDoPrestige() {
     Sound.prestige();
     buzz([80, 50, 80, 50, 160]);
     setTimeout(() => { toast(t('prestigeDone', fmt(gain))); spawnConfetti(36); }, 350);
+  }
+  renderPanel();
+}
+
+function uiDoRebirth() {
+  const gain = doRebirth();
+  if (gain > 0) {
+    prestigeCutscene();
+    Sound.prestige();
+    buzz([100, 60, 100, 60, 100, 60, 220]);
+    setTimeout(() => { toast(t('rebirthDone', gain)); spawnConfetti(48); }, 350);
   }
   renderPanel();
 }
@@ -684,6 +712,7 @@ function renderBonus(p) {
       <div class="stat"><div class="v">📅 ${S.loginStreak}</div><div class="k">${t('stStreak')}</div></div>
       <div class="stat"><div class="v">🧪 ${researchDoneCount()}/${RESEARCH.length}</div><div class="k">${t('stResearch')}</div></div>
       <div class="stat"><div class="v">🎯 ${S.missionsCompleted || 0}</div><div class="k">${t('stMissions')}</div></div>
+      <div class="stat"><div class="v">🌀 ${S.singularities || 0}</div><div class="k">${t('stSingularities')}</div></div>
     </div>
     <div class="note">${t('settingsHint')}</div>`;
   if (panelUnchanged(bonusContent)) return;

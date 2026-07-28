@@ -33,6 +33,7 @@ ekran do `ui.js`.
 - [x] **Etap 9** — bossowie-asteroidy: 5 bossów, walka na czas z paskiem HP, nagrody: kryształy + pył + szansa na artefakt
 - [x] **Etap 10** — laboratorium badań: 10 badań czasowych (30 min–12 h) w łańcuchu, trwałe bonusy, skracanie reklamą; zakładka Wyprawy → „Baza"
 - [x] **Etap 11** — 10 skórek asteroidy (za pył i warunki: bossowie, serie logowań, kliknięcia, prestiże)
+- [x] **Etap 12** — 🌀 Odrodzenie: druga warstwa prestiżu nad pyłem/talentami — reset wszystkiego (w tym prestiżu) za osobliwości, trwały +20% produkcji/kliku na zawsze za każdą
 - [ ] **Etap 7 (finał)** — prawdziwy AdMob + podpisany AAB do publikacji
 
 ## 🎮 Mechaniki (zaprojektowane pod długą retencję graczy)
@@ -43,7 +44,8 @@ ekran do `ui.js`.
 | 10 budynków pasywnych | klasyczna pętla idle — rosnące koszty (×1,15) |
 | 17 ulepszeń | cele krótkoterminowe |
 | ✨ Prestiż (gwiezdny pył) | długoterminowa pętla — reset za trwałe +5%/pyłek |
-| 🏆 13 osiągnięć (+1% każde) | cele kolekcjonerskie |
+| 🌀 Odrodzenie (osobliwości) | endgame — głębszy reset (kasuje też prestiż/talenty/sektor) za +20% na zawsze za sztukę |
+| 🏆 14 osiągnięć (+1% każde) | cele kolekcjonerskie |
 | 🎁 Bonus dzienny z serią logowań | powód, by wracać codziennie |
 | ☄️ Złota kometa (co 1–3 min) | losowe eventy — gracz nie odkłada telefonu |
 | 🌙 Zarobki offline (50%, max 8 h) | gra "pracuje" gdy gracz śpi |

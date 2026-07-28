@@ -60,6 +60,13 @@ const STRINGS = {
     talentCost: 'koszt: ✨ {0}', talentReq: '🔒 wymaga: {0} poz. {1}', maxed: 'MAX ✅',
     talentToast: '🌟 {0} → poziom {1} ({2})', prestigeDone: '✨ Prestiż! Zdobyto {0} gwiezdnego pyłu!',
     nowEff: 'teraz',
+    // odrodzenie (druga warstwa prestiżu)
+    rebirthHead: '🌀 <b>Odrodzenie</b> — głębszy reset ponad prestiżem',
+    rebirthIntro: 'Odrodzenie resetuje <b>wszystko</b>: kryształy, budynki, ulepszenia, pył, talenty, sektor, artefakty i badania.<br>W zamian dostajesz <b>osobliwości</b> — trwały bonus <b>+{0}% do całej produkcji i mocy kliku, na zawsze</b>.<br>Pył zdobyty od ostatniego odrodzenia: <b>✨ {1}</b> • osobliwości do zdobycia: <b style="color:#b78bff">🌀 {2}</b>',
+    rebirthBtn: '🌀 Odrodzenie — odbierz {0} osobliwości', rebirthLocked: 'Zdobądź min. {0} ✨ pyłu od ostatniego odrodzenia',
+    rebirthStat: '🌀 <b>Osobliwości: {0}</b> — bonus: +{1}% produkcji i mocy kliku na zawsze • odrodzenia: {2}',
+    rebirthSure: '🌀 Na pewno?', rebirthSureBody: 'Stracisz <b>wszystko</b>: kryształy, budynki, ulepszenia, pył, talenty, sektor, artefakty i badania.<br>Zyskasz <b>{0} osobliwości</b> (trwały bonus na zawsze).<br>Osiągnięcia, skórki i koło fortuny zostają!',
+    rebirthDone: '🌀 Odrodzenie! Zdobyto {0} osobliwości!',
     // skins + achievements
     skinsHead: '🎨 <b>Skórki asteroidy</b> — {0}/{1} • masz ✨ {2}',
     skinSelected: '✅ wybrana', skinTapSelect: 'dotknij, aby wybrać', skinBuy: 'kup: ✨ {0}',
@@ -110,6 +117,7 @@ const STRINGS = {
     stPlaytime: 'czas gry', stClicks: 'kliknięcia', stBestCombo: 'rekord kombosa', stBuildings: 'budynki',
     stUpgrades: 'kupione ulepszenia', stComets: 'złapane komety', stDust: 'pył zdobyty łącznie',
     stTalents: 'poziomy talentów', stPrestige: 'prestiże', stAchv: 'osiągnięcia', stExp: 'ukończone wyprawy',
+    stSingularities: 'osobliwości',
     stArtifacts: 'artefakty', stBosses: 'pokonani bossowie', stStreak: 'seria logowań (dni)',
     stResearch: 'ukończone badania', stMissions: 'wykonane misje',
     settingsHint: '⚙️ Dźwięk, muzyka, powiadomienia i kopia zapasowa są teraz w <b>Ustawieniach</b> (ikona ⚙️ w rogu).',
@@ -192,6 +200,12 @@ const STRINGS = {
     talentCost: 'cost: ✨ {0}', talentReq: '🔒 requires: {0} lvl {1}', maxed: 'MAX ✅',
     talentToast: '🌟 {0} → level {1} ({2})', prestigeDone: '✨ Prestige! Gained {0} stardust!',
     nowEff: 'now',
+    rebirthHead: '🌀 <b>Rebirth</b> — a deeper reset beyond prestige',
+    rebirthIntro: 'Rebirth resets <b>everything</b>: crystals, buildings, upgrades, dust, talents, sector, artifacts and research.<br>In return you get <b>singularities</b> — a permanent <b>+{0}% to all production and click power, forever</b>.<br>Dust earned since your last rebirth: <b>✨ {1}</b> • singularities to gain: <b style="color:#b78bff">🌀 {2}</b>',
+    rebirthBtn: '🌀 Rebirth — claim {0} singularities', rebirthLocked: 'Earn at least {0} ✨ dust since your last rebirth',
+    rebirthStat: '🌀 <b>Singularities: {0}</b> — bonus: +{1}% production and click power forever • rebirths: {2}',
+    rebirthSure: '🌀 Are you sure?', rebirthSureBody: 'You will lose <b>everything</b>: crystals, buildings, upgrades, dust, talents, sector, artifacts and research.<br>You will gain <b>{0} singularities</b> (permanent bonus, forever).<br>Achievements, skins and the wheel of fortune stay!',
+    rebirthDone: '🌀 Rebirth! Gained {0} singularities!',
     skinsHead: '🎨 <b>Asteroid skins</b> — {0}/{1} • you have ✨ {2}',
     skinSelected: '✅ selected', skinTapSelect: 'tap to select', skinBuy: 'buy: ✨ {0}',
     skinToast: '🎨 Skin: {0}!', skinBuyToast: '🎨 Bought the {0} skin for ✨ {1}!',
@@ -239,6 +253,7 @@ const STRINGS = {
     stPlaytime: 'play time', stClicks: 'clicks', stBestCombo: 'best combo', stBuildings: 'buildings',
     stUpgrades: 'upgrades bought', stComets: 'comets caught', stDust: 'dust earned total',
     stTalents: 'talent levels', stPrestige: 'prestiges', stAchv: 'achievements', stExp: 'expeditions done',
+    stSingularities: 'singularities',
     stArtifacts: 'artifacts', stBosses: 'bosses defeated', stStreak: 'login streak (days)',
     stResearch: 'research done', stMissions: 'missions done',
     settingsHint: '⚙️ Sound, music, notifications and backup are now in <b>Settings</b> (the ⚙️ icon in the corner).',
@@ -340,6 +355,7 @@ const EN = {
     a_tal1: 'Student of Stars', a_dust: 'Stardust Alchemist', a_mis1: 'Diligent Contractor', a_mis2: 'Master of Orders',
     a_exp1: 'Explorer', a_exp2: 'System Conqueror', a_art1: 'Space Archaeologist', a_art2: 'Legend Collector',
     a_boss1: 'Colossus Slayer', a_boss2: 'Terror of the Galaxy', a_lab1: 'Young Scientist', a_lab2: 'Galactic Genius',
+    a_rebirth: 'Singular Beginning',
   },
   descs: {
     // ulepszenia (statyczne)
@@ -370,6 +386,7 @@ const EN = {
     a_art1: 'Collect 5 artifacts', a_art2: 'Collect all 15 artifacts',
     a_boss1: 'Defeat 3 bosses', a_boss2: 'Defeat 20 bosses',
     a_lab1: 'Complete 3 research', a_lab2: 'Complete all 10 research',
+    a_rebirth: 'Perform your first rebirth',
   },
   // warunki skórek
   cond: {

@@ -449,6 +449,7 @@ nav button.badge::after {
 }
 .bigBtn:disabled { filter: grayscale(1); opacity: .5; }
 .bigBtn.gold { background: linear-gradient(135deg, #ffd76e, #ff9f43); box-shadow: 0 4px 18px #ff9f4344; }
+.bigBtn.purple { background: linear-gradient(135deg, #d4b3ff, #8b5cf6); box-shadow: 0 4px 18px #8b5cf655; color: #14081f; }
 .note { font-size: 12px; color: #9aa7d9; text-align: center; line-height: 1.5; padding: 4px 8px; }
 
 /* ===== Przełącznik ilości kupna (×1/×10/MAX) ===== */
@@ -622,8 +623,8 @@ nav button.active .ico { transform: translateY(-1px) scale(1.18); }
 /* ===== Przyciski ===== */
 .bigBtn { transition: transform .12s, filter .2s; }
 .bigBtn:active { transform: scale(.97); }
-.bigBtn.gold { position: relative; overflow: hidden; }
-.bigBtn.gold::after {
+.bigBtn.gold, .bigBtn.purple { position: relative; overflow: hidden; }
+.bigBtn.gold::after, .bigBtn.purple::after {
   content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
   background: linear-gradient(100deg, transparent, #ffffff66, transparent);
   animation: btnShine 3.2s ease-in-out infinite;
@@ -1109,13 +1110,14 @@ html.bg-paused #orbitRing,
 html.bg-paused #astGlow,
 html.bg-paused #asteroid,
 html.bg-paused #crystalCount,
-html.bg-paused .bigBtn.gold::after { animation-play-state: paused; }
+html.bg-paused .bigBtn.gold::after,
+html.bg-paused .bigBtn.purple::after { animation-play-state: paused; }
 
 /* ---- 4. Szacunek dla ustawienia „ogranicz ruch" w systemie ---- */
 @media (prefers-reduced-motion: reduce) {
   .star, .sparkStar, .dust, .nebula, .milkyway, .bgPlanet,
   #orbitRing, #astGlow, #crystalCount, #asteroid,
-  .bigBtn.gold::after, .mfill::after, .bossHp::after,
+  .bigBtn.gold::after, .bigBtn.purple::after, .mfill::after, .bossHp::after,
   #panel > .enter { animation: none !important; }
   #crystalCount { background-position: 0 0; }
 }

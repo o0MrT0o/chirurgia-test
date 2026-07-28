@@ -17,6 +17,10 @@ const DEFAULT_STATE = () => ({
   totalStardustEarned: 0, // pył zdobyty łącznie od początku gry
   talents: {},          // id talentu -> poziom
   prestigeCount: 0,
+  singularities: 0,          // waluta odrodzenia (druga warstwa prestiżu, nad pyłem/talentami)
+  totalSingularitiesEarned: 0, // osobliwości zdobyte łącznie od początku gry
+  rebirthCount: 0,
+  stardustAtLastRebirth: 0,  // migawka totalStardustEarned z chwili ostatniego odrodzenia
   cometsCaught: 0,
   loginStreak: 0,
   lastLoginDay: '',
