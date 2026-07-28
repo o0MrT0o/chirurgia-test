@@ -207,11 +207,11 @@ const UPGRADES = [
 // hours = czas wyprawy, unlockEarned = wymagane łączne wydobycie,
 // łup = max(lootMin, produkcja/sek. × lootCps), artChance = szansa na artefakt.
 const PLANETS = [
-  { id: 'ceres',  name: 'Ceres',  icon: '🌑', hours: 0.25, unlockEarned: 0,    lootCps: 900,    lootMin: 3000, artChance: 0.20 },
-  { id: 'mars',   name: 'Mars',   icon: '🔴', hours: 1,    unlockEarned: 1e6,  lootCps: 4000,   lootMin: 5e4,  artChance: 0.30 },
-  { id: 'tytan',  name: 'Tytan',  icon: '🪐', hours: 3,    unlockEarned: 1e8,  lootCps: 14000,  lootMin: 2e6,  artChance: 0.40 },
-  { id: 'europa', name: 'Europa', icon: '🧊', hours: 8,    unlockEarned: 1e10, lootCps: 40000,  lootMin: 1e8,  artChance: 0.50 },
-  { id: 'io',     name: 'Io',     icon: '🌋', hours: 24,   unlockEarned: 1e12, lootCps: 130000, lootMin: 5e9,  artChance: 0.60 },
+  { id: 'ceres',  name: 'Ceres',  icon: '🌑', sprite: 'assets/artifacts/art_c1.png', hours: 0.25, unlockEarned: 0,    lootCps: 900,    lootMin: 3000, artChance: 0.20 },
+  { id: 'mars',   name: 'Mars',   icon: '🔴', sprite: 'assets/artifacts/art_m1.png', hours: 1,    unlockEarned: 1e6,  lootCps: 4000,   lootMin: 5e4,  artChance: 0.30 },
+  { id: 'tytan',  name: 'Tytan',  icon: '🪐', sprite: 'assets/artifacts/art_t1.png', hours: 3,    unlockEarned: 1e8,  lootCps: 14000,  lootMin: 2e6,  artChance: 0.40 },
+  { id: 'europa', name: 'Europa', icon: '🧊', sprite: 'assets/artifacts/art_e1.png', hours: 8,    unlockEarned: 1e10, lootCps: 40000,  lootMin: 1e8,  artChance: 0.50 },
+  { id: 'io',     name: 'Io',     icon: '🌋', sprite: 'assets/artifacts/art_i1.png', hours: 24,   unlockEarned: 1e12, lootCps: 130000, lootMin: 5e9,  artChance: 0.60 },
 ];
 
 // ---------- Artefakty (kolekcja; każdy daje trwały bonus do produkcji) ----------

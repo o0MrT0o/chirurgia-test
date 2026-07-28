@@ -13,6 +13,12 @@ przemianowane (bez modyfikacji samej grafiki).
 
 ## Sprite'y artefaktów (`assets/artifacts/`)
 - Pakiet: „Puzzle Pack" (kolorowe, błyszczące elementy-klejnoty).
+- Te same pliki są reużyte jako ikony celów w zakładce Ekspedycje (Ceres, Mars,
+  Tytan, Europa, Io) — pierwszy artefakt danej planety = jej ikona na liście
+  (spójne kolorystycznie, bo artefakt narracyjnie pochodzi z tej planety).
+  Duże, kinowo cieniowane planety z assets/space/ (Endless Sky) celowo nie są
+  tu użyte — przy rozmiarze ikony listy (34px) ich ciemna, „nocna" strona
+  wygląda jak zepsuty obrazek zamiast kolorowej planety.
 
 ## Sprite'y bossów (`assets/bosses/`)
 - Pakiet: „Space Shooter Redux" (statki wroga / UFO).

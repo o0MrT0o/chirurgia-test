@@ -160,11 +160,11 @@ function renderExpeditions(p) {
     const pct = Math.min(100, Math.round((1 - remaining / total) * 100));
     if (remaining <= 0) {
       topHtml = `
-        <div class="note" style="padding-top:8px">${t('expDone', pl.icon, nm(pl))}</div>
+        <div class="note" style="padding-top:8px">${t('expDone', iconHtml(pl, 'inlineIcon'), nm(pl))}</div>
         <button class="bigBtn gold" id="claimExpBtn">${t('expClaim', fmt(expeditionLoot(pl)))}</button>`;
     } else {
       topHtml = `
-        <div class="note" style="padding-top:8px">${t('expEnRoute', pl.icon, nm(pl))}</div>
+        <div class="note" style="padding-top:8px">${t('expEnRoute', iconHtml(pl, 'inlineIcon'), nm(pl))}</div>
         <div class="mbar" style="height:10px"><div class="mfill" style="width:${pct}%"></div></div>
         <div class="note">${t('expReturn', fmtCountdown(remaining))}</div>
         <button class="bigBtn gold" id="rushExpBtn">${t('watchRush', BALANCE.rushMinutes)}</button>`;
@@ -175,7 +175,7 @@ function renderExpeditions(p) {
         const unlocked = planetUnlocked(pl);
         const time = durStr(pl.hours);
         return `<div class="item ${unlocked ? '' : 'locked'}" ${unlocked ? `data-planet="${pl.id}"` : ''}>
-          <div class="icon">${pl.icon}</div>
+          <div class="icon">${iconHtml(pl)}</div>
           <div class="info">
             <div class="name">${nm(pl)} <span class="qty">${time}</span></div>
             <div class="desc">${unlocked
