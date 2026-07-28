@@ -29,6 +29,14 @@ przemianowane (bez modyfikacji samej grafiki).
   sekcji gry (budynki, koło fortuny, artefakty, tło) — te same pliki, ta sama
   licencja CC0.
 
+## Ikony paska nawigacji (`assets/nav/`)
+- Pakiet: „Holiday Pack" (prezent/present.png — użyty na zakładkę „Bonusy").
+- Pozostałe ikony nawigacji to reużyte pliki z innych sekcji: kilof
+  (`assets/upgrades/pickaxe.png` — Kopalnia), statek (`assets/buildings/ship.png`
+  — Ulepszenia), stacja kosmiczna (`assets/buildings/station.png` — Baza),
+  złota gwiazda (`assets/wheel/dust.png` — Prestiż), medal
+  (`assets/achievements/medal4.png` — Sukcesy).
+
 ## Asteroidy/księżyc w tle (`assets/space/`, część Kenney CC0)
 - Pakiety: „Background Elements Redux" (pełny księżyc), „Space Shooter Redux" (asteroidy/meteory,
   tekstura mgławicy `nebulaBlob.png` z archiwalnego „Space shooter assets (retired)").

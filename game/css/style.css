@@ -406,6 +406,7 @@ nav button {
 }
 nav button.active { color: #fff; border-top-color: #6ee7ff; background: #1a2151aa; }
 nav button .ico { display: block; font-size: 18px; margin-bottom: 2px; }
+nav button .ico .navSprite { width: 20px; height: 20px; object-fit: contain; display: block; margin: 0 auto; filter: drop-shadow(0 1px 2px #0006); }
 /* Znacznik „jest coś do odebrania” — czerwona kropka jak w innych idle. */
 nav button.badge::after {
   content: ''; position: absolute; top: 6px; right: calc(50% - 16px);
