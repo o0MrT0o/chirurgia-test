@@ -58,6 +58,9 @@ i tła (`store-assets/icon-src/icon-foreground.png` /
 `icon-background.png`) do wygenerowania ikony adaptacyjnej Androida.
 Wszystko CC0 Kenney, bez zmian w samych grafikach — tylko ułożone i
 przeskalowane względem siebie.
+- `icon.png` reużyte też na ekranach startowych (`#loader`, `#splash`) zamiast
+  emotikony skały — plus `assets/space/jupiter.png` (Endless Sky, ta sama
+  licencja CC BY-SA co planety w tle) jako subtelna dekoracja w rogu.
 
 ## Sprite'y misji dziennych (`assets/missions/`)
 Świeże pakiety Kenney (jeszcze nieużyte gdzie indziej w grze — żeby ikony misji

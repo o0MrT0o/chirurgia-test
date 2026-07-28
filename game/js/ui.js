@@ -216,7 +216,7 @@ function renderExpeditions(p) {
         : next.map(r => {
             const can = S.crystals >= r.cost;
             const time = durStr(r.hours);
-            return `<div class="item ${can ? '' : 'locked'}" data-research="${r.id}">
+            return `<div class="item ${can ? 'ready' : 'locked'}" data-research="${r.id}">
               <div class="icon">${iconHtml(r)}</div>
               <div class="info">
                 <div class="name">${nm(r)} <span class="qty">${time}</span></div>
@@ -338,7 +338,7 @@ function renderMine(p) {
     const shownQty = Math.max(qty, 1);          // przy MAX=0 pokazujemy koszt 1 szt.
     const cost = bulkCost(b, shownQty);
     const can = qty >= 1 && S.crystals >= cost;
-    return `<div class="item ${can ? '' : 'locked'}" data-buy="${b.id}" data-qty="${shownQty}">
+    return `<div class="item ${can ? 'ready' : 'locked'}" data-buy="${b.id}" data-qty="${shownQty}">
       <div class="icon">${iconHtml(b)}</div>
       <div class="info">
         <div class="name">${nm(b)}${shownQty > 1 ? ` <span class="qty">+${shownQty}</span>` : ''}</div>
@@ -377,7 +377,7 @@ function renderUpgrades(p) {
   const bought = UPGRADES.filter(u => S.upgrades[u.id]);
   p.innerHTML = (list.map(u => {
     const can = S.crystals >= u.cost;
-    return `<div class="item ${can ? '' : 'locked'}" data-upg="${u.id}">
+    return `<div class="item ${can ? 'ready' : 'locked'}" data-upg="${u.id}">
       <div class="icon">${iconHtml(u)}</div>
       <div class="info"><div class="name">${nm(u)}</div><div class="desc">${ds(u)}</div></div>
       <div class="right"><div class="cost ${can ? '' : 'cant'}">${fmt(u.cost)} 💎</div></div>
@@ -415,7 +415,7 @@ function renderPrestige(p) {
       const status = maxed ? '' : unlocked
         ? tr('talentCost', cost)
         : tr('talentReq', nm(reqTalent), t.req.level);
-      return `<div class="item ${maxed ? 'bought' : can ? '' : 'locked'}" data-talent="${t.id}">
+      return `<div class="item ${maxed ? 'bought' : can ? 'ready' : 'locked'}" data-talent="${t.id}">
         <div class="icon">${iconHtml(t)}</div>
         <div class="info">
           <div class="name">${nm(t)} <span class="qty">${lvl}/${t.max}</span></div>
