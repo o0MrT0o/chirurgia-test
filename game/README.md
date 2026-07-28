@@ -52,7 +52,7 @@ ekran do `ui.js`.
 | 🏆 32 osiągnięcia (+1% każde) | cele kolekcjonerskie |
 | 🎁 Bonus dzienny z serią logowań | powód, by wracać codziennie |
 | ☄️ Złota kometa (co 1–3 min) | losowe eventy — gracz nie odkłada telefonu |
-| 🌙 Zarobki offline (50%, max 8 h) | gra "pracuje" gdy gracz śpi |
+| 🌙 Zarobki offline (20%, max 4 h) | gra "pracuje" gdy gracz śpi, ale nie zastępuje aktywnej gry |
 | 🔔 Powiadomienia push | przypominają o wyprawie, badaniu, pełnej kopalni i bonusie — **sprowadzają graczy z powrotem** |
 | 🎬 Reklamy z nagrodą | ×2 zarobki offline, boost ×2 na 2 min — **tu zarabiasz** |
 
