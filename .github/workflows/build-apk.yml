@@ -39,6 +39,16 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Wygeneruj ikonę aplikacji na Androida
+        run: |
+          mkdir -p apk-build/assets
+          cp store-assets/icon-src/icon.png apk-build/assets/icon.png
+          cp store-assets/icon-src/icon-foreground.png apk-build/assets/icon-foreground.png
+          cp store-assets/icon-src/icon-background.png apk-build/assets/icon-background.png
+          cd apk-build
+          npm install @capacitor/assets@3
+          npx capacitor-assets generate --android
+
       - name: Zbuduj APK (debug)
         run: |
           cd apk-build/android

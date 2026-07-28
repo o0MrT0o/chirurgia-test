@@ -54,7 +54,7 @@ const Notify = (() => {
       const delay = n.at - now;
       if (delay <= 0 || delay > 24 * 3600 * 1000) continue; // rozsądny limit dla web
       webTimers[n.id] = setTimeout(() => {
-        try { new Notification(n.title, { body: n.body, icon: 'icon.svg', tag: 'kg' + n.id }); } catch (e) {}
+        try { new Notification(n.title, { body: n.body, icon: 'icon.png', tag: 'kg' + n.id }); } catch (e) {}
       }, delay);
     }
   }

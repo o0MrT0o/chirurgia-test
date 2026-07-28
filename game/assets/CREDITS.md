@@ -43,6 +43,17 @@ przemianowane (bez modyfikacji samej grafiki).
   złota gwiazda (`assets/wheel/dust.png` — Prestiż), medal
   (`assets/achievements/medal4.png` — Sukcesy).
 
+## Ikona aplikacji (`icon.png`, `../store-assets/`)
+Kompozycja: asteroida (nowy plik z „Space Shooter Extension" — większa
+rozdzielczość niż reszta meteorów w grze, żeby ikona była ostra), kryształ
+(`assets/artifacts/art_e1.png`, ten sam co na liście Ekspedycji) i kilof
+(`assets/upgrades/pickaxe.png`, ten sam co w Sklepie i na pasku nawigacji) na
+gradientowym tle w barwach reszty gry. Tło ma osobną warstwę pierwszego planu
+i tła (`store-assets/icon-src/icon-foreground.png` /
+`icon-background.png`) do wygenerowania ikony adaptacyjnej Androida.
+Wszystko CC0 Kenney, bez zmian w samych grafikach — tylko ułożone i
+przeskalowane względem siebie.
+
 ## Sprite'y misji dziennych (`assets/missions/`)
 Świeże pakiety Kenney (jeszcze nieużyte gdzie indziej w grze — żeby ikony misji
 nie powielały grafik z innych zakładek):

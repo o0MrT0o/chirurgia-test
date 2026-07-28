@@ -28,7 +28,7 @@ ekran do `ui.js`.
 - [x] **Etap 3** — duży prestiż: drzewko talentów (3 gałęzie, 9 talentów z poziomami, kryty, rabaty, dłuższe boosty)
 - [x] **Etap 4** — misje dzienne (3/dzień, pył za komplet) + eventy losowe (deszcz meteorytów, gorączka kryształowa)
 - [x] **Etap 5** — ekspedycje na 5 planet (wyprawy czasowe 15 min–24 h, skracanie reklamą) + kolekcja 15 artefaktów
-- [x] **Etap 6** — oprawa: dźwięki WebAudio, ekran startowy, cząsteczki, wstrząs przy krycie, ikona (`icon.svg`)
+- [x] **Etap 6** — oprawa: dźwięki WebAudio, ekran startowy, cząsteczki, wstrząs przy krycie, ikona (`icon.png`)
 - [x] **Etap 8** — tutorial dla nowych graczy + eksport/import zapisu (kopia zapasowa)
 - [x] **Etap 9** — bossowie-asteroidy: 5 bossów, walka na czas z paskiem HP, nagrody: kryształy + pył + szansa na artefakt
 - [x] **Etap 10** — laboratorium badań: 10 badań czasowych (30 min–12 h) w łańcuchu, trwałe bonusy, skracanie reklamą; zakładka Wyprawy → „Baza"
@@ -96,11 +96,14 @@ W przeglądarce reklamy są symulowane. Aby zarabiać naprawdę:
    — klucz trzymaj w GitHub Secrets, nigdy w repo.)
 3. Zmień identyfikator aplikacji `com.mrt.kosmicznygornik` w
    `.github/workflows/build-apk.yml` na własny (musi być unikalny w Google Play).
-4. Przygotuj: ikonę 512×512 (w repo jest gotowa `game/icon.svg` — przekonwertuj
-   na PNG np. na [icon.kitchen](https://icon.kitchen), które od razu wygeneruje
-   też wszystkie rozmiary dla Androida), grafikę promocyjną 1024×500, min. 2
-   zrzuty ekranu, opis i politykę prywatności (wymagana przy AdMob — darmowe
-   generatory online).
+4. Ikona aplikacji jest już gotowa i podpięta automatycznie: workflow
+   `build-apk.yml` generuje z `store-assets/icon-src/` (tło + pierwszy plan +
+   płaska wersja zapasowa) komplet ikon adaptacyjnych dla Androida krokiem
+   „Wygeneruj ikonę aplikacji na Androida" (`@capacitor/assets`). Do samego
+   wpisu w Google Play Console wgraj gotowy `store-assets/icon-512.png`
+   (dokładnie 512×512, wymagany format). Do przygotowania: grafika promocyjna
+   1024×500, min. 2 zrzuty ekranu, opis i polityka prywatności (wymagana przy
+   AdMob — darmowe generatory online).
 
 ## ⚖️ Balans gry
 
