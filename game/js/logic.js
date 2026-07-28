@@ -27,6 +27,21 @@ function talentLevelsTotal() {
   return Object.values(S.talents).reduce((a, b) => a + b, 0);
 }
 
+// ---------- Wydarzenia weekendowe ----------
+// Piątek/sobota/niedziela (czas lokalny) — jeden z 3 typów, rotujący co tydzień.
+// W pełni deterministyczne (numer tygodnia w roku), więc nie trzeba serwera.
+const WEEKEND_DAYS = { 5: 2, 6: 1, 0: 0 }; // dzień tygodnia -> ile dni do końca (niedziela 23:59)
+function activeWeekendEvent() {
+  const day = new Date().getDay();
+  if (!(day in WEEKEND_DAYS)) return null;
+  const weekNum = Math.floor(now() / (7 * 24 * 3600 * 1000));
+  return WEEKEND_EVENTS[weekNum % WEEKEND_EVENTS.length];
+}
+function weekendEventOfType(type) {
+  const ev = activeWeekendEvent();
+  return ev && ev.type === type ? ev : null;
+}
+
 // ---------- Produkcja ----------
 function globalMult() {
   let m = 1 + Object.keys(S.achievements).length * BALANCE.achievementBonus;
@@ -40,6 +55,7 @@ function globalMult() {
   for (const u of UPGRADES) if (S.upgrades[u.id] && u.type === 'global') m *= u.mult;
   if (now() < S.frenzyUntil) m *= BALANCE.frenzyMult;
   if (now() < S.boostUntil) m *= BALANCE.adBoostMult;
+  if (weekendEventOfType('crystal')) m *= BALANCE.weekendMult;   // Kryształowy Weekend
   return m;
 }
 
@@ -143,7 +159,8 @@ function buyUpgrade(id) {
 
 // ---------- Prestiż ----------
 function stardustGain() {
-  return Math.floor(Math.sqrt(S.totalEarned / BALANCE.stardustDivisor));
+  const base = Math.sqrt(S.totalEarned / BALANCE.stardustDivisor);
+  return Math.floor(base * (weekendEventOfType('stardust') ? BALANCE.weekendMult : 1));
 }
 
 function doPrestige() {
@@ -479,7 +496,8 @@ function claimExpedition() {
   earn(loot);
   S.expeditionsDone = (S.expeditionsDone || 0) + 1;
   let artifact = null, duplicate = false, dust = 0;
-  if (Math.random() < pl.artChance) {
+  const artChance = pl.artChance * (weekendEventOfType('artifact') ? BALANCE.weekendMult : 1);
+  if (Math.random() < artChance) {
     const pool = ARTIFACTS.filter(a => a.planet === pl.id);
     artifact = pool[Math.floor(Math.random() * pool.length)];
     if (S.artifacts[artifact.id]) {
@@ -582,7 +600,8 @@ function grantBossWin() {
   S.stardust += BALANCE.bossDust;
   S.totalStardustEarned = (S.totalStardustEarned || 0) + BALANCE.bossDust;
   let artifact = null, duplicate = false;
-  if (Math.random() < BALANCE.bossArtChance) {
+  const bossArtChance = BALANCE.bossArtChance * (weekendEventOfType('artifact') ? BALANCE.weekendMult : 1);
+  if (Math.random() < bossArtChance) {
     const unlockedIds = PLANETS.filter(planetUnlocked).map(p => p.id);
     const pool = ARTIFACTS.filter(a => unlockedIds.includes(a.planet));
     if (pool.length) {

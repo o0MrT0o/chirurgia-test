@@ -34,6 +34,7 @@ ekran do `ui.js`.
 - [x] **Etap 10** — laboratorium badań: 10 badań czasowych (30 min–12 h) w łańcuchu, trwałe bonusy, skracanie reklamą; zakładka Wyprawy → „Baza"
 - [x] **Etap 11** — 10 skórek asteroidy (za pył i warunki: bossowie, serie logowań, kliknięcia, prestiże)
 - [x] **Etap 12** — 🌀 Odrodzenie: druga warstwa prestiżu nad pyłem/talentami — reset wszystkiego (w tym prestiżu) za osobliwości, trwały +20% produkcji/kliku na zawsze za każdą
+- [x] **Etap 13** — 🎉 Wydarzenia weekendowe: piątek-niedziela, jeden z 3 typów rotujący co tydzień (kryształy ×2, artefakty ×2, pył z prestiżu ×2) — bez serwera, w pełni po stronie klienta
 - [ ] **Etap 7 (finał)** — prawdziwy AdMob + podpisany AAB do publikacji
 
 ## 🎮 Mechaniki (zaprojektowane pod długą retencję graczy)
@@ -45,6 +46,7 @@ ekran do `ui.js`.
 | 17 ulepszeń | cele krótkoterminowe |
 | ✨ Prestiż (gwiezdny pył) | długoterminowa pętla — reset za trwałe +5%/pyłek |
 | 🌀 Odrodzenie (osobliwości) | endgame — głębszy reset (kasuje też prestiż/talenty/sektor) za +20% na zawsze za sztukę |
+| 🎉 Wydarzenia weekendowe | powód, żeby wracać akurat w piątek/sobotę/niedzielę — inny bonus ×2 co tydzień |
 | 🏆 14 osiągnięć (+1% każde) | cele kolekcjonerskie |
 | 🎁 Bonus dzienny z serią logowań | powód, by wracać codziennie |
 | ☄️ Złota kometa (co 1–3 min) | losowe eventy — gracz nie odkłada telefonu |

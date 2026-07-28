@@ -52,10 +52,21 @@ const BALANCE = {
   comboMaxLevel: 50,       // maks. poziom kombosa liczony do bonusu (×2,5 przy 50)
   singularityDivisor: 500, // osobliwość = sqrt(pył_zdobyty_od_ostatniego_odrodzenia / ta_liczba)
   singularityBonus: 0.20,  // +20% całej produkcji/mocy kliku na zawsze za każdą osobliwość
+  weekendMult: 2,          // mnożnik wydarzenia weekendowego (piątek-niedziela)
 };
 
 // ---------- Kamienie milowe (łączne wydobycie) — celebracja przekroczenia ----------
 const MILESTONES = [1e6, 1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13, 1e14];
+
+// ---------- Wydarzenia weekendowe ----------
+// Aktywne w piątek/sobotę/niedzielę (czas lokalny gracza, bez serwera).
+// Który typ akurat trwa, wybiera activeWeekendEvent() na podstawie numeru
+// tygodnia — więc każdy weekend jest inny, ale wciąż w pełni deterministyczny.
+const WEEKEND_EVENTS = [
+  { id: 'we_crystal',  type: 'crystal',  icon: '💎', name: 'Kryształowy Weekend',  desc: 'cała produkcja i moc kliku ×{0}' },
+  { id: 'we_artifact', type: 'artifact', icon: '🏺', name: 'Weekend Artefaktów',   desc: 'szansa na artefakt ×{0}' },
+  { id: 'we_stardust', type: 'stardust', icon: '✨', name: 'Weekend Gwiezdnego Pyłu', desc: 'pył z prestiżu ×{0}' },
+];
 
 // ---------- Strefy / sektory kosmosu ----------
 // Odkrywane po przekroczeniu progu łącznego wydobycia (reach). Każdy sektor

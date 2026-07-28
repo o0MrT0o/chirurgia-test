@@ -38,6 +38,8 @@ function renderHeader() {
   if (now() < S.feverUntil) chips.push(`<span class="boostChip gold">${t('chipFever', BALANCE.feverMult, Math.ceil((S.feverUntil - now()) / 1000))}</span>`);
   if (now() < S.boostUntil) chips.push(`<span class="boostChip">${t('chipBoost', BALANCE.adBoostMult, Math.ceil((S.boostUntil - now()) / 1000))}</span>`);
   if (now() < S.autoClickUntil) chips.push(`<span class="boostChip">${t('chipAutoClick', Math.ceil((S.autoClickUntil - now()) / 1000))}</span>`);
+  const wEvent = activeWeekendEvent();
+  if (wEvent) chips.push(`<span class="boostChip gold">${t('chipWeekend', wEvent.icon, nm(wEvent), BALANCE.weekendMult)}</span>`);
   const bhtml = chips.join('');
   if (bhtml !== _lastBoost) { $('#boostBar').innerHTML = bhtml; _lastBoost = bhtml; }
 
@@ -170,7 +172,9 @@ function renderExpeditions(p) {
         <button class="bigBtn gold" id="rushExpBtn">${t('watchRush', BALANCE.rushMinutes)}</button>`;
     }
   } else {
+    const artEvent = weekendEventOfType('artifact');
     topHtml = `<div class="note" style="padding-top:8px">${t('expIntro', BALANCE.artifactBonus * 100)}</div>`
+      + (artEvent ? `<div class="note">${tr('weekendNote', artEvent.icon, nm(artEvent), ds(artEvent).replace('{0}', BALANCE.weekendMult))}</div>` : '')
       + PLANETS.map(pl => {
         const unlocked = planetUnlocked(pl);
         const time = durStr(pl.hours);
@@ -423,10 +427,12 @@ function renderPrestige(p) {
     return `<div class="note branchHead">${branchName(br)}</div>` + rows;
   }).join('');
 
+  const dustEvent = weekendEventOfType('stardust');
   p.innerHTML = `
     <div class="note" style="padding-top:10px">
       ${tr('prestigeIntro', fmt(S.totalEarned), fmt(gain))}
     </div>
+    ${dustEvent ? `<div class="note">${tr('weekendNote', dustEvent.icon, nm(dustEvent), ds(dustEvent).replace('{0}', BALANCE.weekendMult))}</div>` : ''}
     <button class="bigBtn gold" id="prestigeBtn" ${gain < 1 ? 'disabled' : ''}>
       ${gain >= 1 ? tr('prestigeBtn', fmt(gain)) : tr('prestigeLocked', fmt(BALANCE.stardustDivisor))}
     </button>

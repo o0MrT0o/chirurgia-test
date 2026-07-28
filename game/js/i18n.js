@@ -42,6 +42,8 @@ const STRINGS = {
     dustLabel: '✨ {0} pyłu do wydania • 🌟 talenty: {1} poz.',
     chipFrenzy: '☄️ SZAŁ ×{0} — {1}s', chipFever: '💥 GORĄCZKA: klik ×{0} — {1}s', chipBoost: '⚡ Boost ×{0} — {1}s',
     chipAutoClick: '🤖 Auto-klikacz — {0}s',
+    chipWeekend: '{0} {1} ×{2}!',
+    weekendNote: '{0} <b>{1}</b> — {2} 🎉',
     // achievements toast
     achToast: '🏆 Osiągnięcie: {0}! (+{1}% produkcji)',
     // mine
@@ -186,6 +188,8 @@ const STRINGS = {
     dustLabel: '✨ {0} dust to spend • 🌟 talents: {1} lvl',
     chipFrenzy: '☄️ FRENZY ×{0} — {1}s', chipFever: '💥 FEVER: click ×{0} — {1}s', chipBoost: '⚡ Boost ×{0} — {1}s',
     chipAutoClick: '🤖 Auto-clicker — {0}s',
+    chipWeekend: '{0} {1} ×{2}!',
+    weekendNote: '{0} <b>{1}</b> — {2} 🎉',
     achToast: '🏆 Achievement: {0}! (+{1}% production)',
     unitMin: 'min', unitH: 'h',
     perSec: '{0} 💎/sec {1}', together: '(total)', gives: '• gives {0}/sec',
@@ -356,6 +360,7 @@ const EN = {
     a_exp1: 'Explorer', a_exp2: 'System Conqueror', a_art1: 'Space Archaeologist', a_art2: 'Legend Collector',
     a_boss1: 'Colossus Slayer', a_boss2: 'Terror of the Galaxy', a_lab1: 'Young Scientist', a_lab2: 'Galactic Genius',
     a_rebirth: 'Singular Beginning',
+    we_crystal: 'Crystal Weekend', we_artifact: 'Artifact Weekend', we_stardust: 'Stardust Weekend',
   },
   descs: {
     // ulepszenia (statyczne)
@@ -387,6 +392,7 @@ const EN = {
     a_boss1: 'Defeat 3 bosses', a_boss2: 'Defeat 20 bosses',
     a_lab1: 'Complete 3 research', a_lab2: 'Complete all 10 research',
     a_rebirth: 'Perform your first rebirth',
+    we_crystal: 'all production and click power ×{0}', we_artifact: 'artifact chance ×{0}', we_stardust: 'prestige stardust ×{0}',
   },
   // warunki skórek
   cond: {
